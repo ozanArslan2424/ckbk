@@ -1,0 +1,38 @@
+{
+	"app": "slver",
+	"language": "English",
+	"theme": {
+		"dark": "Gündüz Modu",
+		"light": "Gece Modu"
+	},
+	"create": "Oluştur",
+	"update": "Güncelle",
+	"delete": "Sil",
+	"clear": "Temizle",
+	"confirm": "Onayla",
+	"cancel": "Vazgeç",
+	"close": "Kapat",
+	"join": "Katıl",
+	"more": "Daha fazla",
+	"less": "Daha az",
+	"back": "Geri dön",
+	"loading": "Yükleniyor...",
+	"error": "Bir hata oluştu, lütfen tekrar deneyin.",
+	"noData": "Gösterilecek veri bulunamadı.",
+	"noResults": "Sonuç bulunamadı.",
+	"search": "Ara",
+	"login": "Giriş yap",
+	"logout": "Çıkış yap",
+	"register": "Kayıt ol",
+
+	"limit": "Limit",
+	"previous": "Önceki",
+	"next": "Sonraki",
+	"page": "Sayfa",
+	"of": "içinde",
+	"selected": "seçildi",
+	"firstPage": "İlk sayfaya git",
+	"lastPage": "Son sayfaya git",
+	"prevPage": "Önceki sayfaya git",
+	"nextPage": "Sonraki sayfaya git"
+}

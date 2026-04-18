@@ -1,0 +1,17 @@
+{
+	"title": "People",
+	"titleWithGroup": "People in \"{{groupName}}\"",
+	"noLength": "There isn't anybody in your group...",
+	"remove": {
+		"label": "Remove from group",
+		"confirm": {
+			"title": "You are about to remove this person.",
+			"description": "They won't be able to join again, are you sure?",
+			"error": "Nobody selected!"
+		}
+	},
+	"assign": {
+		"label": "Assign to something"
+	},
+	"memberPending": "Invite pending"
+}

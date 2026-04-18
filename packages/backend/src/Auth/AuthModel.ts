@@ -1,0 +1,53 @@
+import { X } from "@ozanarslan/corpus";
+import { type } from "arktype";
+
+import { ProfileEntity } from "@/Profile/ProfileEntity";
+
+export type AuthType = X.InferModel<typeof AuthModel>;
+
+export class AuthModel {
+	private static authResponse = type({
+		profile: ProfileEntity.schema,
+		accessToken: "string",
+		refreshToken: "string",
+	});
+
+	static me = {
+		response: ProfileEntity.schema.and({
+			emailVerified: "boolean",
+		}),
+	};
+
+	static register = {
+		body: type({
+			name: "string > 1",
+			email: "string.email",
+			password: "string >= 8",
+		}),
+		response: type({ email: "string.email" }),
+	};
+
+	static login = {
+		body: this.register.body.omit("name"),
+		response: this.authResponse,
+	};
+
+	static logout = {
+		body: type({
+			"refreshToken?": "string",
+		}),
+	};
+
+	static refresh = {
+		body: this.logout.body,
+		response: this.authResponse.omit("profile"),
+	};
+
+	static verify = {
+		body: type({
+			email: "string.email",
+			code: "string",
+		}),
+		response: this.authResponse,
+	};
+}

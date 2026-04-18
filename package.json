@@ -1,0 +1,19 @@
+{
+	"$schema": "https://www.schemastore.org/package.json",
+	"name": "mono",
+	"private": true,
+	"type": "module",
+	"module": "index.ts",
+	"scripts": {
+		"fm": "oxfmt --write",
+		"lint": "oxlint --fix"
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"oxfmt": "^0.45.0",
+		"oxlint": "^1.60.0"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	}
+}

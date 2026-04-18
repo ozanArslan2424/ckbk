@@ -1,0 +1,63 @@
+{
+	"title": "Ongoing",
+	"doneTitle": "Done",
+
+	"form": {
+		"content": {
+			"label": "Something new",
+			"error": "Everything must have some content"
+		},
+		"dueDate": {
+			"label": "Due date",
+			"error": "Invalid due date"
+		},
+		"assignedToId": {
+			"label": "Assign to"
+		},
+		"submit": "Submit",
+		"cancel": "Cancel"
+	},
+
+	"detail": {
+		"trigger": "See detail",
+		"title": "Thing detail modal for thing id: {{id}}",
+		"description": "This is the detail modal for a thing.",
+		"assignedTo": {
+			"somebody": "{{name}} is on this.",
+			"nobody": "Nobody is on this."
+		},
+		"createdAt": "Submitted on {{date}}.",
+		"dueDate": {
+			"notDone": "Due {{date}}.",
+			"done": "This thing was due {{date}}."
+		},
+		"isDone": "Done as of {{date}}",
+		"buttons": {
+			"update": "Update",
+			"assign": "Assign",
+			"markAsDone": "Mark as done",
+			"markAsNotDone": "Mark as ongoing",
+			"remove": "Delete"
+		}
+	},
+
+	"update": {
+		"title": "Update thing",
+		"description": "Update modal for thing id: {{id}}"
+	},
+
+	"assign": {
+		"title": "Assign to someone",
+		"description": "Assign modal for thing id: {{id}}"
+	},
+
+	"status": {
+		"done": "Drag here to mark as done",
+		"ongoing": "Drag here to mark as ongoing"
+	},
+
+	"remove": {
+		"title": "You are about to delete this thing forever.",
+		"description": "Once a thing is deleted, it stays deleted. Are you sure?"
+	}
+}

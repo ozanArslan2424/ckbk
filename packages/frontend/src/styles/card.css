@@ -1,0 +1,56 @@
+@import "./theme.css";
+
+@layer base {
+	.card {
+		@apply bg-card text-card-foreground flex flex-col overflow-hidden rounded-lg border shadow-xs;
+
+		h1:not(.unset) {
+			@apply text-2xl font-black;
+		}
+
+		h2:not(.unset) {
+			@apply text-xl font-black tracking-wide;
+		}
+
+		h3:not(.unset) {
+			@apply text-lg font-bold;
+		}
+
+		header:not(.unset) {
+			@apply bg-secondary text-secondary-foreground relative px-5 py-4;
+			p:not(.unset) {
+				@apply text-foreground/70;
+			}
+		}
+
+		footer:not(.unset) {
+			@apply mt-auto border-t px-5 py-2;
+		}
+
+		article:not(.unset) {
+			@apply px-4 py-2;
+		}
+
+		form:not(.unset) {
+			@apply p-4;
+		}
+
+		&.lg {
+			header {
+				@apply px-7 py-6;
+			}
+
+			footer {
+				@apply px-7 py-4;
+			}
+
+			article {
+				@apply px-6 py-4;
+			}
+
+			form {
+				@apply p-6;
+			}
+		}
+	}
+}

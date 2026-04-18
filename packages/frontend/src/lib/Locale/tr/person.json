@@ -1,0 +1,17 @@
+{
+	"title": "İnsanlar",
+	"titleWithGroup": "\"{{groupName}}\" üyeleri",
+	"noLength": "Grupta kimse yok...",
+	"remove": {
+		"label": "Gruptan çıkar",
+		"confirm": {
+			"title": "Bu kişiyi gruptan çıkarmak üzeresiniz.",
+			"description": "Bir daha bu gruba giremeyecekler, emin misiniz?",
+			"error": "Kimse seçilmemiş!"
+		}
+	},
+	"assign": {
+		"label": "Bir şeye ata"
+	},
+	"memberPending": "Davet beklemede"
+}

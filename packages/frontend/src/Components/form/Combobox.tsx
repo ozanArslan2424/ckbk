@@ -1,0 +1,171 @@
+import * as React from "react";
+
+import { useLocale } from "@/lib/Locale/useLocale";
+import { cn } from "@/lib/utils";
+
+type Option = { value: string; label: string };
+
+type ComboboxProps<O extends Option> = {
+	id?: string;
+	name?: string;
+	placeholder?: string;
+	searchPlaceholder?: string;
+	value?: string | null;
+	onValueChange?: (value: string | null) => void;
+	onCreateOption?: (option: O) => void;
+	options: O[];
+	hideCreate?: boolean;
+	align?: "center" | "end" | "start";
+	side?: "top" | "bottom";
+	className?: string;
+	disabled?: boolean;
+};
+
+export function Combobox<O extends Option>({
+	id,
+	name,
+	placeholder,
+	searchPlaceholder,
+	value,
+	onValueChange,
+	onCreateOption,
+	options,
+	hideCreate,
+	align = "center",
+	side = "bottom",
+	className,
+	disabled,
+}: ComboboxProps<O>) {
+	const { t } = useLocale("common");
+	const [open, setOpen] = React.useState(false);
+	const [inputValue, setInputValue] = React.useState("");
+	const [opts, setOpts] = React.useState(options);
+	const [selected, setSelected] = React.useState<O | null>(
+		opts.find((opt) => opt.value === value) || null,
+	);
+
+	const containerRef = React.useRef<HTMLDivElement>(null);
+	const inputRef = React.useRef<HTMLInputElement>(null);
+
+	// Close on outside click
+	React.useEffect(() => {
+		if (!open) return;
+		function handlePointerDown(e: PointerEvent) {
+			if (!containerRef.current?.contains(e.target as Node)) {
+				setOpen(false);
+				setInputValue("");
+			}
+		}
+		document.addEventListener("pointerdown", handlePointerDown);
+		return () => document.removeEventListener("pointerdown", handlePointerDown);
+	}, [open]);
+
+	function handleSelect(opt: O | null) {
+		setSelected(opt);
+		setInputValue("");
+		onValueChange?.(opt?.value ?? null);
+		setOpen(false);
+		inputRef.current?.blur();
+	}
+
+	function handleCreateOption(label: string) {
+		const newOption = {
+			value: label.toLowerCase().replace(/\s+/g, "-"),
+			label,
+		} as O;
+		setOpts((prev) => [...prev, newOption]);
+		onCreateOption?.(newOption);
+		handleSelect(newOption);
+	}
+
+	const filteredOpts = opts.filter((opt) =>
+		opt.label.toLowerCase().includes(inputValue.toLowerCase()),
+	);
+
+	const optExists = filteredOpts.some(
+		(opt) => opt.label.toLowerCase() === inputValue.toLowerCase(),
+	);
+
+	const displayValue = open ? inputValue : (selected?.label ?? "");
+
+	const dropdownAlign =
+		align === "end" ? "right-0" : align === "start" ? "left-0" : "left-1/2 -translate-x-1/2";
+	const dropdownSide = side === "top" ? "bottom-full mb-1" : "top-full mt-1";
+
+	return (
+		<div ref={containerRef} className="relative w-full">
+			<input
+				type="hidden"
+				id={id}
+				name={name}
+				value={selected?.value || ""}
+				onFocus={(e) => {
+					e.preventDefault();
+					inputRef.current?.focus();
+				}}
+			/>
+			<input
+				disabled={disabled}
+				ref={inputRef}
+				type="text"
+				className={cn(
+					"outlined w-full text-sm",
+					!selected && !inputValue && "text-muted-foreground",
+					className,
+				)}
+				placeholder={open ? searchPlaceholder || t("search") : placeholder}
+				value={displayValue}
+				onChange={(e) => {
+					setInputValue(e.target.value);
+					setOpen(true);
+				}}
+				onFocus={() => setOpen(true)}
+			/>
+			{open && (
+				<div
+					className={cn(
+						"bg-card absolute z-9999 w-full min-w-max rounded-md border p-1.5 shadow-md",
+						dropdownAlign,
+						dropdownSide,
+					)}
+				>
+					{filteredOpts.map((opt) => (
+						<button
+							key={opt.value}
+							type="button"
+							className="ghost sm flex w-full"
+							onMouseDown={(e) => {
+								e.preventDefault();
+								handleSelect(opt);
+							}}
+						>
+							{opt.label}
+						</button>
+					))}
+					{!hideCreate && inputValue && !optExists && (
+						<button
+							type="button"
+							className="ghost sm flex w-full"
+							onMouseDown={(e) => {
+								e.preventDefault();
+								handleCreateOption(inputValue);
+							}}
+						>
+							{t("create")} "{inputValue}"
+						</button>
+					)}
+					<button
+						type="button"
+						className="ghost sm text-muted-foreground hover:text-foreground flex w-full"
+						onMouseDown={(e) => {
+							e.preventDefault();
+							handleSelect(null);
+						}}
+					>
+						{t("clear")}
+					</button>
+				</div>
+			)}
+		</div>
+	);
+}

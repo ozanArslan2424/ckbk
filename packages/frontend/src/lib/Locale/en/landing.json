@@ -1,0 +1,28 @@
+{
+	"app": {
+		"title": "This is",
+		"highlight": "slver",
+		"description1": "Slver is an app.",
+		"description2": "Slver aims to help you organize your tasks.",
+		"description3": "Slver is comfortably simple.",
+		"description4": "Slver isn't the main focus here."
+	},
+	"you": {
+		"title": "This is",
+		"highlight": "you",
+		"description1": "You are a person.",
+		"description2": "You are probably working in a group.",
+		"description3": "You have things to do.",
+		"description4": "Your time is valuable."
+	},
+	"start": {
+		"title": "This is",
+		"highlight": "the start"
+	},
+	"welcome": {
+		"title": "Welcome",
+		"highlight": "back!"
+	},
+	"dashboard": "Go to your dashboard",
+	"footer": "Designed and developed by"
+}

@@ -1,0 +1,28 @@
+{
+	"app": {
+		"title": "Bu",
+		"highlight": "slver",
+		"description1": "Slver bir uygulama..",
+		"description2": "Slver iş takibine yardımcı olmaya çalışacak.",
+		"description3": "Slver rahatlatıcı derecede basit.",
+		"description4": "Slver buradaki ana odak değil."
+	},
+	"you": {
+		"title": "Bu",
+		"highlight": "sensin",
+		"description1": "Sen bir insansın.",
+		"description2": "Senin muhtemelen bir çalışma grubun var.",
+		"description3": "Senin yapılacak işlerin var.",
+		"description4": "Senin zamanın değerli."
+	},
+	"start": {
+		"title": "Bu",
+		"highlight": "başlangıç"
+	},
+	"welcome": {
+		"title": "Yeniden",
+		"highlight": "hoş geldin!"
+	},
+	"dashboard": "Ana sayfana git",
+	"footer": "Tasarım ve geliştirme,"
+}

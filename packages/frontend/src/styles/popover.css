@@ -1,0 +1,23 @@
+@import "./theme.css";
+
+[popover] {
+	&::backdrop {
+		background: rgba(0, 0, 0, 0.25);
+	}
+}
+
+.popover {
+	button:nth-of-type(1) {
+		anchor-name: --popover-anchor;
+	}
+
+	[popover]:popover-open {
+		position: absolute;
+		position-anchor: --popover-anchor;
+		top: anchor(--popover-anchor bottom);
+		left: anchor(--popover-anchor left);
+		box-shadow: var(--shadow-md);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+	}
+}

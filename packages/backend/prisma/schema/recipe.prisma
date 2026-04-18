@@ -1,0 +1,86 @@
+model Recipe {
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    title       String
+    description String
+    ingredients Ingredient[]
+    steps       Step[]
+    isPublic    Boolean      @default(false)
+    image       String?
+    likes       Like[]
+
+    profile   Profile @relation(fields: [profileId], references: [id])
+    profileId Int
+
+    @@map("recipe")
+}
+
+model Like {
+    recipeId  Int
+    profileId Int
+    recipe    Recipe  @relation(fields: [recipeId], references: [id])
+    profile   Profile @relation(fields: [profileId], references: [id])
+
+    @@id([recipeId, profileId])
+    @@map("like")
+}
+
+model Step {
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    order Int
+    body  String
+
+    recipe   Recipe @relation(fields: [recipeId], references: [id])
+    recipeId Int
+
+    @@map("step")
+}
+
+model Ingredient {
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    quantity    Float
+    recipe      Recipe?     @relation(fields: [recipeId], references: [id])
+    material    Material    @relation(fields: [materialId], references: [id])
+    measurement Measurement @relation(fields: [measurementId], references: [id])
+
+    recipeId      Int?
+    materialId    Int
+    measurementId Int
+
+    @@unique([recipeId, materialId])
+    @@map("ingredient")
+}
+
+model Material {
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    title       String
+    description String?
+
+    ingredients Ingredient[]
+
+    @@map("material")
+}
+
+model Measurement {
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    title       String
+    description String?
+
+    ingredients Ingredient[]
+
+    @@map("measurement")
+}

@@ -1,0 +1,34 @@
+@import "./theme.css";
+
+@layer base {
+
+    input:not(.unset),
+    textarea:not(.unset),
+    .input-like {
+        @apply placeholder:text-foreground/50 min-h-10 w-full rounded-lg transition-colors outline-none file:cursor-pointer disabled:opacity-70;
+
+        &.ghost {
+            @apply text-foreground text-lg font-bold ring-2 ring-transparent sm:text-xl;
+        }
+
+        &.soft {
+            @apply hover:bg-primary/20 [&_svg]:text-foreground text-foreground border-border/70 bg-transparent not-disabled:active:opacity-90 border px-3 py-2 text-sm shadow-xs ring-2 ring-transparent focus-visible:ring-ring focus-visible:hover:bg-transparent;
+        }
+
+        &:not(.ghost):not(.soft) {
+            @apply not-disabled:hover:border-primary bg-background border-border/70 focus-visible:ring-ring border px-3 py-2 text-sm shadow-xs ring-2 ring-transparent;
+        }
+    }
+
+    label:not(.unset) {
+        @apply text-foreground/70 text-sm font-semibold;
+
+        &.sublabel {
+            @apply text-xs;
+        }
+
+        &.error {
+            @apply text-rose-500;
+        }
+    }
+}

@@ -1,0 +1,62 @@
+model User {
+    id        String   @id @default(uuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    email         String   @unique
+    emailVerified Boolean  @default(false)
+    password      String
+    lastActive    DateTime
+
+    profile       Profile?       @relation("user_profile")
+    verifications Verification[] @relation("user_verification")
+    refreshTokens RefreshToken[] @relation("user_refresh_token")
+
+    @@map("user")
+}
+
+model Profile {
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    name    String
+    email   String   @unique
+    image   String?
+    recipes Recipe[]
+    likes   Like[]
+
+    userId String @unique
+    user   User   @relation("user_profile", fields: [userId], references: [id], onDelete: Cascade)
+
+    @@map("profile")
+}
+
+model Verification {
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    variant   String
+    value     String
+    expiresAt DateTime
+
+    userId String
+    user   User   @relation("user_verification", fields: [userId], references: [id], onDelete: Cascade)
+
+    @@id([userId, value])
+    @@map("verification")
+}
+
+model RefreshToken {
+    id String @id @default(uuid())
+
+    isValid   Boolean  @default(true)
+    expiresAt DateTime
+
+    userId String
+    user   User   @relation("user_refresh_token", references: [id], fields: [userId], onDelete: Cascade)
+
+    @@index([userId])
+    @@index([expiresAt])
+    @@map("refresh_token")
+}

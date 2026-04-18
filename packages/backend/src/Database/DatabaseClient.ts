@@ -1,0 +1,52 @@
+import { X } from "@ozanarslan/corpus";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { PrismaClient } from "prisma/generated/client";
+
+import { Help } from "@/lib/help.namespace";
+import { Logger } from "@/Logger/Logger";
+
+export class DatabaseClient extends PrismaClient {
+	private readonly logger = new Logger("Database");
+
+	constructor() {
+		const url = X.Config.get("DATABASE_URL");
+		super({ adapter: new PrismaLibSql({ url }) });
+	}
+
+	async connect(): Promise<void> {
+		const maxAttempts = 3;
+		const baseDelay = Help.milliseconds["1s"];
+
+		for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+			try {
+				await this.$connect();
+				this.logger.log("✅ DB Client Connected");
+				return;
+			} catch (err) {
+				const error = err as Error;
+				this.logger.warn(
+					`❌ DB Connection attempt ${attempt}/${maxAttempts} failed: ${error.message}`,
+				);
+
+				if (attempt === maxAttempts) {
+					throw new Error(
+						`Failed to connect to database after ${maxAttempts} attempts: ${error.message}`,
+					);
+				}
+
+				const delay = baseDelay * Math.pow(2, attempt - 1);
+				this.logger.log(`Retrying in ${delay}ms...`);
+				await new Promise((resolve) => setTimeout(resolve, delay));
+			}
+		}
+	}
+
+	async disconnect(): Promise<void> {
+		await this.$disconnect();
+		this.logger.log("❌ DB Client Disconnected");
+	}
+
+	convertToSkipTake(page: number, limit: number): { skip: number; take: number } {
+		return { skip: (page - 1) * limit, take: limit };
+	}
+}

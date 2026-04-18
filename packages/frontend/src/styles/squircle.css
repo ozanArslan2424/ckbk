@@ -1,0 +1,35 @@
+@import "./theme.css";
+
+@layer base {
+	.squircle {
+		@apply inline-flex aspect-square shrink-0 items-center justify-center rounded-lg [&_svg]:pointer-events-none [&_svg]:shrink-0;
+
+		&:not(.secondary):not(.accent):not(.outlined) {
+			@apply bg-primary/10 text-primary;
+		}
+
+		&.outlined {
+			@apply border-primary/10 text-foreground border bg-transparent;
+		}
+
+		&.secondary {
+			@apply bg-secondary/10 text-secondary;
+		}
+
+		&.accent {
+			@apply bg-accent/10 text-accent;
+		}
+
+		&:not(.lg):not(.xl) {
+			@apply size-9 p-2 [&_svg]:size-5;
+		}
+
+		&.lg {
+			@apply size-10 p-2.5 font-bold [&_svg]:size-6;
+		}
+
+		&.xl {
+			@apply size-9 p-2 font-black sm:size-12 sm:p-3 [&_svg]:size-5 sm:[&_svg]:size-7;
+		}
+	}
+}

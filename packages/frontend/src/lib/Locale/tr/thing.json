@@ -1,0 +1,63 @@
+{
+	"title": "Devam edenler",
+	"doneTitle": "Bitmişler",
+
+	"form": {
+		"content": {
+			"label": "Yeni bir şey",
+			"error": "Her şeyin bir içeriği olmalı"
+		},
+		"dueDate": {
+			"label": "Teslim tarihi",
+			"error": "Geçersiz teslim tarihi"
+		},
+		"assignedToId": {
+			"label": "Birisine ata"
+		},
+		"submit": "Gönder",
+		"cancel": "Vazgeç"
+	},
+
+	"detail": {
+		"trigger": "Detayları gör",
+		"title": "{{id}} kimlikli şeyin detayları",
+		"description": "Detay modal'ı",
+		"assignedTo": {
+			"somebody": "{{name}} buna bakıyor.",
+			"nobody": "Kimse buna bakmıyor."
+		},
+		"createdAt": "{{date}} tarihinde oluşturuldu.",
+		"dueDate": {
+			"notDone": "{{date}} tarihine kadar teslim edilmeli.",
+			"done": "{{date}} tarihine kadar teslim edilmeliydi."
+		},
+		"isDone": "{{date}} tarihinde bitirildi.",
+		"buttons": {
+			"update": "Güncelle",
+			"assign": "Birisine ata",
+			"markAsDone": "Bitti işaretle",
+			"markAsNotDone": "Devam ediyor işaretle",
+			"remove": "Sil"
+		}
+	},
+
+	"update": {
+		"title": "Güncelle",
+		"description": "{{id}} kimlikli şeyin günceleme modal'ı"
+	},
+
+	"assign": {
+		"title": "Birisine ata",
+		"description": "{{id}} kimlikli şeyin atama modal'ı"
+	},
+
+	"status": {
+		"done": "Bitti işaretlemek için buraya taşı",
+		"ongoing": "Devam ediyor işaretlemek için buraya taşı"
+	},
+
+	"remove": {
+		"title": "Bu şeyi tamamen silmek üzeresiniz.",
+		"description": "Bir şey silindiğinde geri alınamaz. Emin misiniz?"
+	}
+}

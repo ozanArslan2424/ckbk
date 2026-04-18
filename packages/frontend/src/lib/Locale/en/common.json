@@ -1,0 +1,38 @@
+{
+	"app": "slver",
+	"language": "Türkçe",
+	"theme": {
+		"dark": "Light Theme",
+		"light": "Dark Theme"
+	},
+	"create": "Create",
+	"update": "Update",
+	"delete": "Delete",
+	"clear": "Clear",
+	"confirm": "Confirm",
+	"cancel": "Cancel",
+	"close": "Close",
+	"join": "Join",
+	"more": "More",
+	"less": "Less",
+	"back": "Go back",
+	"loading": "Loading...",
+	"error": "An error occurred. Please try again.",
+	"noData": "No data available",
+	"noResults": "No results.",
+	"search": "Search",
+	"login": "Login",
+	"logout": "Logout",
+	"register": "Register",
+
+	"limit": "Items per page",
+	"previous": "Previous",
+	"next": "Next",
+	"page": "Page",
+	"of": "of",
+	"selected": "selected",
+	"firstPage": "Go to first page",
+	"lastPage": "Go to last page",
+	"prevPage": "Go to previous page",
+	"nextPage": "Go to next page"
+}
