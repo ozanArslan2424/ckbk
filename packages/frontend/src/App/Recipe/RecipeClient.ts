@@ -12,14 +12,9 @@ export class RecipeClient {
 		return this.query.makeMutation<Models.RecipePost>({
 			mutationFn: (vars) => this.api.recipePost(vars),
 			...args,
-			onSuccess: (res, vars, ...rest) => {
-				this.query.updateListData({
-					queryKey: [this.api.endpoints.recipeGet, args.listArgs],
-					action: "create",
-					data: res,
-					pos: "start",
-				});
-				args.onSuccess?.(res, vars, ...rest);
+			onSuccess: (...rest) => {
+				this.query.invalidateAll([this.api.endpoints.recipeGet, args.listArgs]);
+				args.onSuccess?.(...rest);
 			},
 		});
 	}

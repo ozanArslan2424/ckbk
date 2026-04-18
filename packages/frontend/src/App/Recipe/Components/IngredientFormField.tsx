@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
-import { useState, useRef, useCallback, useId } from "react";
+import { useState, useRef, useCallback, useId, type Dispatch, type SetStateAction } from "react";
 
 import type { Entities } from "@/Api/CorpusApi";
-import { Combobox } from "@/Components/form/Combobox";
+import { Combobox, type ComboboxOption } from "@/Components/form/Combobox";
 import { useAppContext } from "@/Context/AppContext";
 import { Events } from "@/lib/events";
 import { TXT } from "@/lib/TXT";
@@ -11,84 +11,61 @@ import type { IngredientComplete } from "@/Types/IngredientComplete";
 type IngredientFormFieldProps = {
 	ingredient: IngredientComplete | undefined;
 	onComplete: (ingredient: IngredientComplete) => void;
-	measurements: Entities.Measurement[];
-	materials: Entities.Material[];
+	materialOptions: ComboboxOption[];
+	setMaterialOptions: Dispatch<SetStateAction<ComboboxOption[]>>;
+	measurementOptions: ComboboxOption[];
+	setMeasurementOptions: Dispatch<SetStateAction<ComboboxOption[]>>;
 };
 
 export function IngredientFormField(props: IngredientFormFieldProps) {
 	const { materialClient, measurementClient } = useAppContext();
 	const [ingredient, setIngredient] = useState<Partial<IngredientComplete>>(props.ingredient ?? {});
-	const [measurementOptions, setMeasurementOptions] = useState(
-		props.measurements.map((m) => ({
-			value: m.id.toString(),
-			label: m.title,
-		})),
-	);
-	const [materialOptions, setMaterialOptions] = useState(() =>
-		props.materials.map((m) => ({
-			value: m.id.toString(),
-			label: m.title,
-		})),
-	);
 
 	const uid = useId();
 	const submittedRef = useRef(false);
 
-	// const trySubmit = useCallback(
-	// 	(next: Partial<Entities.Ingredient>) => {
-	// 		if (
-	// 			submittedRef.current ||
-	// 			!next.materialId ||
-	// 			!next.measurementId ||
-	// 			next.quantity === undefined ||
-	// 			next.quantity <= 0 ||
-	// 			!Number.isFinite(next.quantity)
-	// 		) {
-	// 			return;
-	// 		}
-	// 		submittedRef.current = true;
-	// 		onComplete({
-	// 			materialId: next.materialId,
-	// 			measurementId: next.measurementId,
-	// 			quantity: next.quantity,
-	// 		});
-	// 	},
-	// 	[onComplete],
-	// );
+	const trySubmit = useCallback(
+		(next: Partial<Entities.Ingredient>) => {
+			if (
+				submittedRef.current ||
+				!next.materialId ||
+				!next.measurementId ||
+				next.quantity === undefined ||
+				next.quantity <= 0 ||
+				!Number.isFinite(next.quantity)
+			) {
+				return;
+			}
+
+			submittedRef.current = true;
+
+			props.onComplete({
+				materialId: next.materialId,
+				measurementId: next.measurementId,
+				quantity: next.quantity,
+			});
+		},
+
+		[props.onComplete],
+	);
 
 	const updateIngredient = useCallback(
 		(partial: Partial<Entities.Ingredient>) => {
 			submittedRef.current = false;
 			setIngredient((prev) => {
 				const next = { ...prev, ...partial };
-
-				if (
-					!submittedRef.current &&
-					next.materialId &&
-					next.measurementId &&
-					next.quantity !== undefined &&
-					next.quantity > 0 &&
-					Number.isFinite(next.quantity)
-				) {
-					submittedRef.current = true;
-					props.onComplete({
-						materialId: next.materialId,
-						measurementId: next.measurementId,
-						quantity: next.quantity,
-					});
-				}
-
+				trySubmit(next);
 				return next;
 			});
 		},
-		[props.onComplete],
+		[trySubmit],
 	);
 
 	const materialCreateMut = useMutation(
 		materialClient.create({
 			onSuccess(res) {
 				updateIngredient({ materialId: res.id });
-				setMaterialOptions((p) => [...p, { value: res.id.toString(), label: res.title }]);
+				props.setMaterialOptions((p) => [...p, { value: res.id.toString(), label: res.title }]);
 			},
 		}),
 	);
@@ -117,7 +94,7 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 		measurementClient.create({
 			onSuccess(res) {
 				updateIngredient({ measurementId: res.id });
-				setMeasurementOptions((p) => [...p, { value: res.id.toString(), label: res.title }]);
+				props.setMeasurementOptions((p) => [...p, { value: res.id.toString(), label: res.title }]);
 			},
 		}),
 	);
@@ -141,7 +118,7 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 					id={`${uid}-ma`}
 					name={`${uid}-ma`}
 					placeholder="e.g. Water"
-					options={materialOptions}
+					options={props.materialOptions}
 					onCreateOption={({ label }) => handleCreateMaterial(label)}
 					onValueChange={handleChangeMaterial}
 				/>
@@ -172,7 +149,7 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 					id={`${uid}-me`}
 					name={`${uid}-me`}
 					placeholder="e.g. Cup"
-					options={measurementOptions}
+					options={props.measurementOptions}
 					onCreateOption={({ label }) => handleCreateMeasurement(label)}
 					onValueChange={handleChangeMeasurement}
 				/>

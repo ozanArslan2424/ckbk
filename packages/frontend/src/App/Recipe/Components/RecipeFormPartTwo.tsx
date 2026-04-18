@@ -1,4 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 import { IngredientFormField } from "@/App/Recipe/Components/IngredientFormField";
 import { useCardDeckContext } from "@/Components/CardDeck";
@@ -28,6 +29,18 @@ export function RecipeFormPartTwo({
 	const { materialClient, measurementClient } = useAppContext();
 	const materialListQuery = useSuspenseQuery(materialClient.list({}));
 	const measurementListQuery = useSuspenseQuery(measurementClient.list({}));
+	const [measurementOptions, setMeasurementOptions] = useState(
+		measurementListQuery.data.map((m) => ({
+			value: m.id.toString(),
+			label: m.title,
+		})),
+	);
+	const [materialOptions, setMaterialOptions] = useState(() =>
+		materialListQuery.data.map((m) => ({
+			value: m.id.toString(),
+			label: m.title,
+		})),
+	);
 
 	return (
 		<FormCard
@@ -56,8 +69,10 @@ export function RecipeFormPartTwo({
 					key={i}
 					ingredient={ingredients[i]}
 					onComplete={onCompleteIngredient}
-					materials={materialListQuery.data}
-					measurements={measurementListQuery.data}
+					materialOptions={materialOptions}
+					setMaterialOptions={setMaterialOptions}
+					measurementOptions={measurementOptions}
+					setMeasurementOptions={setMeasurementOptions}
 				/>
 			))}
 

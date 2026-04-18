@@ -3,9 +3,9 @@ import * as React from "react";
 import { useLocale } from "@/lib/Locale/useLocale";
 import { cn } from "@/lib/utils";
 
-type Option = { value: string; label: string };
+export type ComboboxOption = { value: string; label: string };
 
-type ComboboxProps<O extends Option> = {
+type ComboboxProps<O extends ComboboxOption> = {
 	id?: string;
 	name?: string;
 	placeholder?: string;
@@ -21,7 +21,7 @@ type ComboboxProps<O extends Option> = {
 	disabled?: boolean;
 };
 
-export function Combobox<O extends Option>({
+export function Combobox<O extends ComboboxOption>({
 	id,
 	name,
 	placeholder,
@@ -124,7 +124,7 @@ export function Combobox<O extends Option>({
 			{open && (
 				<div
 					className={cn(
-						"bg-card absolute z-9999 w-full min-w-max rounded-md border p-1.5 shadow-md",
+						"bg-card absolute z-9999 max-h-40 w-full min-w-max overflow-y-auto rounded-md border p-1.5 shadow-md",
 						dropdownAlign,
 						dropdownSide,
 					)}
