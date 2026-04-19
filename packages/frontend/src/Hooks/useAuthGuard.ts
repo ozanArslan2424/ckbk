@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 
-import { useAppContext } from "@/Context/AppContext";
+import { useAppContext } from "@/App/AppContext";
 import { routes } from "@/router";
 
 export function useAuthGuard() {

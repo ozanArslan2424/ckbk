@@ -2,8 +2,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useReducer } from "react";
 import { toast } from "sonner";
 
+import { useAppContext } from "@/App/AppContext";
 import { useRecipeListArgs } from "@/App/Recipe/Hooks/useRecipeListArgs";
-import { useAppContext } from "@/Context/AppContext";
 import { Help } from "@/lib/Help";
 import { getErrorMessage } from "@/lib/utils";
 import type { IngredientComplete } from "@/Types/IngredientComplete";

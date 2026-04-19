@@ -2,9 +2,9 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2Icon, SunIcon, MoonIcon, GlobeIcon } from "lucide-react";
 import { Link } from "react-router";
 
+import { useAppContext } from "@/App/AppContext";
 import { PersonAvatar } from "@/Components/PersonAvatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from "@/Components/ui/dropdown-menu";
-import { useAppContext } from "@/Context/AppContext";
 import { useTheme } from "@/Hooks/useTheme";
 import { CONFIG } from "@/lib/CONFIG";
 import { Events } from "@/lib/events";

@@ -1,14 +1,16 @@
 import { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router";
 
+import { useAppContext } from "@/App/AppContext";
 import { AppHeader } from "@/Components/layout/AppHeader";
-import { useAppContext } from "@/Context/AppContext";
 import { CONFIG } from "@/lib/CONFIG";
 import { useLocale } from "@/Locale/useLocale";
 import { routes } from "@/router";
 
 export function AuthLayout() {
-	const { t } = useLocale("auth");
+	const { txt } = useLocale("auth", {
+		tosLabel: ["tos.label"],
+	});
 	const nav = useNavigate();
 	const { queryClient, authClient, store } = useAppContext();
 
@@ -23,10 +25,6 @@ export function AuthLayout() {
 
 		void init();
 	}, [queryClient, authClient, store, nav]);
-
-	const txt = {
-		tosLabel: t("tos.label"),
-	};
 
 	return (
 		<>

@@ -2,36 +2,32 @@ import { useQuery } from "@tanstack/react-query";
 import { LoaderIcon } from "lucide-react";
 import { Link } from "react-router";
 
+import { useAppContext } from "@/App/AppContext";
+import { useRegisterForm } from "@/App/Register/useRegisterForm";
 import { FormField } from "@/Components/form/FormField";
 import { FormRootError } from "@/Components/form/FormRootError";
 import { PageContent } from "@/Components/layout/PageContent";
-import { useAppContext } from "@/Context/AppContext";
-import { useRegisterForm } from "@/Forms/useRegisterForm";
 import { CONFIG } from "@/lib/CONFIG";
 import { useLocale } from "@/Locale/useLocale";
 import { routes } from "@/router";
 
 export function LandingPage() {
-	const { t: tLanding } = useLocale("landing");
-	const { t: tAuth } = useLocale("auth");
+	const { txt } = useLocale("landing", {
+		subtitle: ["subtitle"],
+		welcomeBack: ["welcomeBack"],
+		explore: ["explore"],
+	});
+	const { txt: txtReg } = useLocale("auth", {
+		title: ["register.title"],
+		emailLabel: ["register.email.label"],
+		nameLabel: ["register.name.label"],
+		passwordLabel: ["register.password.label"],
+		submitLabel: ["register.submit"],
+		backToLoginLabel: ["register.haveAccount"],
+	});
 	const { authClient } = useAppContext();
 	const meQuery = useQuery(authClient.queryMe({}));
 	const form = useRegisterForm();
-
-	const txt = {
-		subtitle: tLanding("subtitle"),
-		welcomeBack: tLanding("welcomeBack"),
-		explore: tLanding("explore"),
-	};
-
-	const txtReg = {
-		title: tAuth("register.title"),
-		emailLabel: tAuth("register.email.label"),
-		nameLabel: tAuth("register.name.label"),
-		passwordLabel: tAuth("register.password.label"),
-		submitLabel: tAuth("register.submit"),
-		backToLoginLabel: tAuth("register.haveAccount"),
-	};
 
 	const fields = form.createFields([
 		{

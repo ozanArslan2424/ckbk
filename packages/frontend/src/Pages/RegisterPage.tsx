@@ -1,24 +1,22 @@
 import { LoaderIcon } from "lucide-react";
 import { Link } from "react-router";
 
+import { useRegisterForm } from "@/App/Register/useRegisterForm";
 import { FormField } from "@/Components/form/FormField";
 import { FormRootError } from "@/Components/form/FormRootError";
-import { useRegisterForm } from "@/Forms/useRegisterForm";
 import { useLocale } from "@/Locale/useLocale";
 import { routes } from "@/router";
 
 export function RegisterPage() {
-	const { t } = useLocale("auth");
+	const { txt } = useLocale("auth", {
+		title: ["register.title"],
+		emailLabel: ["register.email.label"],
+		nameLabel: ["register.name.label"],
+		passwordLabel: ["register.password.label"],
+		submitLabel: ["register.submit"],
+		backToLoginLabel: ["register.haveAccount"],
+	});
 	const form = useRegisterForm();
-
-	const txt = {
-		title: t("register.title"),
-		emailLabel: t("register.email.label"),
-		nameLabel: t("register.name.label"),
-		passwordLabel: t("register.password.label"),
-		submitLabel: t("register.submit"),
-		backToLoginLabel: t("register.haveAccount"),
-	};
 
 	const fields = form.createFields([
 		{

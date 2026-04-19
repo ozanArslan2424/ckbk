@@ -2,20 +2,20 @@ import { useMutation } from "@tanstack/react-query";
 import { type } from "arktype";
 import { useNavigate } from "react-router";
 
-import { useAppContext } from "@/Context/AppContext";
+import { useAppContext } from "@/App/AppContext";
 import { useForm } from "@/Hooks/useForm";
 import { getErrorMessage } from "@/lib/utils";
 import { useLocale } from "@/Locale/useLocale";
 import { routes } from "@/router";
 
-export function useLoginForm() {
+export function useRegisterForm() {
 	const { authClient } = useAppContext();
 	const { t } = useLocale("auth");
 	const nav = useNavigate();
 	const mutation = useMutation(
-		authClient.login({
-			async onSuccess() {
-				await nav(routes.dashboard);
+		authClient.register({
+			async onSuccess(res) {
+				await nav(`${routes.verify}?email=${res.email}`);
 			},
 			onError(err) {
 				form.setRootError(getErrorMessage(err));
@@ -25,21 +25,18 @@ export function useLoginForm() {
 
 	const form = useForm({
 		schema: type({
+			name: type("string >= 1").configure({
+				message: t("register.name.error"),
+			}),
 			email: type("string.email").configure({
-				message: t("login.email.error"),
+				message: t("register.email.error"),
 			}),
 			password: type("string >= 8").configure({
-				message: t("login.password.error"),
+				message: t("register.password.error"),
 			}),
 		}),
 		onSubmit: ({ values }) => mutation.mutate({ body: values }),
 		mutation,
-		defaultValues: import.meta.env.DEV
-			? {
-					email: "ozan@cookbook.app",
-					password: "123456789",
-				}
-			: {},
 	});
 
 	return form;

@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { type } from "arktype";
 import { useNavigate, useSearchParams } from "react-router";
 
-import { useAppContext } from "@/Context/AppContext";
+import { useAppContext } from "@/App/AppContext";
 import { useForm } from "@/Hooks/useForm";
 import { getErrorMessage } from "@/lib/utils";
 import { useLocale } from "@/Locale/useLocale";

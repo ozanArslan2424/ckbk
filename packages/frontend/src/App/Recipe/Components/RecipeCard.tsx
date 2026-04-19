@@ -3,7 +3,7 @@ import { HeartIcon, PencilIcon } from "lucide-react";
 import { useState } from "react";
 
 import type { Entities } from "@/Api/CorpusApi";
-import { useAppContext } from "@/Context/AppContext";
+import { useAppContext } from "@/App/AppContext";
 import { Events } from "@/lib/events";
 import { cn } from "@/lib/utils";
 import { useDate } from "@/Locale/useDate";
@@ -11,8 +11,8 @@ import { useLocale } from "@/Locale/useLocale";
 
 type RecipeCardProps = {
 	recipe: Entities.Recipe;
-	onClickView: Events.Factory<Events.ClickEvent<HTMLDivElement>, [Entities.Recipe]>;
-	onClickUpdate: Events.Factory<Events.ClickEvent<HTMLButtonElement>, [Entities.Recipe]>;
+	onClickViewFactory: Events.Factory<Events.ClickEvent<HTMLDivElement>, [Entities.Recipe]>;
+	onClickUpdateFactory: Events.Factory<Events.ClickEvent<HTMLButtonElement>, [Entities.Recipe]>;
 };
 
 export function RecipeCard(props: RecipeCardProps) {
@@ -26,8 +26,6 @@ export function RecipeCard(props: RecipeCardProps) {
 	const [likeCount, setLikeCount] = useState(props.recipe.likeCount);
 	const [isLiked, setIsLiked] = useState(props.recipe.isLiked);
 
-	const isOwner = store.get("auth")?.id === props.recipe.profileId;
-
 	const likeMut = useMutation(
 		recipeClient.like({
 			onError() {
@@ -37,12 +35,17 @@ export function RecipeCard(props: RecipeCardProps) {
 		}),
 	);
 
-	const handleLikeClick = Events.click<[Entities.Recipe]>((e, recipe) => {
+	const onClickLikeFactory = Events.click<[Entities.Recipe]>((e, recipe) => {
 		e.stopPropagation();
 		likeMut.mutate({ body: { id: recipe.id, isLiked: !isLiked } });
 		setIsLiked((p) => !p);
 		setLikeCount((p) => (isLiked ? p - 1 : p + 1));
 	});
+
+	const isOwner = store.get("auth")?.id === props.recipe.profileId;
+	const handleClickLike = onClickLikeFactory(props.recipe);
+	const handleClickUpdate = props.onClickUpdateFactory(props.recipe);
+	const handleClickView = props.onClickViewFactory(props.recipe);
 
 	return (
 		<>
@@ -57,14 +60,14 @@ export function RecipeCard(props: RecipeCardProps) {
 
 				<div className="absolute top-2 right-2 z-20 flex items-center gap-2">
 					{isOwner && (
-						<button onClick={props.onClickUpdate(props.recipe)} className="secondary sm">
+						<button onClick={handleClickUpdate} className="secondary sm">
 							<span className="text-xs font-semibold">{txt.update}</span>
 							<PencilIcon className="size-3!" />
 						</button>
 					)}
 
 					<button
-						onClick={handleLikeClick(props.recipe)}
+						onClick={handleClickLike}
 						className={cn(
 							"unset",
 							"flex items-center gap-1 rounded-md px-2.5 py-1.5 transition-colors duration-200",
@@ -87,7 +90,7 @@ export function RecipeCard(props: RecipeCardProps) {
 				</div>
 
 				<div
-					onClick={props.onClickView(props.recipe)}
+					onClick={handleClickView}
 					className="card group hover:border-primary cursor-pointer transition-all duration-300"
 				>
 					<div className="relative h-48 overflow-hidden">

@@ -10,8 +10,8 @@ import { useCommonLocale } from "@/Locale/useCommonLocale";
 
 type Props = {
 	query: ReturnType<typeof useInfiniteRecipeQuery>;
-	onClickView: Events.Factory<Events.ClickEvent<HTMLDivElement>, [Entities.Recipe]>;
-	onClickUpdate: Events.Factory<Events.ClickEvent<HTMLButtonElement>, [Entities.Recipe]>;
+	onClickViewFactory: Events.Factory<Events.ClickEvent<HTMLDivElement>, [Entities.Recipe]>;
+	onClickUpdateFactory: Events.Factory<Events.ClickEvent<HTMLButtonElement>, [Entities.Recipe]>;
 };
 
 export function RecipeGrid(props: Props) {
@@ -46,8 +46,8 @@ export function RecipeGrid(props: Props) {
 					<RecipeCard
 						key={r.id}
 						recipe={r}
-						onClickUpdate={props.onClickUpdate}
-						onClickView={props.onClickView}
+						onClickUpdateFactory={props.onClickUpdateFactory}
+						onClickViewFactory={props.onClickViewFactory}
 					/>
 				))
 			)}

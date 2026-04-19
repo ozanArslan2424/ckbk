@@ -2,24 +2,22 @@ import { LoaderIcon } from "lucide-react";
 import { Link } from "react-router";
 import { toast } from "sonner";
 
+import { useLoginForm } from "@/App/Login/useLoginForm";
 import { FormField } from "@/Components/form/FormField";
 import { FormRootError } from "@/Components/form/FormRootError";
-import { useLoginForm } from "@/Forms/useLoginForm";
 import { useLocale } from "@/Locale/useLocale";
 import { routes } from "@/router";
 
 export function LoginPage() {
-	const { t } = useLocale("auth");
+	const { txt } = useLocale("auth", {
+		title: ["login.title"],
+		emailLabel: ["login.email.label"],
+		passwordLabel: ["login.password.label"],
+		forgotPasswordLabel: ["login.forgotPassword"],
+		submitLabel: ["login.submit"],
+		registerLabel: ["login.noAccount"],
+	});
 	const form = useLoginForm();
-
-	const txt = {
-		title: t("login.title"),
-		emailLabel: t("login.email.label"),
-		passwordLabel: t("login.password.label"),
-		forgotPasswordLabel: t("login.forgotPassword"),
-		submitLabel: t("login.submit"),
-		registerLabel: t("login.noAccount"),
-	};
 
 	const fields = form.createFields([
 		{

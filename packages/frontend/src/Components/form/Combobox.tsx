@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { useLocale } from "@/Locale/useLocale";
+import { useCommonLocale } from "@/Locale/useCommonLocale";
 
 export type ComboboxOption = { value: string; label: string };
 
@@ -36,7 +36,7 @@ export function Combobox<O extends ComboboxOption>({
 	className,
 	disabled,
 }: ComboboxProps<O>) {
-	const { t } = useLocale("common");
+	const { txt } = useCommonLocale();
 	const [open, setOpen] = React.useState(false);
 	const [inputValue, setInputValue] = React.useState("");
 	const [opts, setOpts] = React.useState(options);
@@ -92,11 +92,6 @@ export function Combobox<O extends ComboboxOption>({
 		align === "end" ? "right-0" : align === "start" ? "left-0" : "left-1/2 -translate-x-1/2";
 	const dropdownSide = side === "top" ? "bottom-full mb-1" : "top-full mt-1";
 
-	const txt = {
-		create: t("create"),
-		clear: t("clear"),
-	};
-
 	return (
 		<div ref={containerRef} className="relative w-full">
 			<input
@@ -118,7 +113,7 @@ export function Combobox<O extends ComboboxOption>({
 					!selected && !inputValue && "text-muted-foreground",
 					className,
 				)}
-				placeholder={open ? searchPlaceholder || t("search") : placeholder}
+				placeholder={open ? searchPlaceholder || txt.searchPlaceholder : placeholder}
 				value={displayValue}
 				onChange={(e) => {
 					setInputValue(e.target.value);

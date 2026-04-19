@@ -1,11 +1,11 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
+import { useAppContext } from "@/App/AppContext";
 import { IngredientFormField } from "@/App/Recipe/Components/IngredientFormField";
 import { useCardDeckContext } from "@/Components/CardDeck";
 import { FormCard } from "@/Components/form/FormCard";
 import { Tooltip } from "@/Components/ui/tooltip";
-import { useAppContext } from "@/Context/AppContext";
 import { repeat } from "@/lib/utils";
 import { useCommonLocale } from "@/Locale/useCommonLocale";
 import { useLocale } from "@/Locale/useLocale";

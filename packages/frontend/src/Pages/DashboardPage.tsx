@@ -1,4 +1,5 @@
 import type { Args, Entities } from "@/Api/CorpusApi";
+import { useAppContext } from "@/App/AppContext";
 import { Sidebar } from "@/App/Components/Sidebar";
 import { RecipeCreateModal } from "@/App/Recipe/Components/RecipeCreateModal";
 import { RecipeDetailsModal } from "@/App/Recipe/Components/RecipeDetailsModal";
@@ -9,7 +10,6 @@ import { useInfiniteRecipeQuery } from "@/App/Recipe/Hooks/useInfiniteRecipeQuer
 import { useRecipeForm } from "@/App/Recipe/Hooks/useRecipeForm";
 import { useRecipeListArgs } from "@/App/Recipe/Hooks/useRecipeListArgs";
 import { PageContent } from "@/Components/layout/PageContent";
-import { useAppContext } from "@/Context/AppContext";
 import { useModal } from "@/Hooks/useModal";
 import { Events } from "@/lib/events";
 import { Help } from "@/lib/Help";
@@ -34,7 +34,7 @@ export function DashboardPage() {
 		updateModal.onOpenChange(false);
 	});
 
-	const handleClickCreate = Events.click(() => {
+	const onClickCreateFactory = Events.click(() => {
 		createModal.onOpenChange(true);
 	});
 
@@ -54,7 +54,7 @@ export function DashboardPage() {
 		updateSearch({ mine: Help.toStringBoolean(value) });
 	};
 
-	const handleClickView = Events.click<[Entities.Recipe], HTMLDivElement>(async (_, recipe) => {
+	const onClickViewFactory = Events.click<[Entities.Recipe], HTMLDivElement>(async (_, recipe) => {
 		const params = { recipeId: recipe.id.toString() };
 		const ingredients = await queryClient.ensureQueryData(
 			ingredientClient.listByRecipe({ params }),
@@ -63,7 +63,7 @@ export function DashboardPage() {
 		detailsModal.handleOpen({ recipe, steps, ingredients });
 	});
 
-	const handleClickUpdate = Events.click<[Entities.Recipe]>(async (e, recipe) => {
+	const onClickUpdateFactory = Events.click<[Entities.Recipe]>(async (e, recipe) => {
 		e.stopPropagation();
 		const params = { recipeId: recipe.id.toString() };
 		const ingredients = await queryClient.ensureQueryData(
@@ -75,12 +75,12 @@ export function DashboardPage() {
 
 	return (
 		<PageContent>
-			<RecipeDetailsModal modal={detailsModal} onClickUpdate={handleClickUpdate} />
+			<RecipeDetailsModal modal={detailsModal} onClickUpdateFactory={onClickUpdateFactory} />
 			<RecipeCreateModal modal={createModal} form={recipeForm} />
 			<RecipeUpdateModal modal={updateModal} form={recipeForm} />
 
 			<main className="grid grid-cols-1 gap-8 lg:grid-cols-4">
-				<Sidebar onClickCreate={handleClickCreate()} />
+				<Sidebar onClickCreateFactory={onClickCreateFactory} />
 
 				<section className="flex flex-col gap-2 lg:col-span-3">
 					<h2 className="text-foreground text-2xl font-black tracking-tight">{txt.title}</h2>
@@ -96,8 +96,8 @@ export function DashboardPage() {
 
 					<RecipeGrid
 						query={recipesQuery}
-						onClickUpdate={handleClickUpdate}
-						onClickView={handleClickView}
+						onClickUpdateFactory={onClickUpdateFactory}
+						onClickViewFactory={onClickViewFactory}
 					/>
 				</section>
 			</main>

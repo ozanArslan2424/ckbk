@@ -1,11 +1,11 @@
 import { PlusIcon } from "lucide-react";
 
-import { useAppContext } from "@/Context/AppContext";
+import { useAppContext } from "@/App/AppContext";
 import type { Events } from "@/lib/events";
 import { useLocale } from "@/Locale/useLocale";
 
 type Props = {
-	onClickCreate: Events.ClickHandler;
+	onClickCreateFactory: Events.ClickFactory;
 };
 
 export function Sidebar(props: Props) {
@@ -17,6 +17,8 @@ export function Sidebar(props: Props) {
 	});
 	const { store } = useAppContext();
 
+	const handleClickCreate = props.onClickCreateFactory();
+
 	return (
 		<>
 			<aside className="hidden flex-col items-center gap-2 *:w-full lg:flex">
@@ -26,7 +28,7 @@ export function Sidebar(props: Props) {
 
 				<div className="h-1" />
 
-				<button onClick={props.onClickCreate} className="primary md">
+				<button onClick={handleClickCreate} className="primary md">
 					{txtRecipe.create}
 				</button>
 			</aside>
@@ -35,7 +37,7 @@ export function Sidebar(props: Props) {
 			<div className="fixed right-6 bottom-6 z-100 lg:hidden">
 				<div className="flex flex-col gap-3">
 					<button
-						onClick={props.onClickCreate}
+						onClick={handleClickCreate}
 						className="square xl secondary animate_scale shadow-xl"
 					>
 						<PlusIcon />

@@ -2,7 +2,7 @@ import type { ComponentProps } from "react";
 
 import type { ModalState } from "@/Hooks/useModal";
 import { cn, prefixId } from "@/lib/utils";
-import { useLocale } from "@/Locale/useLocale";
+import { useCommonLocale } from "@/Locale/useCommonLocale";
 
 import { Modal } from "./Modal";
 
@@ -23,11 +23,7 @@ export function ConfirmModal({
 	id,
 	...dialog
 }: ConfirmModalProps) {
-	const { t } = useLocale("common");
-	const txt = {
-		cancel: t("cancel"),
-		confirm: t("confirm"),
-	};
+	const { txt } = useCommonLocale();
 
 	function handleCancel() {
 		onCancel?.();

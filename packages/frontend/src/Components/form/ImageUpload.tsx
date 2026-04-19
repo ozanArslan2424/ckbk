@@ -1,7 +1,7 @@
 import { ImagePlusIcon } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 
-import { useLocale } from "@/Locale/useLocale";
+import { useCommonLocale } from "@/Locale/useCommonLocale";
 
 type ImageUploadProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "value"> & {
 	image?: string | File | null;
@@ -17,7 +17,7 @@ export function ImageUpload({
 	onImageChange,
 	...inputProps
 }: ImageUploadProps) {
-	const { t } = useLocale("common");
+	const { txt } = useCommonLocale();
 	const [internalFile, setInternalFile] = useState<File | null>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 
@@ -43,10 +43,6 @@ export function ImageUpload({
 		onImageRemove?.();
 		onImageChange?.(null);
 	}
-
-	const txt = {
-		upload: t("upload"),
-	};
 
 	return (
 		<div className="group relative min-h-20 w-full">

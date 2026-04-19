@@ -4,7 +4,7 @@ import type { ReactNode, ComponentProps } from "react";
 
 import type { ModalState } from "@/Hooks/useModal";
 import { cn } from "@/lib/utils";
-import { useLocale } from "@/Locale/useLocale";
+import { useCommonLocale } from "@/Locale/useCommonLocale";
 
 export type ModalProps<T = undefined> = ModalState<T> & {
 	id?: string;
@@ -36,10 +36,7 @@ export function Modal<T = undefined>({
 	ref,
 	disableEscapeClose = false,
 }: ModalProps<T>) {
-	const { t } = useLocale("common");
-	const txt = {
-		close: t("close"),
-	};
+	const { txt } = useCommonLocale();
 
 	return (
 		<Primitive.Root

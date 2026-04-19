@@ -1,6 +1,6 @@
 import type { Entities } from "@/Api/CorpusApi";
+import { useAppContext } from "@/App/AppContext";
 import { Modal } from "@/Components/modals/Modal";
-import { useAppContext } from "@/Context/AppContext";
 import type { ModalState } from "@/Hooks/useModal";
 import type { Events } from "@/lib/events";
 import { useDate } from "@/Locale/useDate";
@@ -9,7 +9,7 @@ import type { RecipeDetails } from "@/Types/RecipeDetails";
 
 type RecipeDetailsModalProps = {
 	modal: ModalState<RecipeDetails>;
-	onClickUpdate: Events.Factory<Events.ClickEvent<HTMLButtonElement>, [Entities.Recipe]>;
+	onClickUpdateFactory: Events.Factory<Events.ClickEvent<HTMLButtonElement>, [Entities.Recipe]>;
 };
 
 export function RecipeDetailsModal(props: RecipeDetailsModalProps) {
@@ -29,6 +29,7 @@ export function RecipeDetailsModal(props: RecipeDetailsModalProps) {
 	const steps = props.modal.data.steps;
 	const ingredients = props.modal.data.ingredients;
 	const isOwner = store.get("auth")?.id === recipe.profileId;
+	const handleClickUpdate = props.onClickUpdateFactory(recipe);
 
 	return (
 		<Modal
@@ -76,7 +77,7 @@ export function RecipeDetailsModal(props: RecipeDetailsModalProps) {
 							<h2>{recipe.title}</h2>
 							<p className="min-h-10 text-sm opacity-80">{recipe.description}</p>
 							{isOwner && (
-								<button onClick={props.onClickUpdate(recipe)} type="button" className="sm outlined">
+								<button onClick={handleClickUpdate} type="button" className="sm outlined">
 									{txt.update}
 								</button>
 							)}

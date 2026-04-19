@@ -2,10 +2,9 @@ import { ThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/react";
 import { RouterProvider } from "react-router";
 
+import { AppContextProvider } from "@/App/AppContext.tsx";
 import { ColorRegister } from "@/Components/layout/ColorRegister";
 import { Toaster } from "@/Components/ui/sonner";
-import { ActiveContextProvider } from "@/Context/ActiveContext";
-import { AppContextProvider } from "@/Context/AppContext";
 
 import "./Locale/localeConfig.ts";
 import "./styles/theme.ts";
@@ -16,11 +15,9 @@ export function App() {
 		<NuqsAdapter>
 			<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
 				<AppContextProvider>
-					<ActiveContextProvider>
-						<ColorRegister />
-						<Toaster richColors position="top-right" />
-						<RouterProvider router={router} />
-					</ActiveContextProvider>
+					<ColorRegister />
+					<Toaster richColors position="top-right" />
+					<RouterProvider router={router} />
 				</AppContextProvider>
 			</ThemeProvider>
 		</NuqsAdapter>

@@ -2,8 +2,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useState, useRef, useCallback, useId, type Dispatch, type SetStateAction } from "react";
 
 import type { Entities } from "@/Api/CorpusApi";
+import { useAppContext } from "@/App/AppContext";
 import { Combobox, type ComboboxOption } from "@/Components/form/Combobox";
-import { useAppContext } from "@/Context/AppContext";
 import { Events } from "@/lib/events";
 import { TXT } from "@/lib/TXT";
 import { useLocale } from "@/Locale/useLocale";
@@ -31,6 +31,22 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 
 	const uid = useId();
 	const submittedRef = useRef(false);
+	const materialCreateMut = useMutation(
+		materialClient.create({
+			onSuccess(res) {
+				updateIngredient({ materialId: res.id });
+				props.setMaterialOptions((p) => [...p, { value: res.id.toString(), label: res.title }]);
+			},
+		}),
+	);
+	const measurementCreateMut = useMutation(
+		measurementClient.create({
+			onSuccess(res) {
+				updateIngredient({ measurementId: res.id });
+				props.setMeasurementOptions((p) => [...p, { value: res.id.toString(), label: res.title }]);
+			},
+		}),
+	);
 
 	const trySubmit = useCallback(
 		(next: Partial<Entities.Ingredient>) => {
@@ -69,14 +85,18 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 		[trySubmit],
 	);
 
-	const materialCreateMut = useMutation(
-		materialClient.create({
-			onSuccess(res) {
-				updateIngredient({ materialId: res.id });
-				props.setMaterialOptions((p) => [...p, { value: res.id.toString(), label: res.title }]);
-			},
-		}),
-	);
+	const onBlurQuantityFactory = Events.focus((e) => {
+		const value = parseFloat(e.target.value);
+		if (TXT.isDefined(e.target.value) && Number.isFinite(value) && value > 0) {
+			updateIngredient({ quantity: value });
+		}
+	});
+	const onChangeQuantityFactory = Events.change((e) => {
+		const value = parseFloat(e.target.value);
+		if (TXT.isDefined(e.target.value) && Number.isFinite(value) && value > 0) {
+			updateIngredient({ quantity: value });
+		}
+	});
 
 	const handleCreateMaterial = (title: string) => {
 		materialCreateMut.mutate({ body: { title, description: null } });
@@ -84,29 +104,8 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 	const handleChangeMaterial = (value: string | null) => {
 		if (value) updateIngredient({ materialId: parseInt(value) });
 	};
-
-	const handleBlurQuantity = Events.focus((e) => {
-		const value = parseFloat(e.target.value);
-		if (TXT.isDefined(e.target.value) && Number.isFinite(value) && value > 0) {
-			updateIngredient({ quantity: value });
-		}
-	});
-	const handleChangeQuantity = Events.change((e) => {
-		const value = parseFloat(e.target.value);
-		if (TXT.isDefined(e.target.value) && Number.isFinite(value) && value > 0) {
-			updateIngredient({ quantity: value });
-		}
-	});
-
-	const measurementCreateMut = useMutation(
-		measurementClient.create({
-			onSuccess(res) {
-				updateIngredient({ measurementId: res.id });
-				props.setMeasurementOptions((p) => [...p, { value: res.id.toString(), label: res.title }]);
-			},
-		}),
-	);
-
+	const handleChangeQuantity = onChangeQuantityFactory();
+	const handleBlurQuantity = onBlurQuantityFactory();
 	const handleCreateMeasurement = (title: string) => {
 		measurementCreateMut.mutate({ body: { title, description: null } });
 	};
@@ -143,8 +142,8 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 					step="0.25"
 					min="0"
 					value={ingredient.quantity}
-					onChange={handleChangeQuantity()}
-					onBlur={handleBlurQuantity()}
+					onChange={handleChangeQuantity}
+					onBlur={handleBlurQuantity}
 				/>
 			</div>
 			<div className="col-span-4">

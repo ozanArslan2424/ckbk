@@ -1,23 +1,21 @@
 import { LoaderIcon } from "lucide-react";
 import { Link } from "react-router";
 
+import { useVerifyForm } from "@/App/Verify/useVerifyForm";
 import { FormField } from "@/Components/form/FormField";
 import { FormRootError } from "@/Components/form/FormRootError";
-import { useVerifyForm } from "@/Forms/useVerifyForm";
 import { useLocale } from "@/Locale/useLocale";
 import { routes } from "@/router";
 
 export function VerifyPage() {
-	const { t } = useLocale("auth");
+	const { txt } = useLocale("auth", {
+		title: ["verify.title"],
+		emailLabel: ["verify.email.label"],
+		codeLabel: ["verify.code.label"],
+		submitLabel: ["verify.submit"],
+		backToLoginLabel: ["verify.haveAccount"],
+	});
 	const form = useVerifyForm();
-
-	const txt = {
-		title: t("verify.title"),
-		emailLabel: t("verify.email.label"),
-		codeLabel: t("verify.code.label"),
-		submitLabel: t("verify.submit"),
-		backToLoginLabel: t("verify.haveAccount"),
-	};
 
 	const fields = form.createFields([
 		{

@@ -1,5 +1,5 @@
 import type { Args } from "@/Api/CorpusApi";
-import { useAppContext } from "@/Context/AppContext";
+import { useAppContext } from "@/App/AppContext";
 import { useInfiniteScrollQuery } from "@/Hooks/useInfiniteScroll";
 
 export function useInfiniteRecipeQuery(listArgs: Args.RecipeGet) {

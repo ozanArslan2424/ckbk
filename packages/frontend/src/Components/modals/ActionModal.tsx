@@ -6,7 +6,7 @@ import {
 	CommandList,
 } from "@/Components/ui/command";
 import type { ModalState } from "@/Hooks/useModal";
-import { useLocale } from "@/Locale/useLocale";
+import { useCommonLocale } from "@/Locale/useCommonLocale";
 
 export type Action = {
 	key: string;
@@ -23,11 +23,7 @@ export function ActionModal<T>({
 	className?: string;
 	actions: Action[];
 }) {
-	const { t } = useLocale("common");
-	const txt = {
-		close: t("close"),
-		noResults: t("noResults"),
-	};
+	const { txt } = useCommonLocale();
 
 	return (
 		<CommandModal showCloseButton={false} autoFocus {...rest}>
