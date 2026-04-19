@@ -6,7 +6,8 @@
 	"module": "index.ts",
 	"scripts": {
 		"fm": "oxfmt --write",
-		"lint": "oxlint --fix"
+		"lint": "oxlint --fix",
+		"dev": "concurrently 'bun run --cwd=./packages/frontend dev' 'bun run --cwd=./packages/backend dev'"
 	},
 	"devDependencies": {
 		"@types/bun": "latest",

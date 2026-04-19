@@ -1,8 +1,10 @@
 import { useCardDeckContext } from "@/Components/CardDeck";
 import { FormCard } from "@/Components/form/FormCard";
+import { Tooltip } from "@/Components/ui/tooltip";
 import { useDnd } from "@/Hooks/useDnd";
-import { useLocale } from "@/lib/Locale/useLocale";
 import { cn, repeat } from "@/lib/utils";
+import { useCommonLocale } from "@/Locale/useCommonLocale";
+import { useLocale } from "@/Locale/useLocale";
 import type { StepComplete } from "@/Types/StepComplete";
 
 type StepFormProps = {
@@ -22,7 +24,13 @@ export function RecipeFormPartThree({
 	onMoveStep,
 	onWriteStep,
 }: StepFormProps) {
-	const { t } = useLocale("common");
+	const { txt: txtCommon } = useCommonLocale();
+	const { txt } = useLocale("app", {
+		addStep: ["form.step.add"],
+		steps: ["form.step.title"],
+		stepPlaceholder: ["form.step.placeholder"],
+		minStepTip: ["form.step.min"],
+	});
 	const ctx = useCardDeckContext();
 
 	const dnd = useDnd({
@@ -35,7 +43,7 @@ export function RecipeFormPartThree({
 
 	return (
 		<FormCard
-			title="Steps"
+			title={txt.steps}
 			cornerSlot={
 				<span className="bg-secondary text-secondary-foreground rounded-full px-2 py-0.5 text-xs font-medium">
 					{stepCount}
@@ -45,11 +53,13 @@ export function RecipeFormPartThree({
 				ctx ? (
 					<>
 						<button onClick={ctx.onPrev} className="secondary w-max">
-							{t("previous")}
+							{txtCommon.previous}
 						</button>
-						<button onClick={ctx.onNext} className="secondary w-max">
-							{t("next")}
-						</button>
+						<Tooltip tip={txt.minStepTip}>
+							<button disabled={steps.length < 1} onClick={ctx.onNext} className="secondary w-max">
+								{txtCommon.submit}
+							</button>
+						</Tooltip>
 					</>
 				) : null
 			}
@@ -90,7 +100,7 @@ export function RecipeFormPartThree({
 						className="min-h-20 w-full resize-y"
 						id={`step-${i}-body`}
 						name={`step-${i}-body`}
-						placeholder="e.g. Preheat oven to 350°F..."
+						placeholder={txt.stepPlaceholder}
 						value={steps[i]?.body ?? ""}
 						onChange={(e) => onWriteStep(i, e.target.value)}
 					/>
@@ -109,7 +119,7 @@ export function RecipeFormPartThree({
 				>
 					<path d="M12 5v14M5 12h14" />
 				</svg>
-				Add Step
+				{txt.addStep}
 			</button>
 		</FormCard>
 	);

@@ -7,7 +7,7 @@ import { Toaster } from "@/Components/ui/sonner";
 import { ActiveContextProvider } from "@/Context/ActiveContext";
 import { AppContextProvider } from "@/Context/AppContext";
 
-import "./lib/Locale/localeConfig.ts";
+import "./Locale/localeConfig.ts";
 import "./styles/theme.ts";
 import { router } from "@/router";
 

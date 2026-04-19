@@ -3,100 +3,109 @@ import { useEffect } from "react";
 import { RecipeFormPartOne } from "@/App/Recipe/Components/RecipeFormPartOne";
 import { RecipeFormPartThree } from "@/App/Recipe/Components/RecipeFormPartThree";
 import { RecipeFormPartTwo } from "@/App/Recipe/Components/RecipeFormPartTwo";
-import { Dialog } from "@/Components/modals/dialog";
-import { useCookbookForm } from "@/Forms/useRecipeForm";
+import type { useRecipeForm } from "@/App/Recipe/Hooks/useRecipeForm";
+import { Modal } from "@/Components/modals/Modal";
 import type { ModalState } from "@/Hooks/useModal";
 import { Events } from "@/lib/events";
+import { useLocale } from "@/Locale/useLocale";
 import type { RecipeDetails } from "@/Types/RecipeDetails";
 
 type Props = {
 	modal: ModalState<RecipeDetails>;
+	form: ReturnType<typeof useRecipeForm>;
 };
 
-export function RecipeUpdateModal({ modal }: Props) {
-	const form = useCookbookForm(() => {
-		modal.onOpenChange(false);
+export function RecipeUpdateModal(props: Props) {
+	const { txt } = useLocale("app", {
+		title: ["updateModal.title", { title: props.modal.data?.recipe.title }],
+		description: ["updateModal.description"],
+		delete: ["updateModal.delete"],
+		cancel: ["updateModal.cancel"],
+		submit: ["updateModal.submit"],
 	});
 
 	useEffect(() => {
-		if (modal.data) {
-			form.dispatch({
+		if (props.modal.data) {
+			props.form.dispatch({
 				type: "SET",
 				payload: {
-					ingredients: modal.data.ingredients,
-					ingredientCount: modal.data.ingredients.length,
+					ingredients: props.modal.data.ingredients,
+					ingredientCount: props.modal.data.ingredients.length,
 					ingredientAddDisabled: false,
-					steps: modal.data.steps,
-					stepCount: modal.data.steps.length,
+					steps: props.modal.data.steps,
+					stepCount: props.modal.data.steps.length,
 					stepAddDisabled: false,
-					image: modal.data.recipe.image ?? null,
-					title: modal.data.recipe.title,
-					description: modal.data.recipe.description,
-					isPublic: modal.data.recipe.isPublic,
+					image: props.modal.data.recipe.image ?? null,
+					title: props.modal.data.recipe.title,
+					description: props.modal.data.recipe.description,
+					isPublic: props.modal.data.recipe.isPublic,
 				},
 			});
 		}
-	}, [modal.data]);
+	}, [props.modal.data]);
 
 	const handleReset = Events.click((e) => {
 		e.preventDefault();
-		modal.onOpenChange(false);
-		form.dispatch({ type: "RESET" });
+		props.modal.onOpenChange(false);
+		props.form.dispatch({ type: "RESET" });
 	});
 
 	return (
-		<Dialog
-			{...modal}
-			title={`Update ${form.title}`}
-			description="Fill in the form to update the recipe"
+		<Modal
+			{...props.modal}
+			title={txt.title}
+			description={txt.description}
 			className="w-max border-none bg-transparent p-4"
 		>
 			<div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
 				<RecipeFormPartOne
-					image={form.image}
+					image={props.form.image}
 					onImageChange={(p) =>
-						form.dispatch(p ? { type: "CHANGE_IMAGE", payload: p } : { type: "REMOVE_IMAGE" })
+						props.form.dispatch(p ? { type: "CHANGE_IMAGE", payload: p } : { type: "REMOVE_IMAGE" })
 					}
-					title={form.title}
-					onTitleChange={(p) => form.dispatch({ type: "CHANGE_TITLE", payload: p })}
-					description={form.description}
-					onDescriptionChange={(p) => form.dispatch({ type: "CHANGE_DESCRIPTION", payload: p })}
-					isPublic={form.isPublic}
-					onIsPublicChange={(p) => form.dispatch({ type: "CHANGE_IS_PUBLIC", payload: p })}
-					nextDisabled={form.title.length <= 0}
+					title={props.form.title}
+					onTitleChange={(p) => props.form.dispatch({ type: "CHANGE_TITLE", payload: p })}
+					description={props.form.description}
+					onDescriptionChange={(p) =>
+						props.form.dispatch({ type: "CHANGE_DESCRIPTION", payload: p })
+					}
+					isPublic={props.form.isPublic}
+					onIsPublicChange={(p) => props.form.dispatch({ type: "CHANGE_IS_PUBLIC", payload: p })}
 				/>
 				<RecipeFormPartTwo
-					addDisabled={form.ingredientAddDisabled}
-					ingredients={form.ingredients}
-					ingredientCount={form.ingredientCount}
-					onAddIngredient={() => form.dispatch({ type: "INCREASE_INGREDIENT_COUNT" })}
-					onCompleteIngredient={(p) => form.dispatch({ type: "ADD_INGREDIENT", payload: p })}
+					addDisabled={props.form.ingredientAddDisabled}
+					ingredients={props.form.ingredients}
+					ingredientCount={props.form.ingredientCount}
+					onAddIngredient={() => props.form.dispatch({ type: "INCREASE_INGREDIENT_COUNT" })}
+					onCompleteIngredient={(p) => props.form.dispatch({ type: "ADD_INGREDIENT", payload: p })}
 				/>
 				<RecipeFormPartThree
-					addDisabled={form.stepAddDisabled}
-					steps={form.steps}
-					stepCount={form.stepCount}
-					onAddStep={() => form.dispatch({ type: "INCREASE_STEP_COUNT" })}
+					addDisabled={props.form.stepAddDisabled}
+					steps={props.form.steps}
+					stepCount={props.form.stepCount}
+					onAddStep={() => props.form.dispatch({ type: "INCREASE_STEP_COUNT" })}
 					onWriteStep={(index, body) =>
-						form.dispatch({ type: "WRITE_STEP", payload: { index, body } })
+						props.form.dispatch({ type: "WRITE_STEP", payload: { index, body } })
 					}
-					onMoveStep={(from, to) => form.dispatch({ type: "MOVE_STEP", payload: { from, to } })}
+					onMoveStep={(from, to) =>
+						props.form.dispatch({ type: "MOVE_STEP", payload: { from, to } })
+					}
 				/>
 			</div>
 
 			<div className="bg-background flex w-full items-center justify-between gap-4 rounded-md p-4">
-				<button className="outlined hover:bg-rose-400/10 hover:text-rose-500">Delete</button>
+				<button className="outlined hover:bg-rose-400/10 hover:text-rose-500">{txt.delete}</button>
 
 				<div className="flex items-center gap-4">
 					<button type="reset" className="ghost" onClick={handleReset()}>
-						Cancel
+						{txt.cancel}
 					</button>
 
-					<button type="submit" onClick={form.handleUpdate}>
-						Save Changes
+					<button type="submit" onClick={props.form.handleUpdate}>
+						{txt.submit}
 					</button>
 				</div>
 			</div>
-		</Dialog>
+		</Modal>
 	);
 }

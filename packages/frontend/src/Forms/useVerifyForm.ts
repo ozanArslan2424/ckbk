@@ -4,8 +4,8 @@ import { useNavigate, useSearchParams } from "react-router";
 
 import { useAppContext } from "@/Context/AppContext";
 import { useForm } from "@/Hooks/useForm";
-import { useLocale } from "@/lib/Locale/useLocale";
 import { getErrorMessage } from "@/lib/utils";
+import { useLocale } from "@/Locale/useLocale";
 import { routes } from "@/router";
 
 export function useVerifyForm() {

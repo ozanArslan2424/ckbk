@@ -2,7 +2,7 @@ import { Outlet } from "react-router";
 
 import { AppFooter } from "@/Components/layout/AppFooter";
 import { AppHeader } from "@/Components/layout/AppHeader";
-import { PendingCard } from "@/Components/ui/pending-card";
+import { PendingCard } from "@/Components/PendingCard";
 import { useAuthGuard } from "@/Hooks/useAuthGuard";
 
 export function ProtectedLayout() {

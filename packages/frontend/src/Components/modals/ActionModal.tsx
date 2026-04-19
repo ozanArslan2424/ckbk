@@ -1,12 +1,12 @@
 import {
-	CommandDialog,
+	CommandModal,
 	CommandEmpty,
 	CommandGroup,
 	CommandItem,
 	CommandList,
 } from "@/Components/ui/command";
 import type { ModalState } from "@/Hooks/useModal";
-import { useLocale } from "@/lib/Locale/useLocale";
+import { useLocale } from "@/Locale/useLocale";
 
 export type Action = {
 	key: string;
@@ -24,11 +24,15 @@ export function ActionModal<T>({
 	actions: Action[];
 }) {
 	const { t } = useLocale("common");
+	const txt = {
+		close: t("close"),
+		noResults: t("noResults"),
+	};
 
 	return (
-		<CommandDialog showCloseButton={false} autoFocus {...rest}>
+		<CommandModal showCloseButton={false} autoFocus {...rest}>
 			<CommandList>
-				<CommandEmpty>{t("noResults")}</CommandEmpty>
+				<CommandEmpty>{txt.noResults}</CommandEmpty>
 				<CommandGroup>
 					{actions.map((action) => (
 						<CommandItem
@@ -51,10 +55,10 @@ export function ActionModal<T>({
 						}}
 						className="flex items-center justify-between"
 					>
-						<span>{t("close")}</span>
+						<span>{txt.close}</span>
 					</CommandItem>
 				</CommandGroup>
 			</CommandList>
-		</CommandDialog>
+		</CommandModal>
 	);
 }

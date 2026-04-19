@@ -2,7 +2,7 @@ import { Command as CommandPrimitive } from "cmdk";
 import { SearchIcon } from "lucide-react";
 import * as React from "react";
 
-import { Dialog, type DialogProps } from "@/Components/modals/dialog";
+import { Modal, type ModalProps } from "@/Components/modals/Modal";
 import { cn } from "@/lib/utils";
 
 export function Command({ className, ...props }: React.ComponentProps<typeof CommandPrimitive>) {
@@ -19,18 +19,18 @@ export function Command({ className, ...props }: React.ComponentProps<typeof Com
 	);
 }
 
-export function CommandDialog<T = undefined>({
+export function CommandModal<T = undefined>({
 	title,
 	description,
 	className,
 	children,
 	...rest
-}: Omit<DialogProps<T>, "title" | "description"> & {
+}: Omit<ModalProps<T>, "title" | "description"> & {
 	title?: string;
 	description?: string;
 }) {
 	return (
-		<Dialog
+		<Modal
 			{...rest}
 			title={title ?? "Command"}
 			description={description ?? "CommandDialog"}
@@ -39,7 +39,7 @@ export function CommandDialog<T = undefined>({
 			<Command className="bg-background text-foreground **:[[cmdk-group-heading]]:text-foreground/70 flex h-full w-full flex-col overflow-hidden rounded-lg border shadow-md **:data-[slot=command-input-wrapper]:h-12 md:min-w-112.5 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group]]:px-2 **:[[cmdk-input]]:h-12 **:[[cmdk-item]]:px-2 **:[[cmdk-item]]:py-3">
 				{children}
 			</Command>
-		</Dialog>
+		</Modal>
 	);
 }
 

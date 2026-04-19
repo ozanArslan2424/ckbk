@@ -1,6 +1,6 @@
 import { Outlet } from "react-router";
 
-import { CONFIG } from "@/lib/config";
+import { CONFIG } from "@/lib/CONFIG";
 
 export function AppLayout() {
 	return (

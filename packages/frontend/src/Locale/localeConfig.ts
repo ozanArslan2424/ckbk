@@ -10,6 +10,8 @@ export const locales = {
 	tr,
 };
 
+export const LANG_OPTIONS = ["en", "tr"] satisfies (keyof typeof locales)[];
+
 void localeConfig
 	.use(LanguageDetector)
 	.use(initReactI18next)

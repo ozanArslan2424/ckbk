@@ -1,19 +1,22 @@
+import type { Entities } from "@/Api/CorpusApi";
 import { RecipeCard } from "@/App/Recipe/Components/RecipeCard";
 import { RecipeCardSkeleton } from "@/App/Recipe/Components/RecipeCardSkeleton";
 import { useInfiniteRecipeQuery } from "@/App/Recipe/Hooks/useInfiniteRecipeQuery";
+import { ErrorCard } from "@/Components/ErrorCard";
 import { InfiniteScrollLoader } from "@/Components/InfiniteScrollLoader";
-import { ErrorCard } from "@/Components/ui/error-card";
-import type { ModalState } from "@/Hooks/useModal";
+import type { Events } from "@/lib/events";
 import { repeat } from "@/lib/utils";
-import type { RecipeDetails } from "@/Types/RecipeDetails";
+import { useCommonLocale } from "@/Locale/useCommonLocale";
 
 type Props = {
-	detailsModal: ModalState<RecipeDetails>;
-	updateModal: ModalState<RecipeDetails>;
 	query: ReturnType<typeof useInfiniteRecipeQuery>;
+	onClickView: Events.Factory<Events.ClickEvent<HTMLDivElement>, [Entities.Recipe]>;
+	onClickUpdate: Events.Factory<Events.ClickEvent<HTMLButtonElement>, [Entities.Recipe]>;
 };
 
 export function RecipeGrid(props: Props) {
+	const { txt: txtCommon } = useCommonLocale();
+
 	if (props.query.isPending) {
 		return (
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -37,14 +40,14 @@ export function RecipeGrid(props: Props) {
 	return (
 		<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 			{props.query.data.recipes.length === 0 ? (
-				<p className="text-muted-foreground font-semibold">No recipes yet!</p>
+				<p className="text-muted-foreground font-semibold">{txtCommon.noResults}</p>
 			) : (
 				props.query.data.recipes.map((r) => (
 					<RecipeCard
 						key={r.id}
 						recipe={r}
-						detailsModal={props.detailsModal}
-						updateModal={props.updateModal}
+						onClickUpdate={props.onClickUpdate}
+						onClickView={props.onClickView}
 					/>
 				))
 			)}

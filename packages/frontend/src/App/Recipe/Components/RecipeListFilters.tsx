@@ -6,6 +6,8 @@ import { FilterSearch } from "@/Components/FilterSearch";
 import { FilterSelect } from "@/Components/FilterSelect";
 import { FilterToggle } from "@/Components/FilterToggle";
 import { Help } from "@/lib/Help";
+import { useCommonLocale } from "@/Locale/useCommonLocale";
+import { useLocale } from "@/Locale/useLocale";
 
 type Props = {
 	onChangeSortBy: (value: Args.RecipeGet["search"]["sortBy"] | null) => void;
@@ -15,63 +17,54 @@ type Props = {
 };
 
 export function RecipeListFilters(props: Props) {
+	const { txt: txtCommon } = useCommonLocale();
+	const { t, txt } = useLocale("app", {
+		ownerFilterLabel: ["ownerFilter.label"],
+		ownerFilterInnerText: ["ownerFilter.innerText"],
+	});
 	const { listArgs } = useRecipeListArgs();
 
-	const SORT_BY_OPTIONS = [
-		{ value: "createdAt" as const, label: "Date Created" },
-		{ value: "title" as const, label: "Title" },
-		{ value: "likes" as const, label: "Like Count" },
-		{ value: "steps" as const, label: "Step Count" },
-	];
+	const KEYS = ["createdAt", "title", "likes", "steps"] as const;
+
+	const SORT_BY_OPTIONS = KEYS.map((key) => ({
+		value: key,
+		label: t(`sortBy.${key}`),
+	}));
 
 	const SORT_ORDER_OPTIONS = useMemo(() => {
-		const opts = (desc: string, asc: string) => [
-			{ label: desc, value: "desc" as const },
-			{ label: asc, value: "asc" as const },
+		const key = listArgs.search.sortBy ?? "default";
+		return [
+			{ label: t(`sortOrder.${key}.desc`), value: "desc" as const },
+			{ label: t(`sortOrder.${key}.asc`), value: "asc" as const },
 		];
-
-		if (listArgs.search.sortBy === "createdAt") {
-			return opts("Newest First", "Oldest First");
-		}
-		if (listArgs.search.sortBy === "title") {
-			return opts("A -> Z", "Z -> A");
-		}
-		if (listArgs.search.sortBy === "likes") {
-			return opts("Most Likes", "Least Likes");
-		}
-
-		if (listArgs.search.sortBy === "steps") {
-			return opts("Most Steps", "Least Steps");
-		}
-		return opts("Descending", "Ascending");
 	}, [listArgs.search]);
 
 	return (
 		<div className="flex flex-wrap items-center gap-4 py-2">
 			<FilterSearch
-				label="Search"
-				placeholder="Search..."
+				label={txtCommon.search}
+				placeholder={txtCommon.searchPlaceholder}
 				value={listArgs.search.search}
 				onChange={props.onChangeSearch}
 			/>
 
 			<FilterSelect
-				label="Sort By"
+				label={txtCommon.sortBy}
 				value={listArgs.search.sortBy}
 				onChange={props.onChangeSortBy}
 				options={SORT_BY_OPTIONS}
 			/>
 
 			<FilterSelect
-				label="Order"
-				value={listArgs.search.sortOrder || "desc"}
+				label={txtCommon.sortOrder}
+				value={listArgs.search.sortOrder}
 				onChange={props.onChangeSortOrder}
 				options={SORT_ORDER_OPTIONS}
 			/>
 
 			<FilterToggle
-				label="Ownership"
-				innerText="Only yours"
+				label={txt.ownerFilterLabel}
+				innerText={txt.ownerFilterInnerText}
 				value={Help.toBoolean(listArgs.search.mine)}
 				onChange={props.onChangeMine}
 			/>

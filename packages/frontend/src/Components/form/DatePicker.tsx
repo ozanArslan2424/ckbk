@@ -1,10 +1,10 @@
 import { ChevronDownIcon } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
-import { Popover } from "@/Components/modals/popover";
+import { Popover } from "@/Components/modals/Popover";
 import { Calendar } from "@/Components/ui/calendar";
-import { useLocale } from "@/lib/Locale/useLocale";
 import { cn } from "@/lib/utils";
+import { useDate } from "@/Locale/useDate";
 
 type DatePickerProps = {
 	id?: string;
@@ -31,7 +31,7 @@ export function DatePicker({
 	className,
 	renderTrigger,
 }: DatePickerProps) {
-	const { timestamp } = useLocale();
+	const { timestamp } = useDate();
 	const [open, onOpenChange] = useState(false);
 	const [dateValue, setDateValue] = useState(
 		value ? new Date(value) : defaultValue ? new Date(defaultValue) : undefined,

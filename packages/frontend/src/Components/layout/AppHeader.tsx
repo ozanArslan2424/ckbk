@@ -1,21 +1,33 @@
-import { useQuery } from "@tanstack/react-query";
-import { Loader2Icon, SunIcon, MoonIcon } from "lucide-react";
-import { Link, useNavigate } from "react-router";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Loader2Icon, SunIcon, MoonIcon, GlobeIcon } from "lucide-react";
+import { Link } from "react-router";
 
-import { PersonAvatar } from "@/Components/ui/person-avatar";
+import { PersonAvatar } from "@/Components/PersonAvatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from "@/Components/ui/dropdown-menu";
 import { useAppContext } from "@/Context/AppContext";
 import { useTheme } from "@/Hooks/useTheme";
-import { CONFIG } from "@/lib/config";
-import { useLocale } from "@/lib/Locale/useLocale";
+import { CONFIG } from "@/lib/CONFIG";
+import { Events } from "@/lib/events";
+import { LANG_OPTIONS } from "@/Locale/localeConfig";
+import { useCommonLocale } from "@/Locale/useCommonLocale";
+import { useLocale } from "@/Locale/useLocale";
 import { routes } from "@/router";
 
 export function AppHeader() {
 	const { authClient } = useAppContext();
-	const { t } = useLocale("common");
-	const meQuery = useQuery(authClient.queryMe({}));
-	const navigate = useNavigate();
+	const { i18n } = useLocale();
+	const { t, txt } = useCommonLocale();
 	const { theme, toggleTheme } = useTheme();
+	const meQuery = useQuery(authClient.queryMe({}));
+	const logoutMut = useMutation(authClient.logout());
+
 	const iconClassName = "size-4";
+
+	const handleLogout = Events.click<[], HTMLDivElement>((e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		logoutMut.mutate({});
+	});
 
 	return (
 		<header className="bg-background/70 sticky top-0 z-50 flex h-12 max-w-[100vw] shrink-0 items-center justify-between">
@@ -25,6 +37,22 @@ export function AppHeader() {
 				</Link>
 			</div>
 			<div className="flex items-center gap-2 px-4">
+				<DropdownMenu
+					trigger={
+						<button className="icon outlined">
+							<GlobeIcon />
+						</button>
+					}
+				>
+					<DropdownMenuContent side="bottom" align="end">
+						{LANG_OPTIONS.map((lang) => (
+							<DropdownMenuItem key={lang} onClick={() => i18n.changeLanguage(lang)}>
+								{t(`languages.${lang}`)}
+							</DropdownMenuItem>
+						))}
+					</DropdownMenuContent>
+				</DropdownMenu>
+
 				<button onClick={toggleTheme} className="icon outlined">
 					{theme === "dark" ? (
 						<SunIcon className={iconClassName} />
@@ -32,21 +60,31 @@ export function AppHeader() {
 						<MoonIcon className={iconClassName} />
 					)}
 				</button>
-				<button
-					className="outlined sm"
-					onClick={meQuery.error ? () => navigate(routes.login) : undefined}
-				>
-					{meQuery.isPending ? (
+
+				{meQuery.isPending ? (
+					<button className="outlined sm">
 						<Loader2Icon className={iconClassName} />
-					) : meQuery.error ? (
-						t("login")
-					) : (
-						<span className="inline-flex items-center gap-2">
-							<PersonAvatar person={meQuery.data} className="size-5.5 rounded-full text-xs" />
-							<span>{meQuery.data.name}</span>
-						</span>
-					)}
-				</button>
+					</button>
+				) : meQuery.error ? (
+					<Link className="button outlined sm" to={routes.login}>
+						{txt.login}
+					</Link>
+				) : (
+					<DropdownMenu
+						trigger={
+							<button className="outlined sm">
+								<span className="inline-flex items-center gap-2">
+									<PersonAvatar person={meQuery.data} className="size-5.5 rounded-full text-xs" />
+									<span>{meQuery.data.name}</span>
+								</span>
+							</button>
+						}
+					>
+						<DropdownMenuContent side="bottom" align="end">
+							<DropdownMenuItem onClick={handleLogout()}>{txt.logout}</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				)}
 			</div>
 		</header>
 	);

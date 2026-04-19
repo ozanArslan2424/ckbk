@@ -4,9 +4,11 @@ import { useState } from "react";
 import { IngredientFormField } from "@/App/Recipe/Components/IngredientFormField";
 import { useCardDeckContext } from "@/Components/CardDeck";
 import { FormCard } from "@/Components/form/FormCard";
+import { Tooltip } from "@/Components/ui/tooltip";
 import { useAppContext } from "@/Context/AppContext";
-import { useLocale } from "@/lib/Locale/useLocale";
 import { repeat } from "@/lib/utils";
+import { useCommonLocale } from "@/Locale/useCommonLocale";
+import { useLocale } from "@/Locale/useLocale";
 import type { IngredientComplete } from "@/Types/IngredientComplete";
 
 type IngredientFormProps = {
@@ -24,7 +26,12 @@ export function RecipeFormPartTwo({
 	onAddIngredient,
 	onCompleteIngredient,
 }: IngredientFormProps) {
-	const { t } = useLocale("common");
+	const { txt: txtCommon } = useCommonLocale();
+	const { txt } = useLocale("app", {
+		addIngredient: ["form.ingredient.add"],
+		ingredients: ["form.ingredient.title"],
+		minIngredientTip: ["form.ingredient.min"],
+	});
 	const ctx = useCardDeckContext();
 	const { materialClient, measurementClient } = useAppContext();
 	const materialListQuery = useSuspenseQuery(materialClient.list({}));
@@ -44,7 +51,7 @@ export function RecipeFormPartTwo({
 
 	return (
 		<FormCard
-			title="Ingredients"
+			title={txt.ingredients}
 			cornerSlot={
 				<span className="bg-secondary text-secondary-foreground rounded-full px-2 py-0.5 text-xs font-medium">
 					{ingredientCount}
@@ -54,12 +61,18 @@ export function RecipeFormPartTwo({
 				ctx ? (
 					<>
 						<button onClick={ctx.onPrev} className="secondary w-max">
-							{t("previous")}
+							{txtCommon.previous}
 						</button>
 
-						<button onClick={ctx.onNext} className="secondary w-max">
-							{t("next")}
-						</button>
+						<Tooltip tip={txt.minIngredientTip}>
+							<button
+								disabled={ingredients.length < 1}
+								onClick={ctx.onNext}
+								className="secondary w-max"
+							>
+								{txtCommon.next}
+							</button>
+						</Tooltip>
 					</>
 				) : null
 			}
@@ -88,7 +101,7 @@ export function RecipeFormPartTwo({
 				>
 					<path d="M12 5v14M5 12h14" />
 				</svg>
-				Add Ingredient
+				{txt.addIngredient}
 			</button>
 		</FormCard>
 	);

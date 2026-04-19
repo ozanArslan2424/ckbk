@@ -3,13 +3,13 @@ import { Outlet, useNavigate } from "react-router";
 
 import { AppHeader } from "@/Components/layout/AppHeader";
 import { useAppContext } from "@/Context/AppContext";
-import { CONFIG } from "@/lib/config";
-import { useLocale } from "@/lib/Locale/useLocale";
+import { CONFIG } from "@/lib/CONFIG";
+import { useLocale } from "@/Locale/useLocale";
 import { routes } from "@/router";
 
 export function AuthLayout() {
 	const { t } = useLocale("auth");
-	const navigate = useNavigate();
+	const nav = useNavigate();
 	const { queryClient, authClient, store } = useAppContext();
 
 	useEffect(() => {
@@ -17,14 +17,16 @@ export function AuthLayout() {
 			try {
 				const res = await queryClient.fetchQuery(authClient.queryMe({}));
 				store.set("auth", res);
-				await navigate(routes.dashboard);
+				await nav(routes.dashboard);
 			} catch {}
 		}
 
 		void init();
-	}, [queryClient, authClient, store, navigate]);
+	}, [queryClient, authClient, store, nav]);
 
-	const tosLabel = t("tos.label");
+	const txt = {
+		tosLabel: t("tos.label"),
+	};
 
 	return (
 		<>
@@ -38,7 +40,7 @@ export function AuthLayout() {
 					<div className="flex flex-col gap-6">
 						<Outlet />
 						<p className="text-foreground/70 hover:text-foreground cursor-pointer text-center text-sm whitespace-nowrap transition-all">
-							{tosLabel}
+							{txt.tosLabel}
 						</p>
 					</div>
 				</div>

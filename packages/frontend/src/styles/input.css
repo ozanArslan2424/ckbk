@@ -24,7 +24,7 @@
         @apply text-foreground/70 text-sm font-semibold;
 
         &.sublabel {
-            @apply text-xs;
+            @apply text-xs text-muted-foreground;
         }
 
         &.error {

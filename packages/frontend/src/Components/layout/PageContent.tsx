@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
 
-import { CONFIG } from "@/lib/config";
+import { CONFIG } from "@/lib/CONFIG";
 import { cn } from "@/lib/utils";
 
 export function PageContent({

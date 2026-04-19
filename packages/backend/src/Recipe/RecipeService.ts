@@ -118,6 +118,8 @@ export class RecipeService {
 
 		if (filters.mine) {
 			where.profileId = profileId;
+		} else {
+			where.OR = [{ profileId: profileId }, { isPublic: true }];
 		}
 
 		if (filters.materialIds && filters.materialIds.length > 0) {
@@ -130,6 +132,7 @@ export class RecipeService {
 
 		if (filters.search) {
 			where.OR = [
+				...(where.OR ? where.OR : []),
 				{
 					title: {
 						contains: filters.search,

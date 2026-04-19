@@ -1,4 +1,7 @@
+import { ImagePlusIcon } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
+
+import { useLocale } from "@/Locale/useLocale";
 
 type ImageUploadProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "value"> & {
 	image?: string | File | null;
@@ -14,6 +17,7 @@ export function ImageUpload({
 	onImageChange,
 	...inputProps
 }: ImageUploadProps) {
+	const { t } = useLocale("common");
 	const [internalFile, setInternalFile] = useState<File | null>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 
@@ -39,6 +43,10 @@ export function ImageUpload({
 		onImageRemove?.();
 		onImageChange?.(null);
 	}
+
+	const txt = {
+		upload: t("upload"),
+	};
 
 	return (
 		<div className="group relative min-h-20 w-full">
@@ -73,18 +81,8 @@ export function ImageUpload({
 					onClick={() => inputRef.current?.click()}
 					className="input-like flex h-full w-full flex-col items-center justify-center gap-2 border-dashed"
 				>
-					<svg
-						className="size-5"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						strokeWidth="1.5"
-					>
-						<rect x="3" y="3" width="18" height="18" rx="2" />
-						<circle cx="8.5" cy="8.5" r="1.5" />
-						<path d="m21 15-5-5L5 21" />
-					</svg>
-					<span className="text-sm font-semibold">Click to upload</span>
+					<ImagePlusIcon />
+					<span className="text-sm font-semibold">{txt.upload}</span>
 				</button>
 			)}
 		</div>

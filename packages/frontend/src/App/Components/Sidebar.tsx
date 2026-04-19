@@ -2,25 +2,32 @@ import { PlusIcon } from "lucide-react";
 
 import { useAppContext } from "@/Context/AppContext";
 import type { Events } from "@/lib/events";
+import { useLocale } from "@/Locale/useLocale";
 
 type Props = {
 	onClickCreate: Events.ClickHandler;
 };
 
 export function Sidebar(props: Props) {
+	const { txt: txtLanding } = useLocale("landing", {
+		welcomeBack: ["welcomeBack"],
+	});
+	const { txt: txtRecipe } = useLocale("app", {
+		create: ["create"],
+	});
 	const { store } = useAppContext();
 
 	return (
 		<>
 			<aside className="hidden flex-col items-center gap-2 *:w-full lg:flex">
 				<h1 className="text-foreground text-2xl font-black tracking-tight">
-					Welcome back, {store.get("auth")?.name}.
+					{txtLanding.welcomeBack} {store.get("auth")?.name}.
 				</h1>
 
 				<div className="h-1" />
 
 				<button onClick={props.onClickCreate} className="primary md">
-					Create new recipe
+					{txtRecipe.create}
 				</button>
 			</aside>
 

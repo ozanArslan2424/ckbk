@@ -6,17 +6,13 @@ import isBetween from "dayjs/plugin/isBetween";
 import relativeTime from "dayjs/plugin/relativeTime";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
-import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
-import type { Help } from "@/lib/Help";
-import type { locales } from "@/lib/Locale/localeConfig";
-
 type DInput = dayjs.ConfigType;
-type NS = keyof (typeof locales)["en"];
 
-export function useLocale(ns?: NS) {
-	const { t, i18n } = useTranslation(ns);
+export function useDate() {
+	const { i18n } = useTranslation();
+
 	dayjs.extend(advancedFormat);
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -48,26 +44,15 @@ export function useLocale(ns?: NS) {
 		custom: (format: string) => dayjs(date).format(format),
 	});
 
-	const compareTime = (date: DInput) => ({
+	const compare = (date: DInput) => ({
 		before: (compare: DInput) => dayjs(date).isBefore(compare),
 		after: (compare: DInput) => dayjs(date).isAfter(compare),
 		between: (start: DInput, end: DInput) => dayjs(date).isBetween(start, end),
 		same: (compare: DInput) => dayjs(date).isSame(compare),
 	});
 
-	const makeTranslator = (ns: NS) => (key: string, opts?: Help.UnknownObject) =>
-		t(key, { ns, ...opts });
-
-	const toggleLanguage = useCallback(async () => {
-		await i18n.changeLanguage(i18n.language === "en" ? "tr" : "en");
-	}, []);
-
 	return {
-		t,
-		makeTranslator,
-		toggleLanguage,
-		i18n,
 		timestamp,
-		compareTime,
+		compare,
 	};
 }

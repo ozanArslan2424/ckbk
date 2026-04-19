@@ -6,6 +6,7 @@ import { Combobox, type ComboboxOption } from "@/Components/form/Combobox";
 import { useAppContext } from "@/Context/AppContext";
 import { Events } from "@/lib/events";
 import { TXT } from "@/lib/TXT";
+import { useLocale } from "@/Locale/useLocale";
 import type { IngredientComplete } from "@/Types/IngredientComplete";
 
 type IngredientFormFieldProps = {
@@ -18,6 +19,13 @@ type IngredientFormFieldProps = {
 };
 
 export function IngredientFormField(props: IngredientFormFieldProps) {
+	const { txt } = useLocale("app", {
+		materialLabel: ["form.material.label"],
+		materialPlaceholder: ["form.material.placeholder"],
+		quantityLabel: ["form.quantity.label"],
+		measurementLabel: ["form.measurement.label"],
+		measurementPlaceholder: ["form.measurement.placeholder"],
+	});
 	const { materialClient, measurementClient } = useAppContext();
 	const [ingredient, setIngredient] = useState<Partial<IngredientComplete>>(props.ingredient ?? {});
 
@@ -110,14 +118,14 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 		<div className="grid grid-cols-12">
 			<div className="col-span-5">
 				<label htmlFor={`${uid}-ma`} className="text-muted-foreground text-xs font-semibold">
-					Material
+					{txt.materialLabel}
 				</label>
 				<Combobox
 					value={ingredient.materialId?.toString()}
 					className="rounded-r-none"
 					id={`${uid}-ma`}
 					name={`${uid}-ma`}
-					placeholder="e.g. Water"
+					placeholder={txt.materialPlaceholder}
 					options={props.materialOptions}
 					onCreateOption={({ label }) => handleCreateMaterial(label)}
 					onValueChange={handleChangeMaterial}
@@ -125,7 +133,7 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 			</div>
 			<div className="col-span-3">
 				<label htmlFor={`${uid}-q`} className="text-muted-foreground text-xs font-semibold">
-					Quantity
+					{txt.quantityLabel}
 				</label>
 				<input
 					className="rounded-none"
@@ -141,14 +149,14 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 			</div>
 			<div className="col-span-4">
 				<label htmlFor={`${uid}-me`} className="text-muted-foreground text-xs font-semibold">
-					Measurement
+					{txt.measurementLabel}
 				</label>
 				<Combobox
 					value={ingredient.measurementId?.toString()}
 					className="rounded-l-none"
 					id={`${uid}-me`}
 					name={`${uid}-me`}
-					placeholder="e.g. Cup"
+					placeholder={txt.measurementPlaceholder}
 					options={props.measurementOptions}
 					onCreateOption={({ label }) => handleCreateMeasurement(label)}
 					onValueChange={handleChangeMeasurement}

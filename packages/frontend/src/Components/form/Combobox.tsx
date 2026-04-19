@@ -1,7 +1,7 @@
 import * as React from "react";
 
-import { useLocale } from "@/lib/Locale/useLocale";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/Locale/useLocale";
 
 export type ComboboxOption = { value: string; label: string };
 
@@ -92,6 +92,11 @@ export function Combobox<O extends ComboboxOption>({
 		align === "end" ? "right-0" : align === "start" ? "left-0" : "left-1/2 -translate-x-1/2";
 	const dropdownSide = side === "top" ? "bottom-full mb-1" : "top-full mt-1";
 
+	const txt = {
+		create: t("create"),
+		clear: t("clear"),
+	};
+
 	return (
 		<div ref={containerRef} className="relative w-full">
 			<input
@@ -151,7 +156,7 @@ export function Combobox<O extends ComboboxOption>({
 								handleCreateOption(inputValue);
 							}}
 						>
-							{t("create")} "{inputValue}"
+							{txt.create} "{inputValue}"
 						</button>
 					)}
 					<button
@@ -162,7 +167,7 @@ export function Combobox<O extends ComboboxOption>({
 							handleSelect(null);
 						}}
 					>
-						{t("clear")}
+						{txt.clear}
 					</button>
 				</div>
 			)}

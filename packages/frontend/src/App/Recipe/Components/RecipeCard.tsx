@@ -4,26 +4,29 @@ import { useState } from "react";
 
 import type { Entities } from "@/Api/CorpusApi";
 import { useAppContext } from "@/Context/AppContext";
-import { type ModalState } from "@/Hooks/useModal";
 import { Events } from "@/lib/events";
-import { useLocale } from "@/lib/Locale/useLocale";
 import { cn } from "@/lib/utils";
-import type { RecipeDetails } from "@/Types/RecipeDetails";
+import { useDate } from "@/Locale/useDate";
+import { useLocale } from "@/Locale/useLocale";
 
 type RecipeCardProps = {
 	recipe: Entities.Recipe;
-	detailsModal: ModalState<RecipeDetails>;
-	updateModal: ModalState<RecipeDetails>;
+	onClickView: Events.Factory<Events.ClickEvent<HTMLDivElement>, [Entities.Recipe]>;
+	onClickUpdate: Events.Factory<Events.ClickEvent<HTMLButtonElement>, [Entities.Recipe]>;
 };
 
-export function RecipeCard({ recipe, detailsModal, updateModal }: RecipeCardProps) {
-	const [likeCount, setLikeCount] = useState(recipe.likeCount);
-	const [isLiked, setIsLiked] = useState(recipe.isLiked);
-	const { recipeClient, ingredientClient, stepClient, store, queryClient } = useAppContext();
-	const { timestamp } = useLocale();
-	const updatedAt = timestamp(recipe.updatedAt).short;
+export function RecipeCard(props: RecipeCardProps) {
+	const { recipeClient, store } = useAppContext();
+	const { timestamp } = useDate();
+	const { txt } = useLocale("app", {
+		yourRecipe: ["yourRecipe"],
+		update: ["update"],
+		updatedAt: ["updatedAt", { date: timestamp(props.recipe.updatedAt).short }],
+	});
+	const [likeCount, setLikeCount] = useState(props.recipe.likeCount);
+	const [isLiked, setIsLiked] = useState(props.recipe.isLiked);
 
-	const isOwner = store.get("auth")?.id === recipe.profileId;
+	const isOwner = store.get("auth")?.id === props.recipe.profileId;
 
 	const likeMut = useMutation(
 		recipeClient.like({
@@ -34,30 +37,11 @@ export function RecipeCard({ recipe, detailsModal, updateModal }: RecipeCardProp
 		}),
 	);
 
-	const handleViewClick = Events.click<[Entities.Recipe], HTMLDivElement>(async (_, recipe) => {
-		const params = { recipeId: recipe.id.toString() };
-		const ingredients = await queryClient.ensureQueryData(
-			ingredientClient.listByRecipe({ params }),
-		);
-		const steps = await queryClient.ensureQueryData(stepClient.listByRecipe({ params }));
-		detailsModal.handleOpen({ recipe, steps, ingredients });
-	});
-
 	const handleLikeClick = Events.click<[Entities.Recipe]>((e, recipe) => {
 		e.stopPropagation();
 		likeMut.mutate({ body: { id: recipe.id, isLiked: !isLiked } });
 		setIsLiked((p) => !p);
 		setLikeCount((p) => (isLiked ? p - 1 : p + 1));
-	});
-
-	const handleUpdateClick = Events.click<[Entities.Recipe]>(async (e, recipe) => {
-		e.stopPropagation();
-		const params = { recipeId: recipe.id.toString() };
-		const ingredients = await queryClient.ensureQueryData(
-			ingredientClient.listByRecipe({ params }),
-		);
-		const steps = await queryClient.ensureQueryData(stepClient.listByRecipe({ params }));
-		updateModal.handleOpen({ recipe, steps, ingredients });
 	});
 
 	return (
@@ -66,21 +50,21 @@ export function RecipeCard({ recipe, detailsModal, updateModal }: RecipeCardProp
 				{isOwner && (
 					<div className="absolute top-2 left-2 z-20 flex items-center gap-2">
 						<div className="bg-accent text-accent-foreground flex items-center justify-center rounded-md px-2.5 py-1.5 text-xs font-semibold tracking-tight">
-							Your Recipe
+							{txt.yourRecipe}
 						</div>
 					</div>
 				)}
 
 				<div className="absolute top-2 right-2 z-20 flex items-center gap-2">
 					{isOwner && (
-						<button onClick={handleUpdateClick(recipe)} className="secondary sm">
-							<span className="text-xs font-semibold">Update</span>
+						<button onClick={props.onClickUpdate(props.recipe)} className="secondary sm">
+							<span className="text-xs font-semibold">{txt.update}</span>
 							<PencilIcon className="size-3!" />
 						</button>
 					)}
 
 					<button
-						onClick={handleLikeClick(recipe)}
+						onClick={handleLikeClick(props.recipe)}
 						className={cn(
 							"unset",
 							"flex items-center gap-1 rounded-md px-2.5 py-1.5 transition-colors duration-200",
@@ -103,14 +87,14 @@ export function RecipeCard({ recipe, detailsModal, updateModal }: RecipeCardProp
 				</div>
 
 				<div
-					onClick={handleViewClick(recipe)}
+					onClick={props.onClickView(props.recipe)}
 					className="card group hover:border-primary cursor-pointer transition-all duration-300"
 				>
 					<div className="relative h-48 overflow-hidden">
-						{recipe.image ? (
+						{props.recipe.image ? (
 							<img
-								src={recipe.image}
-								alt={recipe.title}
+								src={props.recipe.image}
+								alt={props.recipe.title}
 								className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 							/>
 						) : (
@@ -132,12 +116,11 @@ export function RecipeCard({ recipe, detailsModal, updateModal }: RecipeCardProp
 						)}
 					</div>
 					<article>
-						<h2 className="mb-1 truncate">{recipe.title}</h2>
-						{/* Fixed height description area */}
-						<p className="line-clamp-2 min-h-10 text-sm opacity-80">{recipe.description}</p>
+						<h2 className="mb-1 truncate">{props.recipe.title}</h2>
+						<p className="line-clamp-2 min-h-10 text-sm opacity-80">{props.recipe.description}</p>
 					</article>
 					<footer className="flex items-center justify-between">
-						<span className="text-muted-foreground font-mono text-xs">Updated {updatedAt}</span>
+						<span className="text-muted-foreground font-mono text-xs">{txt.updatedAt}</span>
 					</footer>
 				</div>
 			</div>

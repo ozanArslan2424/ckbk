@@ -1,0 +1,83 @@
+{
+	"create": "Create new recipe",
+	"update": "Update",
+	"yourRecipe": "Your Recipe",
+	"updatedAt": "Updated {{date}}",
+	"recipe": "Recipe",
+	"steps": "Steps",
+	"ingredients": "Ingredients",
+
+	"createModal": {
+		"title": "Create a new recipe",
+		"description": "Fill in the form to create a new recipe"
+	},
+
+	"updateModal": {
+		"title": "Update {{title}}",
+		"description": "Fill in the form to update the recipe",
+		"delete": "Delete",
+		"cancel": "Cancel",
+		"submit": "Save Changes"
+	},
+
+	"form": {
+		"details": "Recipe Details",
+		"step": {
+			"title": "Steps",
+			"add": "Add Step",
+			"placeholder": "e.g. Preheat oven to 350°F...",
+			"min": "At least 1 step is required"
+		},
+		"ingredient": {
+			"title": "Ingredients",
+			"add": "Add Ingredient",
+			"min": "At least 1 ingredient is required"
+		},
+		"material": {
+			"label": "Material",
+			"placeholder": "e.g. Water"
+		},
+		"quantity": {
+			"label": "Quantity"
+		},
+		"measurement": {
+			"label": "Measurement",
+			"placeholder": "e.g. Cup"
+		},
+		"image": {
+			"label": "Cover Image"
+		},
+		"title": {
+			"label": "Recipe Title",
+			"sublabel": "Minimum 5 characters.",
+			"placeholder": "e.g. Grandma's Apple Pie"
+		},
+		"description": {
+			"label": "Description",
+			"placeholder": "A brief story or notes about this recipe..."
+		},
+		"isPublic": {
+			"label": "Make this recipe public"
+		}
+	},
+
+	"sortBy": {
+		"createdAt": "Date Created",
+		"title": "Title",
+		"likes": "Like Count",
+		"steps": "Step Count"
+	},
+
+	"sortOrder": {
+		"createdAt": { "desc": "Newest First", "asc": "Oldest First" },
+		"title": { "desc": "A -> Z", "asc": "Z -> A" },
+		"likes": { "desc": "Most Likes", "asc": "Least Likes" },
+		"steps": { "desc": "Most Steps", "asc": "Least Steps" },
+		"default": { "desc": "Descending", "asc": "Ascending" }
+	},
+
+	"ownerFilter": {
+		"label": "Ownership",
+		"innerText": "Only yours"
+	}
+}

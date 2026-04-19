@@ -9,7 +9,7 @@ import { getErrorMessage } from "@/lib/utils";
 import type { IngredientComplete } from "@/Types/IngredientComplete";
 import type { StepComplete } from "@/Types/StepComplete";
 
-export type CookbookFormState = {
+export type RecipeFormState = {
 	ingredients: IngredientComplete[];
 	ingredientCount: number;
 	ingredientAddDisabled: boolean;
@@ -22,7 +22,7 @@ export type CookbookFormState = {
 	isPublic: boolean;
 };
 
-const initialState: CookbookFormState = {
+const initialState: RecipeFormState = {
 	ingredients: [],
 	ingredientCount: 1,
 	ingredientAddDisabled: false,
@@ -38,21 +38,21 @@ const initialState: CookbookFormState = {
 type Action =
 	| {
 			type: "ADD_INGREDIENT";
-			payload: CookbookFormState["ingredients"][number];
+			payload: RecipeFormState["ingredients"][number];
 	  }
 	| { type: "WRITE_STEP"; payload: { index: number; body: string } }
 	| { type: "INCREASE_INGREDIENT_COUNT" }
 	| { type: "INCREASE_STEP_COUNT" }
 	| { type: "CHANGE_IMAGE"; payload: File }
 	| { type: "REMOVE_IMAGE" }
-	| { type: "CHANGE_TITLE"; payload: CookbookFormState["title"] }
-	| { type: "CHANGE_DESCRIPTION"; payload: CookbookFormState["description"] }
-	| { type: "CHANGE_IS_PUBLIC"; payload: CookbookFormState["isPublic"] }
+	| { type: "CHANGE_TITLE"; payload: RecipeFormState["title"] }
+	| { type: "CHANGE_DESCRIPTION"; payload: RecipeFormState["description"] }
+	| { type: "CHANGE_IS_PUBLIC"; payload: RecipeFormState["isPublic"] }
 	| { type: "MOVE_STEP"; payload: { from: number; to: number } }
-	| { type: "SET"; payload: CookbookFormState }
+	| { type: "SET"; payload: RecipeFormState }
 	| { type: "RESET" };
 
-function reducer(state: CookbookFormState, action: Action): CookbookFormState {
+function reducer(state: RecipeFormState, action: Action): RecipeFormState {
 	switch (action.type) {
 		case "ADD_INGREDIENT":
 			return {
@@ -121,7 +121,7 @@ function reducer(state: CookbookFormState, action: Action): CookbookFormState {
 	}
 }
 
-export function useCookbookForm(onSuccess?: () => void, defaultValues?: CookbookFormState) {
+export function useRecipeForm(onSuccess?: () => void, defaultValues?: RecipeFormState) {
 	const { listArgs } = useRecipeListArgs();
 	const [state, dispatch] = useReducer(reducer, defaultValues ?? initialState);
 	const { api, recipeClient } = useAppContext();

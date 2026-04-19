@@ -1,6 +1,8 @@
 {
-	"app": "slver",
-	"language": "English",
+	"languages": {
+		"en": "English",
+		"tr": "Turkish"
+	},
 	"theme": {
 		"dark": "Gündüz Modu",
 		"light": "Gece Modu"
@@ -9,6 +11,7 @@
 	"update": "Güncelle",
 	"delete": "Sil",
 	"clear": "Temizle",
+	"submit": "Gönder",
 	"confirm": "Onayla",
 	"cancel": "Vazgeç",
 	"close": "Kapat",
@@ -24,7 +27,10 @@
 	"login": "Giriş yap",
 	"logout": "Çıkış yap",
 	"register": "Kayıt ol",
-
+	"searchPlaceholder": "Ara...",
+	"sortBy": "Sırala",
+	"sortOrder": "Sıralama yönü",
+	"upload": "Yüklemek için tıklayın",
 	"limit": "Limit",
 	"previous": "Önceki",
 	"next": "Sonraki",

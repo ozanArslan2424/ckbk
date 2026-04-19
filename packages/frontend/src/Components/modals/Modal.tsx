@@ -3,10 +3,10 @@ import { XIcon } from "lucide-react";
 import type { ReactNode, ComponentProps } from "react";
 
 import type { ModalState } from "@/Hooks/useModal";
-import { useLocale } from "@/lib/Locale/useLocale";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/Locale/useLocale";
 
-export type DialogProps<T = undefined> = ModalState<T> & {
+export type ModalProps<T = undefined> = ModalState<T> & {
 	id?: string;
 	showCloseButton?: boolean;
 	showTitle?: boolean;
@@ -17,9 +17,10 @@ export type DialogProps<T = undefined> = ModalState<T> & {
 	children: ReactNode;
 	closeButtonProps?: ComponentProps<"button">;
 	autoFocus?: boolean;
+	disableEscapeClose?: boolean;
 };
 
-export function Dialog<T = undefined>({
+export function Modal<T = undefined>({
 	id,
 	open,
 	onOpenChange,
@@ -33,11 +34,25 @@ export function Dialog<T = undefined>({
 	closeButtonProps,
 	autoFocus = false,
 	ref,
-}: DialogProps<T>) {
+	disableEscapeClose = false,
+}: ModalProps<T>) {
 	const { t } = useLocale("common");
+	const txt = {
+		close: t("close"),
+	};
 
 	return (
-		<Primitive.Root data-slot="dialog" open={open} onOpenChange={onOpenChange}>
+		<Primitive.Root
+			data-slot="dialog"
+			open={open}
+			onOpenChange={(open, eventDetails) => {
+				if (eventDetails.reason === "escape-key" && disableEscapeClose) {
+					eventDetails.cancel();
+				} else {
+					onOpenChange(open);
+				}
+			}}
+		>
 			<Primitive.Portal data-slot="dialog-portal">
 				<Primitive.Backdrop
 					data-slot="dialog-overlay"
@@ -104,7 +119,7 @@ export function Dialog<T = undefined>({
 							)}
 						>
 							{closeButtonProps?.children ? closeButtonProps.children : <XIcon />}
-							<span className="sr-only">{t("close")}</span>
+							<span className="sr-only">{txt.close}</span>
 						</Primitive.Close>
 					)}
 				</Primitive.Popup>

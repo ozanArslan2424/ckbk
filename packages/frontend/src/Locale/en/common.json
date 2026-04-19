@@ -1,6 +1,8 @@
 {
-	"app": "slver",
-	"language": "Türkçe",
+	"languages": {
+		"en": "English",
+		"tr": "Turkish"
+	},
 	"theme": {
 		"dark": "Light Theme",
 		"light": "Dark Theme"
@@ -9,6 +11,7 @@
 	"update": "Update",
 	"delete": "Delete",
 	"clear": "Clear",
+	"submit": "Submit",
 	"confirm": "Confirm",
 	"cancel": "Cancel",
 	"close": "Close",
@@ -24,7 +27,10 @@
 	"login": "Login",
 	"logout": "Logout",
 	"register": "Register",
-
+	"searchPlaceholder": "Search...",
+	"sortBy": "Sort By",
+	"sortOrder": "Order By",
+	"upload": "Click to upload",
 	"limit": "Items per page",
 	"previous": "Previous",
 	"next": "Next",

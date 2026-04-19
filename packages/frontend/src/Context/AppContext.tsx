@@ -10,7 +10,7 @@ import { RequestClient } from "@/Api/RequestClient";
 import { StepClient } from "@/Api/StepClient";
 import { Store } from "@/Api/Store";
 import { RecipeClient } from "@/App/Recipe/RecipeClient";
-import localeConfig from "@/lib/Locale/localeConfig";
+import localeConfig from "@/Locale/localeConfig";
 import { QueryClient } from "@/Query/QueryClient";
 import { queryConfig } from "@/Query/queryConfig";
 

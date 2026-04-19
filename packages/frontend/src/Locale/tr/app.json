@@ -1,0 +1,83 @@
+{
+	"create": "Yeni tarif oluştur",
+	"update": "Güncelle",
+	"yourRecipe": "Sizin tarifiniz",
+	"updatedAt": "{{date}} tarihinde güncellendi",
+	"recipe": "Tarif",
+	"steps": "Adımlar",
+	"ingredients": "Malzemeler",
+
+	"createModal": {
+		"title": "Yeni bir tarif oluştur",
+		"description": "Yeni bir tarif oluşturmak için formu doldurun"
+	},
+
+	"updateModal": {
+		"title": "{{title}} Güncelle",
+		"description": "Tarifi güncellemek için formu doldurun",
+		"delete": "Sil",
+		"cancel": "İptal",
+		"submit": "Değişiklikleri Kaydet"
+	},
+
+	"form": {
+		"details": "Tarif Detayları",
+		"step": {
+			"title": "Adımlar",
+			"add": "Adım Ekle",
+			"placeholder": "örn. Fırını 180°C'ye ısıtın...",
+			"min": "En az bir adım gerekli"
+		},
+		"ingredient": {
+			"title": "Malzemeler",
+			"add": "Malzeme Ekle",
+			"min": "En az bir malzeme gerekli"
+		},
+		"material": {
+			"label": "Malzeme adı",
+			"placeholder": "e.g. Su"
+		},
+		"quantity": {
+			"label": "Miktar"
+		},
+		"measurement": {
+			"label": "Ölçü",
+			"placeholder": "e.g. Su bardağı"
+		},
+		"image": {
+			"label": "Kapak Görseli"
+		},
+		"title": {
+			"label": "Tarif Başlığı",
+			"sublabel": "Minimum 5 karakter.",
+			"placeholder": "örn. Kremalı Ispanak"
+		},
+		"description": {
+			"label": "Açıklama",
+			"placeholder": "Bu tarif hakkında kısa bir hikaye veya notlar..."
+		},
+		"isPublic": {
+			"label": "Bu tarifi herkese açık yap"
+		}
+	},
+
+	"sortBy": {
+		"createdAt": "Oluşturma Tarihi",
+		"title": "Başlık",
+		"likes": "Beğeni Sayısı",
+		"steps": "Adım Sayısı"
+	},
+
+	"sortOrder": {
+		"createdAt": { "desc": "Önce En Yeni", "asc": "Önce En Eski" },
+		"title": { "desc": "A -> Z", "asc": "Z -> A" },
+		"likes": { "desc": "En Çok Beğeni", "asc": "En Az Beğeni" },
+		"steps": { "desc": "En Çok Adım", "asc": "En Az Adım" },
+		"default": { "desc": "Azalan", "asc": "Artan" }
+	},
+
+	"ownerFilter": {
+		"label": "Sahiplik",
+		"innerText": "Sadece sizin"
+	}
+}
