@@ -1,8 +1,8 @@
 import type { ComponentProps } from "react";
 
-import type { ModalState } from "@/Hooks/useModal";
+import { useCommonLocale } from "@/hooks/useCommonLocale";
+import type { ModalState } from "@/hooks/useModal";
 import { cn, prefixId } from "@/lib/utils";
-import { useCommonLocale } from "@/Locale/useCommonLocale";
 
 import { Modal } from "./Modal";
 

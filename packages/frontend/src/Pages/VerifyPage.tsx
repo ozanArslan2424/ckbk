@@ -1,10 +1,10 @@
 import { LoaderIcon } from "lucide-react";
 import { Link } from "react-router";
 
-import { useVerifyForm } from "@/App/Verify/useVerifyForm";
-import { FormField } from "@/Components/form/FormField";
-import { FormRootError } from "@/Components/form/FormRootError";
-import { useLocale } from "@/Locale/useLocale";
+import { useVerifyForm } from "@/app/Auth/useVerifyForm";
+import { FormField } from "@/components/form/FormField";
+import { FormRootError } from "@/components/form/FormRootError";
+import { useLocale } from "@/hooks/useLocale";
 import { routes } from "@/router";
 
 export function VerifyPage() {

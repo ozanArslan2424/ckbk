@@ -2,8 +2,8 @@ import * as PopoverPrimitive from "@radix-ui/react-popover";
 import type { ReactNode, ComponentProps } from "react";
 import { Drawer } from "vaul";
 
-import { useIsMobile } from "@/Hooks/useIsMobile";
-import type { ModalState } from "@/Hooks/useModal";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import type { ModalState } from "@/hooks/useModal";
 import { cn } from "@/lib/utils";
 
 type PopoverProps = Omit<ModalState, "ref" | "data" | "handleOpen"> & {

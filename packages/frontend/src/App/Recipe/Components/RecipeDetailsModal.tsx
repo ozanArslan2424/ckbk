@@ -1,11 +1,11 @@
-import type { Entities } from "@/Api/CorpusApi";
-import { useAppContext } from "@/App/AppContext";
-import { Modal } from "@/Components/modals/Modal";
-import type { ModalState } from "@/Hooks/useModal";
-import type { Events } from "@/lib/events";
-import { useDate } from "@/Locale/useDate";
-import { useLocale } from "@/Locale/useLocale";
-import type { RecipeDetails } from "@/Types/RecipeDetails";
+import { useAppContext } from "@/app/AppContext";
+import type { RecipeDetails } from "@/app/Recipe/Types/RecipeDetails";
+import { Modal } from "@/components/modals/Modal";
+import { useDate } from "@/hooks/useDate";
+import { useLocale } from "@/hooks/useLocale";
+import type { ModalState } from "@/hooks/useModal";
+import type { Entities } from "@/lib/CorpusApi";
+import type { Events } from "@/lib/Events";
 
 type RecipeDetailsModalProps = {
 	modal: ModalState<RecipeDetails>;

@@ -1,10 +1,10 @@
 import { ChevronDownIcon } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
-import { Popover } from "@/Components/modals/Popover";
-import { Calendar } from "@/Components/ui/calendar";
+import { Popover } from "@/components/modals/Popover";
+import { Calendar } from "@/components/ui/calendar";
+import { useDate } from "@/hooks/useDate";
 import { cn } from "@/lib/utils";
-import { useDate } from "@/Locale/useDate";
 
 type DatePickerProps = {
 	id?: string;

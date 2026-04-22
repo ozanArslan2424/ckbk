@@ -1,4 +1,4 @@
-import { useModal } from "@/Hooks/useModal";
+import { useModal } from "@/hooks/useModal";
 import { prefixId } from "@/lib/utils";
 
 export function useActionModal() {

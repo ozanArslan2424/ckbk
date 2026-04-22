@@ -1,83 +1,77 @@
-import type { Args, Entities } from "@/Api/CorpusApi";
-import { useAppContext } from "@/App/AppContext";
-import { Sidebar } from "@/App/Components/Sidebar";
-import { RecipeCreateModal } from "@/App/Recipe/Components/RecipeCreateModal";
-import { RecipeDetailsModal } from "@/App/Recipe/Components/RecipeDetailsModal";
-import { RecipeGrid } from "@/App/Recipe/Components/RecipeGrid";
-import { RecipeListFilters } from "@/App/Recipe/Components/RecipeListFilters";
-import { RecipeUpdateModal } from "@/App/Recipe/Components/RecipeUpdateModal";
-import { useInfiniteRecipeQuery } from "@/App/Recipe/Hooks/useInfiniteRecipeQuery";
-import { useRecipeForm } from "@/App/Recipe/Hooks/useRecipeForm";
-import { useRecipeListArgs } from "@/App/Recipe/Hooks/useRecipeListArgs";
-import { PageContent } from "@/Components/layout/PageContent";
-import { useModal } from "@/Hooks/useModal";
-import { Events } from "@/lib/events";
+import { useAppContext } from "@/app/AppContext";
+import { Sidebar } from "@/app/Components/Sidebar";
+import { RecipeCreateModal } from "@/app/Recipe/Components/RecipeCreateModal";
+import { RecipeDetailsModal } from "@/app/Recipe/Components/RecipeDetailsModal";
+import { RecipeGrid } from "@/app/Recipe/Components/RecipeGrid";
+import { RecipeListFilters } from "@/app/Recipe/Components/RecipeListFilters";
+import { RecipeUpdateModal } from "@/app/Recipe/Components/RecipeUpdateModal";
+import { useRecipeGetArgs } from "@/app/Recipe/Hooks/useRecipeGetArgs";
+import type { RecipeDetails } from "@/app/Recipe/Types/RecipeDetails";
+import { PageContent } from "@/components/layout/PageContent";
+import { useInfiniteScrollQuery } from "@/hooks/useInfiniteScroll";
+import { useLocale } from "@/hooks/useLocale";
+import { useModal } from "@/hooks/useModal";
+import type { Args, Entities } from "@/lib/CorpusApi";
+import { Events } from "@/lib/Events";
 import { Help } from "@/lib/Help";
-import { useLocale } from "@/Locale/useLocale";
-import type { RecipeDetails } from "@/Types/RecipeDetails";
 
 export function DashboardPage() {
-	const { ingredientClient, stepClient, queryClient } = useAppContext();
-	const { listArgs, updateSearchParams: updateSearch } = useRecipeListArgs();
+	const { recipeClient, ingredientClient, stepClient, queryClient } = useAppContext();
+	const { recipeGetArgs, updateSearchParams } = useRecipeGetArgs();
 	const { txt } = useLocale("dashboard", {
-		title: Help.toBoolean(listArgs.search.mine) ? ["yourRecipes"] : ["recentRecipes"],
+		title: Help.toBoolean(recipeGetArgs.search.mine) ? ["yourRecipes"] : ["recentRecipes"],
 	});
 
 	const createModal = useModal();
 	const detailsModal = useModal<RecipeDetails>();
 	const updateModal = useModal<RecipeDetails>();
 
-	const recipesQuery = useInfiniteRecipeQuery(listArgs);
-	const recipeForm = useRecipeForm(() => {
-		createModal.onOpenChange(false);
-		detailsModal.onOpenChange(false);
-		updateModal.onOpenChange(false);
-	});
+	const recipesQuery = useInfiniteScrollQuery(recipeClient.list(recipeGetArgs));
 
 	const onClickCreateFactory = Events.click(() => {
 		createModal.onOpenChange(true);
 	});
 
 	const handleChangeSortBy = (value: Args.RecipeGet["search"]["sortBy"] | null) => {
-		updateSearch({ sortBy: value });
+		updateSearchParams({ sortBy: value });
 	};
 
 	const handleChangeSortOrder = (value: Args.RecipeGet["search"]["sortOrder"] | null) => {
-		updateSearch({ sortOrder: value });
+		updateSearchParams({ sortOrder: value });
 	};
 
 	const handleChangeSearch = (value: string) => {
-		updateSearch({ search: value === "" ? null : value });
+		updateSearchParams({ search: value === "" ? null : value });
 	};
 
 	const handleChangeMine = (value: boolean) => {
-		updateSearch({ mine: Help.toStringBoolean(value) });
+		updateSearchParams({ mine: value });
 	};
 
 	const onClickViewFactory = Events.click<[Entities.Recipe], HTMLDivElement>(async (_, recipe) => {
-		const params = { recipeId: recipe.id.toString() };
+		const params = { id: recipe.id.toString() };
 		const ingredients = await queryClient.ensureQueryData(
-			ingredientClient.listByRecipe({ params }),
+			ingredientClient.listByRecipeId({ params }),
 		);
-		const steps = await queryClient.ensureQueryData(stepClient.listByRecipe({ params }));
+		const steps = await queryClient.ensureQueryData(stepClient.listByRecipeId({ params }));
 		detailsModal.handleOpen({ recipe, steps, ingredients });
 	});
 
 	const onClickUpdateFactory = Events.click<[Entities.Recipe]>(async (e, recipe) => {
 		e.stopPropagation();
-		const params = { recipeId: recipe.id.toString() };
+		const params = { id: recipe.id.toString() };
 		const ingredients = await queryClient.ensureQueryData(
-			ingredientClient.listByRecipe({ params }),
+			ingredientClient.listByRecipeId({ params }),
 		);
-		const steps = await queryClient.ensureQueryData(stepClient.listByRecipe({ params }));
+		const steps = await queryClient.ensureQueryData(stepClient.listByRecipeId({ params }));
 		updateModal.handleOpen({ recipe, steps, ingredients });
 	});
 
 	return (
 		<PageContent>
 			<RecipeDetailsModal modal={detailsModal} onClickUpdateFactory={onClickUpdateFactory} />
-			<RecipeCreateModal modal={createModal} form={recipeForm} />
-			<RecipeUpdateModal modal={updateModal} form={recipeForm} />
+			<RecipeCreateModal modal={createModal} />
+			<RecipeUpdateModal modal={updateModal} />
 
 			<main className="grid grid-cols-1 gap-8 lg:grid-cols-4">
 				<Sidebar onClickCreateFactory={onClickCreateFactory} />

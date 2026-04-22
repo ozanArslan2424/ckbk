@@ -1,4 +1,4 @@
-import type { Entities } from "@/Api/CorpusApi";
+import type { Entities } from "@/lib/CorpusApi";
 
 declare global {
 	export interface StoreSchema {

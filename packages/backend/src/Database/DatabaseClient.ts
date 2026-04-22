@@ -49,4 +49,8 @@ export class DatabaseClient extends PrismaClient {
 	convertToSkipTake(page: number, limit: number): { skip: number; take: number } {
 		return { skip: (page - 1) * limit, take: limit };
 	}
+
+	whereIn<K extends string, T, Arr extends Array<T>>(key: K, arr: Arr) {
+		return arr.length ? { [key]: { in: arr } } : undefined;
+	}
 }

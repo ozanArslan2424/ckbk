@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 
-import { useCommonLocale } from "@/Locale/useCommonLocale";
+import { useCommonLocale } from "@/hooks/useCommonLocale";
 import { routes } from "@/router";
 
 export function ErrorCard({ error }: { error: Error | null | string }) {

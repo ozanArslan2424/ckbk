@@ -1,15 +1,11 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { useState } from "react";
-
-import { useAppContext } from "@/App/AppContext";
-import { IngredientFormField } from "@/App/Recipe/Components/IngredientFormField";
-import { useCardDeckContext } from "@/Components/CardDeck";
-import { FormCard } from "@/Components/form/FormCard";
-import { Tooltip } from "@/Components/ui/tooltip";
+import type { IngredientComplete } from "@/app/Ingredient/Types/IngredientComplete";
+import { IngredientFormField } from "@/app/Recipe/Components/IngredientFormField";
+import { useCardDeckContext } from "@/components/CardDeck";
+import { FormCard } from "@/components/form/FormCard";
+import { Tooltip } from "@/components/ui/tooltip";
+import { useCommonLocale } from "@/hooks/useCommonLocale";
+import { useLocale } from "@/hooks/useLocale";
 import { repeat } from "@/lib/utils";
-import { useCommonLocale } from "@/Locale/useCommonLocale";
-import { useLocale } from "@/Locale/useLocale";
-import type { IngredientComplete } from "@/Types/IngredientComplete";
 
 type IngredientFormProps = {
 	addDisabled: boolean;
@@ -33,21 +29,6 @@ export function RecipeFormPartTwo({
 		minIngredientTip: ["form.ingredient.min"],
 	});
 	const ctx = useCardDeckContext();
-	const { materialClient, measurementClient } = useAppContext();
-	const materialListQuery = useSuspenseQuery(materialClient.list({}));
-	const measurementListQuery = useSuspenseQuery(measurementClient.list({}));
-	const [measurementOptions, setMeasurementOptions] = useState(
-		measurementListQuery.data.map((m) => ({
-			value: m.id.toString(),
-			label: m.title,
-		})),
-	);
-	const [materialOptions, setMaterialOptions] = useState(() =>
-		materialListQuery.data.map((m) => ({
-			value: m.id.toString(),
-			label: m.title,
-		})),
-	);
 
 	return (
 		<FormCard
@@ -80,12 +61,9 @@ export function RecipeFormPartTwo({
 			{repeat(ingredientCount).map((i) => (
 				<IngredientFormField
 					key={i}
+					ingredientCount={ingredientCount}
 					ingredient={ingredients[i]}
 					onComplete={onCompleteIngredient}
-					materialOptions={materialOptions}
-					setMaterialOptions={setMaterialOptions}
-					measurementOptions={measurementOptions}
-					setMeasurementOptions={setMeasurementOptions}
 				/>
 			))}
 

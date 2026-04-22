@@ -1,7 +1,7 @@
 import { cloneElement, type ReactElement } from "react";
 
-import { Tooltip } from "@/Components/ui/tooltip";
-import type { UseFormReturn } from "@/Hooks/useForm";
+import { Tooltip } from "@/components/ui/tooltip";
+import type { UseFormReturn } from "@/hooks/useForm";
 import { cn } from "@/lib/utils";
 
 export type FormFieldProps<F> = {

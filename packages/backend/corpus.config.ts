@@ -1,4 +1,4 @@
-import { defineConfig } from "@ozanarslan/corpus-callosum/config";
+import { defineConfig } from "@ozanarslan/corpus-cli/config";
 
 export default defineConfig({
 	main: "./src/main.ts",
@@ -7,7 +7,7 @@ export default defineConfig({
 	packageManager: "pnpm",
 	casing: "pascal",
 	silent: false,
-	output: "../frontend/src/Api/CorpusApi.ts",
+	output: "../frontend/src/lib/CorpusApi.ts",
 	exportClientAs: "CorpusApi",
 	ignoreGlobalPrefix: true,
 	// Default targets arktype. The `fallback: ctx => ctx.base` strategy silently

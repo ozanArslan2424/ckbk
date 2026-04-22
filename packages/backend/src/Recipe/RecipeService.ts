@@ -3,6 +3,7 @@ import type { Prisma } from "prisma/generated/browser";
 import { PaginatedData } from "@/Base/PaginatedData";
 import type { DatabaseClient } from "@/Database/DatabaseClient";
 import type { ProfileEntity } from "@/Profile/ProfileEntity";
+import { RecipeEntity } from "@/Recipe/RecipeEntity";
 import type { RecipeType } from "@/Recipe/RecipeModel";
 
 export class RecipeService {
@@ -29,7 +30,62 @@ export class RecipeService {
 			},
 		});
 
-		return { ...recipe, likeCount: 0, isLiked: false };
+		return new RecipeEntity(recipe);
+	}
+
+	async update(
+		params: RecipeType["update"]["params"],
+		body: RecipeType["update"]["body"],
+		profile: ProfileEntity,
+	): Promise<RecipeType["update"]["response"]> {
+		const data: Prisma.RecipeUpdateArgs["data"] = {};
+
+		if (body.title) data.title = body.title;
+		if (body.description) data.description = body.description;
+		if (body.isPublic != undefined) data.isPublic = body.isPublic;
+
+		if (body.image) {
+			const base64 = Buffer.from(await body.image.arrayBuffer()).toString("base64");
+			data.image = `data:${body.image.type};base64,${base64}`;
+		}
+
+		if (body.deletedIngredientIds.length) {
+			if (!data.ingredients) data.ingredients = {};
+			data.ingredients.deleteMany = this.db.whereIn("id", body.deletedIngredientIds);
+		}
+
+		if (body.newIngredients.length) {
+			if (!data.ingredients) data.ingredients = {};
+			data.ingredients.connectOrCreate = body.newIngredients.map((it) => ({
+				where: { recipeId_materialId: { recipeId: params.id, materialId: it.materialId } },
+				create: it,
+			}));
+		}
+
+		if (body.updatedSteps.length) {
+			if (!data.steps) data.steps = {};
+			data.steps.updateMany = body.updatedSteps.map((step) => ({
+				where: { id: step.id },
+				data: { body: step.body, order: step.order },
+			}));
+		}
+
+		if (body.newSteps.length) {
+			if (!data.steps) data.steps = {};
+			data.steps.create = body.newSteps.map((it) => it);
+		}
+
+		const recipe = await this.db.recipe.update({
+			where: { id: params.id },
+			data,
+			include: { likes: { select: { profileId: true } } },
+		});
+
+		return new RecipeEntity({
+			...recipe,
+			isLiked: recipe.likes.some((l) => l.profileId === profile.id),
+			likeCount: recipe.likes.length,
+		});
 	}
 
 	async list(

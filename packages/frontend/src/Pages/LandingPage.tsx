@@ -2,13 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { LoaderIcon } from "lucide-react";
 import { Link } from "react-router";
 
-import { useAppContext } from "@/App/AppContext";
-import { useRegisterForm } from "@/App/Register/useRegisterForm";
-import { FormField } from "@/Components/form/FormField";
-import { FormRootError } from "@/Components/form/FormRootError";
-import { PageContent } from "@/Components/layout/PageContent";
+import { useAppContext } from "@/app/AppContext";
+import { useRegisterForm } from "@/app/Auth/useRegisterForm";
+import { FormField } from "@/components/form/FormField";
+import { FormRootError } from "@/components/form/FormRootError";
+import { PageContent } from "@/components/layout/PageContent";
+import { useLocale } from "@/hooks/useLocale";
 import { CONFIG } from "@/lib/CONFIG";
-import { useLocale } from "@/Locale/useLocale";
 import { routes } from "@/router";
 
 export function LandingPage() {

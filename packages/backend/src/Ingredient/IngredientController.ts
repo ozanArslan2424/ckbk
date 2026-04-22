@@ -12,7 +12,7 @@ export class IngredientController extends C.Controller {
 
 	private guard(profile: ContextDataInterface["profile"]): asserts profile {
 		if (!profile) {
-			throw new C.Error("Unauthorized", C.Status.UNAUTHORIZED);
+			throw new C.Exception("Unauthorized", C.Status.UNAUTHORIZED);
 		}
 	}
 
@@ -25,11 +25,20 @@ export class IngredientController extends C.Controller {
 		IngredientModel.create,
 	);
 
-	listByRecipe = this.route(
-		"/by-recipe/:recipeId",
+	update = this.route(
+		{ method: "PUT", path: "/:id" },
 		async (c) => {
 			this.guard(c.data.profile);
-			return await this.service.listByRecipe(c.params.recipeId);
+			return await this.service.update(c.params, c.body, c.data.profile);
+		},
+		IngredientModel.update,
+	);
+
+	listByRecipe = this.route(
+		"/by-recipe/:id",
+		async (c) => {
+			this.guard(c.data.profile);
+			return await this.service.listByRecipe(c.params.id);
 		},
 		IngredientModel.listByRecipe,
 	);

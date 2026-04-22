@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { FormCardHeader, type FormCardHeaderProps } from "@/Components/form/FormCardHeader";
+import { FormCardHeader, type FormCardHeaderProps } from "@/components/form/FormCardHeader";
 import { cn } from "@/lib/utils";
 
 type FormCardProps = FormCardHeaderProps & {

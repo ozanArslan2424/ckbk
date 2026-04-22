@@ -1,21 +1,18 @@
-import { useMutation } from "@tanstack/react-query";
-import { useState, useRef, useCallback, useId, type Dispatch, type SetStateAction } from "react";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useState, useRef, useCallback, useId } from "react";
 
-import type { Entities } from "@/Api/CorpusApi";
-import { useAppContext } from "@/App/AppContext";
-import { Combobox, type ComboboxOption } from "@/Components/form/Combobox";
-import { Events } from "@/lib/events";
+import { useAppContext } from "@/app/AppContext";
+import type { IngredientComplete } from "@/app/Ingredient/Types/IngredientComplete";
+import { Combobox } from "@/components/form/Combobox";
+import { useLocale } from "@/hooks/useLocale";
+import type { Entities } from "@/lib/CorpusApi";
+import { Events } from "@/lib/Events";
 import { TXT } from "@/lib/TXT";
-import { useLocale } from "@/Locale/useLocale";
-import type { IngredientComplete } from "@/Types/IngredientComplete";
 
 type IngredientFormFieldProps = {
+	ingredientCount: number;
 	ingredient: IngredientComplete | undefined;
 	onComplete: (ingredient: IngredientComplete) => void;
-	materialOptions: ComboboxOption[];
-	setMaterialOptions: Dispatch<SetStateAction<ComboboxOption[]>>;
-	measurementOptions: ComboboxOption[];
-	setMeasurementOptions: Dispatch<SetStateAction<ComboboxOption[]>>;
 };
 
 export function IngredientFormField(props: IngredientFormFieldProps) {
@@ -28,24 +25,44 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 	});
 	const { materialClient, measurementClient } = useAppContext();
 	const [ingredient, setIngredient] = useState<Partial<IngredientComplete>>(props.ingredient ?? {});
+	const materialListQuery = useSuspenseQuery(materialClient.list({}));
+	const measurementListQuery = useSuspenseQuery(measurementClient.list({}));
+	const [measurementOptions, setMeasurementOptions] = useState(
+		measurementListQuery.data.map((m) => ({
+			value: m.id.toString(),
+			label: m.title,
+		})),
+	);
+	const [materialOptions, setMaterialOptions] = useState(() =>
+		materialListQuery.data.map((m) => ({
+			value: m.id.toString(),
+			label: m.title,
+		})),
+	);
 
 	const uid = useId();
 	const submittedRef = useRef(false);
 	const materialCreateMut = useMutation(
-		materialClient.create({
-			onSuccess(res) {
-				updateIngredient({ materialId: res.id });
-				props.setMaterialOptions((p) => [...p, { value: res.id.toString(), label: res.title }]);
+		materialClient.create(
+			{},
+			{
+				onSuccess(res) {
+					updateIngredient({ materialId: res.id });
+					setMaterialOptions((p) => [...p, { value: res.id.toString(), label: res.title }]);
+				},
 			},
-		}),
+		),
 	);
 	const measurementCreateMut = useMutation(
-		measurementClient.create({
-			onSuccess(res) {
-				updateIngredient({ measurementId: res.id });
-				props.setMeasurementOptions((p) => [...p, { value: res.id.toString(), label: res.title }]);
+		measurementClient.create(
+			{},
+			{
+				onSuccess(res) {
+					updateIngredient({ measurementId: res.id });
+					setMeasurementOptions((p) => [...p, { value: res.id.toString(), label: res.title }]);
+				},
 			},
-		}),
+		),
 	);
 
 	const trySubmit = useCallback(
@@ -64,6 +81,7 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 			submittedRef.current = true;
 
 			props.onComplete({
+				id: props.ingredient?.id ?? -props.ingredientCount,
 				materialId: next.materialId,
 				measurementId: next.measurementId,
 				quantity: next.quantity,
@@ -117,7 +135,7 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 		<div className="grid grid-cols-12">
 			<div className="col-span-5">
 				<label htmlFor={`${uid}-ma`} className="text-muted-foreground text-xs font-semibold">
-					{txt.materialLabel}
+					{txt.materialLabel} {props.ingredient?.id}
 				</label>
 				<Combobox
 					value={ingredient.materialId?.toString()}
@@ -125,7 +143,7 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 					id={`${uid}-ma`}
 					name={`${uid}-ma`}
 					placeholder={txt.materialPlaceholder}
-					options={props.materialOptions}
+					options={materialOptions}
 					onCreateOption={({ label }) => handleCreateMaterial(label)}
 					onValueChange={handleChangeMaterial}
 				/>
@@ -156,7 +174,7 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 					id={`${uid}-me`}
 					name={`${uid}-me`}
 					placeholder={txt.measurementPlaceholder}
-					options={props.measurementOptions}
+					options={measurementOptions}
 					onCreateOption={({ label }) => handleCreateMeasurement(label)}
 					onValueChange={handleChangeMeasurement}
 				/>

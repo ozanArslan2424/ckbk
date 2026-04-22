@@ -2,15 +2,15 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2Icon, SunIcon, MoonIcon, GlobeIcon } from "lucide-react";
 import { Link } from "react-router";
 
-import { useAppContext } from "@/App/AppContext";
-import { PersonAvatar } from "@/Components/PersonAvatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from "@/Components/ui/dropdown-menu";
-import { useTheme } from "@/Hooks/useTheme";
+import { useAppContext } from "@/app/AppContext";
+import { PersonAvatar } from "@/components/PersonAvatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { useCommonLocale } from "@/hooks/useCommonLocale";
+import { useLocale } from "@/hooks/useLocale";
+import { useTheme } from "@/hooks/useTheme";
 import { CONFIG } from "@/lib/CONFIG";
-import { Events } from "@/lib/events";
-import { LANG_OPTIONS } from "@/Locale/localeConfig";
-import { useCommonLocale } from "@/Locale/useCommonLocale";
-import { useLocale } from "@/Locale/useLocale";
+import { Events } from "@/lib/Events";
+import { LANG_OPTIONS } from "@/locale/localeConfig";
 import { routes } from "@/router";
 
 export function AppHeader() {
@@ -21,7 +21,7 @@ export function AppHeader() {
 	const meQuery = useQuery(authClient.queryMe({}));
 	const logoutMut = useMutation(authClient.logout());
 
-	const iconClassName = "size-4";
+	const iconClassName = "";
 
 	const handleLogout = Events.click<[], HTMLDivElement>((e) => {
 		e.preventDefault();

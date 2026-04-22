@@ -4,7 +4,7 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@/Components/ui/select";
+} from "@/components/ui/select";
 
 type FilterOption<T extends string> = {
 	label: string;

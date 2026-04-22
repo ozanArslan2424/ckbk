@@ -1,10 +1,10 @@
-import { useCardDeckContext } from "@/Components/CardDeck";
-import { Checkbox } from "@/Components/form/Checkbox";
-import { FormCard } from "@/Components/form/FormCard";
-import { FormFieldPlain } from "@/Components/form/FormFieldPlain";
-import { ImageUpload } from "@/Components/form/ImageUpload";
-import { useCommonLocale } from "@/Locale/useCommonLocale";
-import { useLocale } from "@/Locale/useLocale";
+import { useCardDeckContext } from "@/components/CardDeck";
+import { Checkbox } from "@/components/form/Checkbox";
+import { FormCard } from "@/components/form/FormCard";
+import { FormFieldPlain } from "@/components/form/FormFieldPlain";
+import { ImageUpload } from "@/components/form/ImageUpload";
+import { useCommonLocale } from "@/hooks/useCommonLocale";
+import { useLocale } from "@/hooks/useLocale";
 
 type RecipeFormProps = {
 	image: File | string | null;

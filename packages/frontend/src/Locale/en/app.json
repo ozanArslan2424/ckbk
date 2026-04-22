@@ -6,6 +6,7 @@
 	"recipe": "Recipe",
 	"steps": "Steps",
 	"ingredients": "Ingredients",
+	"success": "New recipe added!",
 
 	"createModal": {
 		"title": "Create a new recipe",

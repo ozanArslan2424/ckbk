@@ -1,7 +1,7 @@
 import type { UseMutationResult } from "@tanstack/react-query";
 import { useCallback, useRef, useState, useTransition } from "react";
 
-import type { FormFieldProps } from "@/Components/form/FormField";
+import type { FormFieldProps } from "@/components/form/FormField";
 import { Schema } from "@/lib/Schema";
 
 export type TFormErrors<T> = Record<keyof T | "_root", string[] | undefined>;

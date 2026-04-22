@@ -1,8 +1,8 @@
 import { PlusIcon } from "lucide-react";
 
-import { useAppContext } from "@/App/AppContext";
-import type { Events } from "@/lib/events";
-import { useLocale } from "@/Locale/useLocale";
+import { useAppContext } from "@/app/AppContext";
+import { useLocale } from "@/hooks/useLocale";
+import type { Events } from "@/lib/Events";
 
 type Props = {
 	onClickCreateFactory: Events.ClickFactory;

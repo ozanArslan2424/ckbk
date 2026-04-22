@@ -2,12 +2,14 @@ import { useMutation } from "@tanstack/react-query";
 import { useReducer } from "react";
 import { toast } from "sonner";
 
-import { useAppContext } from "@/App/AppContext";
-import { useRecipeListArgs } from "@/App/Recipe/Hooks/useRecipeListArgs";
+import { useAppContext } from "@/app/AppContext";
+import type { IngredientComplete } from "@/app/Ingredient/Types/IngredientComplete";
+import { useRecipeGetArgs } from "@/app/Recipe/Hooks/useRecipeGetArgs";
+import type { RecipeDetails } from "@/app/Recipe/Types/RecipeDetails";
+import type { StepComplete } from "@/app/Step/Types/StepComplete";
+import { useLocale } from "@/hooks/useLocale";
 import { Help } from "@/lib/Help";
 import { getErrorMessage } from "@/lib/utils";
-import type { IngredientComplete } from "@/Types/IngredientComplete";
-import type { StepComplete } from "@/Types/StepComplete";
 
 export type RecipeFormState = {
 	ingredients: IngredientComplete[];
@@ -54,12 +56,17 @@ type Action =
 
 function reducer(state: RecipeFormState, action: Action): RecipeFormState {
 	switch (action.type) {
-		case "ADD_INGREDIENT":
+		case "ADD_INGREDIENT": {
+			const exists = state.ingredients.findIndex((i) => i.id === action.payload.id);
 			return {
 				...state,
 				ingredientAddDisabled: false,
-				ingredients: [...state.ingredients, action.payload],
+				ingredients:
+					exists !== -1
+						? state.ingredients.map((i, idx) => (idx === exists ? action.payload : i))
+						: [...state.ingredients, action.payload],
 			};
+		}
 
 		case "WRITE_STEP":
 			return {
@@ -69,7 +76,10 @@ function reducer(state: RecipeFormState, action: Action): RecipeFormState {
 					? state.steps.map((step, i) =>
 							i === action.payload.index ? { ...step, body: action.payload.body } : step,
 						)
-					: [...state.steps, { body: action.payload.body, order: state.steps.length + 1 }],
+					: [
+							...state.steps,
+							{ id: -state.stepCount, body: action.payload.body, order: state.steps.length + 1 },
+						],
 			};
 
 		case "MOVE_STEP": {
@@ -121,37 +131,26 @@ function reducer(state: RecipeFormState, action: Action): RecipeFormState {
 	}
 }
 
-export function useRecipeForm(onSuccess?: () => void, defaultValues?: RecipeFormState) {
-	const { listArgs } = useRecipeListArgs();
-	const [state, dispatch] = useReducer(reducer, defaultValues ?? initialState);
+export function useRecipeForm(onSuccess?: () => void, onReset?: () => void) {
 	const { api, recipeClient } = useAppContext();
+	const { recipeGetArgs } = useRecipeGetArgs();
+	const { txt } = useLocale("app", {
+		success: ["success"],
+	});
+	const [state, dispatch] = useReducer(reducer, initialState);
 
 	const recipeCreateMut = useMutation(
-		recipeClient.create({
-			listArgs,
+		recipeClient.create(recipeGetArgs, {
 			async onSuccess(res) {
 				try {
 					const ingPromises = state.ingredients.map((ing) =>
-						api.ingredientPost({
-							body: {
-								quantity: ing.quantity,
-								materialId: ing.materialId,
-								measurementId: ing.measurementId,
-								recipeId: res.id,
-							},
-						}),
+						api.ingredientPost({ body: { ...ing, recipeId: res.id } }),
 					);
 					const stepPromises = state.steps.map((step) =>
-						api.stepPost({
-							body: {
-								order: step.order,
-								body: step.body,
-								recipeId: res.id,
-							},
-						}),
+						api.stepPost({ body: { ...step, recipeId: res.id } }),
 					);
 					await Promise.all([...ingPromises, ...stepPromises]);
-					toast.success("New entry added to the ckbk!");
+					toast.success(txt.success);
 					onSuccess?.();
 					dispatch({ type: "RESET" });
 				} catch (err) {
@@ -162,6 +161,8 @@ export function useRecipeForm(onSuccess?: () => void, defaultValues?: RecipeForm
 		}),
 	);
 
+	const recipeUpdateMut = useMutation(recipeClient.update(recipeGetArgs, {}));
+
 	function handleCreate() {
 		const formData = new FormData();
 		formData.set("title", state.title);
@@ -171,14 +172,94 @@ export function useRecipeForm(onSuccess?: () => void, defaultValues?: RecipeForm
 		recipeCreateMut.mutate({ formData });
 	}
 
-	function handleUpdate() {
+	function handleUpdate(prev: RecipeDetails) {
 		const formData = new FormData();
-		formData.set("title", state.title);
-		formData.set("description", state.description);
-		formData.set("isPublic", Help.toStringBoolean(state.isPublic));
-		if (state.image) formData.set("image", state.image);
-		recipeCreateMut.mutate({ formData });
+
+		if (state.title !== prev.recipe.title) formData.set("title", state.title);
+		if (state.description !== prev.recipe.description)
+			formData.set("description", state.description);
+		if (state.isPublic !== prev.recipe.isPublic)
+			formData.set("isPublic", Help.toStringBoolean(state.isPublic));
+		if (state.image instanceof File) formData.set("image", state.image);
+
+		const currIngredientIds = new Set(state.ingredients.map((i) => i.id));
+
+		const changedIngredients = state.ingredients.filter((i) => {
+			if (i.id < 0) return false;
+			const prev_ = prev.ingredients.find((p) => p.id === i.id);
+			if (!prev_) return false;
+			return (
+				prev_.materialId !== i.materialId ||
+				prev_.measurementId !== i.measurementId ||
+				prev_.quantity !== i.quantity
+			);
+		});
+
+		const deletedIngredientIds = [
+			...prev.ingredients.filter((i) => !currIngredientIds.has(i.id)).map((i) => i.id),
+			...changedIngredients.map((i) => i.id),
+		];
+		for (const [i, id] of deletedIngredientIds.entries()) {
+			formData.append(`deletedIngredientIds[${i}]`, id.toString());
+		}
+		// formData.set("deletedIngredientIds", JSON.stringify(deletedIngredientIds));
+
+		const newIngredients = [...state.ingredients.filter((i) => i.id < 0), ...changedIngredients];
+		for (const [i, { id: _, ...rest }] of newIngredients.entries()) {
+			formData.append(`newIngredients[${i}]`, JSON.stringify(rest));
+		}
+		// formData.set(
+		// 	"newIngredients",
+		// 	JSON.stringify(newIngredients.map(({ id: _, ...rest }) => rest)),
+		// );
+
+		const currStepIds = new Set(state.steps.map((s) => s.id));
+		const deletedStepIds = prev.steps.filter((s) => !currStepIds.has(s.id)).map((s) => s.id);
+		for (const [i, id] of deletedStepIds.entries()) {
+			formData.append(`deletedStepIds[${i}]`, id.toString());
+		}
+		// formData.set("deletedStepIds", JSON.stringify(deletedStepIds));
+
+		const newSteps = state.steps.filter((s) => s.id < 0);
+		for (const [i, { id: _, ...rest }] of newSteps.entries()) {
+			formData.append(`newSteps[${i}]`, JSON.stringify(rest));
+		}
+
+		// formData.set("newSteps", JSON.stringify(newSteps.map(({ id: _, ...rest }) => rest)));
+
+		const updatedSteps = state.steps.filter((s) => {
+			if (s.id < 0) return false;
+			const prev_ = prev.steps.find((p) => p.id === s.id);
+			if (!prev_) return false;
+			return prev_.body !== s.body || prev_.order !== s.order;
+		});
+		for (const [i, { id, order, body }] of updatedSteps.entries()) {
+			formData.append(`updatedSteps[${i}]`, JSON.stringify({ id, order, body }));
+		}
+		// formData.set(
+		// 	"updatedSteps",
+		// 	JSON.stringify(updatedSteps.map(({ id, order, body }) => ({ id, order, body }))),
+		// );
+
+		const hasNoChanges =
+			!formData.has("title") &&
+			!formData.has("description") &&
+			!formData.has("isPublic") &&
+			!formData.has("image") &&
+			deletedIngredientIds.length === 0 &&
+			deletedStepIds.length === 0 &&
+			newIngredients.length === 0 &&
+			newSteps.length === 0;
+
+		if (hasNoChanges) return;
+
+		recipeUpdateMut.mutate({ params: { id: prev.recipe.id.toString() }, formData });
 	}
 
-	return { ...state, dispatch, handleCreate, handleUpdate };
+	function handleReset() {
+		dispatch({ type: "RESET" });
+		onReset?.();
+	}
+
+	return { ...state, dispatch, handleCreate, handleUpdate, handleReset };
 }

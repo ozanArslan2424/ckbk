@@ -1,13 +1,13 @@
 import { useMutation } from "@tanstack/react-query";
 import { HeartIcon, PencilIcon } from "lucide-react";
-import { useState } from "react";
 
-import type { Entities } from "@/Api/CorpusApi";
-import { useAppContext } from "@/App/AppContext";
-import { Events } from "@/lib/events";
+import { useAppContext } from "@/app/AppContext";
+import { useRecipeGetArgs } from "@/app/Recipe/Hooks/useRecipeGetArgs";
+import { useDate } from "@/hooks/useDate";
+import { useLocale } from "@/hooks/useLocale";
+import type { Entities } from "@/lib/CorpusApi";
+import { Events } from "@/lib/Events";
 import { cn } from "@/lib/utils";
-import { useDate } from "@/Locale/useDate";
-import { useLocale } from "@/Locale/useLocale";
 
 type RecipeCardProps = {
 	recipe: Entities.Recipe;
@@ -16,6 +16,7 @@ type RecipeCardProps = {
 };
 
 export function RecipeCard(props: RecipeCardProps) {
+	const { recipeGetArgs } = useRecipeGetArgs();
 	const { recipeClient, store } = useAppContext();
 	const { timestamp } = useDate();
 	const { txt } = useLocale("app", {
@@ -23,26 +24,19 @@ export function RecipeCard(props: RecipeCardProps) {
 		update: ["update"],
 		updatedAt: ["updatedAt", { date: timestamp(props.recipe.updatedAt).short }],
 	});
-	const [likeCount, setLikeCount] = useState(props.recipe.likeCount);
-	const [isLiked, setIsLiked] = useState(props.recipe.isLiked);
 
-	const likeMut = useMutation(
-		recipeClient.like({
-			onError() {
-				setIsLiked(false);
-				setLikeCount((p) => p - 1);
-			},
-		}),
-	);
+	const likeCount = props.recipe.likeCount ?? 0;
+	const isLiked = props.recipe.isLiked ?? false;
+	const isOwner = store.get("auth")?.id === props.recipe.profileId;
+
+	const likeMut = useMutation(recipeClient.like(recipeGetArgs, {}));
 
 	const onClickLikeFactory = Events.click<[Entities.Recipe]>((e, recipe) => {
+		e.preventDefault();
 		e.stopPropagation();
-		likeMut.mutate({ body: { id: recipe.id, isLiked: !isLiked } });
-		setIsLiked((p) => !p);
-		setLikeCount((p) => (isLiked ? p - 1 : p + 1));
+		likeMut.mutate({ body: { id: recipe.id, isLiked: !props.recipe.isLiked } });
 	});
 
-	const isOwner = store.get("auth")?.id === props.recipe.profileId;
 	const handleClickLike = onClickLikeFactory(props.recipe);
 	const handleClickUpdate = props.onClickUpdateFactory(props.recipe);
 	const handleClickView = props.onClickViewFactory(props.recipe);

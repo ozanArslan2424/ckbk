@@ -1,47 +1,45 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { createContext, use, type PropsWithChildren } from "react";
 
-import { AuthClient } from "@/Api/AuthClient";
-import { CorpusApi } from "@/Api/CorpusApi";
-import { IngredientClient } from "@/Api/IngredientClient";
-import { MaterialClient } from "@/Api/MaterialClient";
-import { MeasurementClient } from "@/Api/MeasurementClient";
-import { RequestClient } from "@/Api/RequestClient";
-import { StepClient } from "@/Api/StepClient";
-import { Store } from "@/Api/Store";
-import { RecipeClient } from "@/App/Recipe/RecipeClient";
-import localeConfig from "@/Locale/localeConfig";
-import { QueryClient } from "@/Query/QueryClient";
-import { queryConfig } from "@/Query/queryConfig";
+import { AuthClient } from "@/app/Auth/AuthClient";
+import { IngredientClient } from "@/app/Ingredient/IngredientClient";
+import { MaterialClient } from "@/app/Material/MaterialClient";
+import { MeasurementClient } from "@/app/Measurement/MeasurementClient";
+import { RecipeClient } from "@/app/Recipe/RecipeClient";
+import { StepClient } from "@/app/Step/StepClient";
+import { CorpusApi } from "@/lib/CorpusApi";
+import { QueryClient } from "@/lib/QueryClient";
+import { RequestClient } from "@/lib/RequestClient";
+import { Store } from "@/lib/Store";
+import localeConfig from "@/locale/localeConfig";
 
 const languageHeader = "x-lang";
 const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const refreshTokenKey = "refreshToken";
 
 function makeContext() {
-	const queryClient = new QueryClient(queryConfig);
-
-	const store = new Store({
-		accessToken: null,
-		auth: null,
-	});
-
 	const api = new CorpusApi(baseURL);
 
-	const request = new RequestClient(store, {
+	const queryClient = new QueryClient();
+
+	const store = new Store({ accessToken: null, auth: null });
+
+	const request = new RequestClient({
 		baseURL,
 		refreshIgnoredEndpoints: [api.endpoints.authRefreshPost],
-		refreshCallback: async (instance) => {
+		onRefreshToken: async (instance) => {
 			const res = await instance.post(api.endpoints.authRefreshPost, {
 				refreshToken: sessionStorage.getItem(refreshTokenKey) ?? "",
 			});
 			sessionStorage.setItem(refreshTokenKey, res.data.refreshToken);
 			return res.data.accessToken;
 		},
-		beforeRequest: (config) => {
+		onBeforeRequest: (config) => {
 			const lang = localeConfig.language;
 			config.headers[languageHeader] = lang;
 		},
+		getAccessToken: () => store.get("accessToken"),
+		setAccessToken: (value) => store.set("accessToken", value),
 	});
 
 	api.setFetchFn((d) => request.corpus(d));

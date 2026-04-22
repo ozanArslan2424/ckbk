@@ -1,6 +1,6 @@
 import { useId, useState, useEffect } from "react";
 
-import { useDebounce } from "@/Hooks/useDebounce";
+import { useDebounce } from "@/hooks/useDebounce";
 import { CONFIG } from "@/lib/CONFIG";
 
 type FilterSearchProps = Omit<React.ComponentProps<"input">, "value" | "onChange"> & {

@@ -1,7 +1,7 @@
 import * as React from "react";
 
+import { useCommonLocale } from "@/hooks/useCommonLocale";
 import { cn } from "@/lib/utils";
-import { useCommonLocale } from "@/Locale/useCommonLocale";
 
 export type ComboboxOption = { value: string; label: string };
 

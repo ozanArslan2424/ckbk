@@ -8,8 +8,10 @@ export class IngredientEntity extends C.Entity({
 		createdAt: "Date",
 		updatedAt: "Date",
 		quantity: "number",
-		recipeId: "number | null",
+		material: "string",
 		materialId: "number",
+		measurement: "string",
 		measurementId: "number",
+		recipeId: "number | null",
 	}),
 }) {}

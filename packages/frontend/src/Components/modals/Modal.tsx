@@ -2,9 +2,9 @@ import { Dialog as Primitive } from "@base-ui/react/dialog";
 import { XIcon } from "lucide-react";
 import type { ReactNode, ComponentProps } from "react";
 
-import type { ModalState } from "@/Hooks/useModal";
+import { useCommonLocale } from "@/hooks/useCommonLocale";
+import type { ModalState } from "@/hooks/useModal";
 import { cn } from "@/lib/utils";
-import { useCommonLocale } from "@/Locale/useCommonLocale";
 
 export type ModalProps<T = undefined> = ModalState<T> & {
 	id?: string;

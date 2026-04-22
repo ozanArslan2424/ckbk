@@ -1,4 +1,4 @@
-import { $registry, C, X } from "@ozanarslan/corpus";
+import { C, X } from "@ozanarslan/corpus";
 
 import { AuthController } from "@/Auth/AuthController";
 import { AuthGuard } from "@/Auth/AuthGuard";
@@ -49,7 +49,7 @@ const stepController = new StepController(stepService);
 new X.RateLimiter();
 new X.Cors({
 	allowedOrigins: [X.Config.get("CLIENT_URL")],
-	allowedMethods: ["GET", "POST"],
+	allowedMethods: ["GET", "POST", "PUT", "DELETE"],
 	allowedHeaders: ["Content-Type", "Authorization", localeService.languageHeader],
 	credentials: true,
 });
@@ -65,11 +65,6 @@ new AuthGuard(authService, [
 
 server.setOnError((err) => errorService.onError(err));
 server.setOnBeforeListen(async () => {
-	const entitiesTable = Array.from($registry.entities.map.keys()).map((e, i) => ({
-		Index: i,
-		Name: e,
-	}));
-
 	const routesTable = server.routes.map((r) => ({
 		Method: r.method,
 		Endpoint: r.endpoint,
@@ -77,7 +72,6 @@ server.setOnBeforeListen(async () => {
 
 	console.log("Global Prefix: /api");
 	console.table(routesTable);
-	console.table(entitiesTable);
 
 	await db.connect();
 });

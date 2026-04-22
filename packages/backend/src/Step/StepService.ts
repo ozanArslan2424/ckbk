@@ -15,10 +15,32 @@ export class StepService {
 			where: { id: body.recipeId, profileId: profile.id },
 		});
 		if (!recipe) {
-			throw new C.Error("Cannot add steps to someone else's recipe.", C.Status.FORBIDDEN);
+			throw new C.Exception("Cannot add steps to someone else's recipe.", C.Status.FORBIDDEN);
 		}
 
 		return await this.db.step.create({
+			data: {
+				body: body.body,
+				order: body.order,
+				recipeId: body.recipeId,
+			},
+		});
+	}
+
+	async update(
+		params: StepType["update"]["params"],
+		body: StepType["update"]["body"],
+		profile: ProfileEntity,
+	): Promise<StepType["update"]["response"]> {
+		const recipe = await this.db.recipe.findUnique({
+			where: { id: body.recipeId, profileId: profile.id },
+		});
+		if (!recipe) {
+			throw new C.Exception("Cannot add steps to someone else's recipe.", C.Status.FORBIDDEN);
+		}
+
+		return await this.db.step.update({
+			where: { id: params.id },
 			data: {
 				body: body.body,
 				order: body.order,

@@ -1,4 +1,4 @@
-import type { UseFormReturn } from "@/Hooks/useForm";
+import type { UseFormReturn } from "@/hooks/useForm";
 
 type FormRootErrorProps<F> = {
 	form: UseFormReturn<F, any, any, any>;

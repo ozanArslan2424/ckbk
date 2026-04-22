@@ -27,7 +27,7 @@ export class AuthService {
 
 		if (!user || !user.profile) {
 			console.log("!user");
-			throw new C.Error("UNAUTHORIZED", C.Status.UNAUTHORIZED);
+			throw new C.Exception("UNAUTHORIZED", C.Status.UNAUTHORIZED);
 		}
 		const profile = { ...user.profile, emailVerified: user.emailVerified };
 		return profile;
@@ -41,17 +41,17 @@ export class AuthService {
 	async login(body: AuthType["login"]["body"]) {
 		const user = await this.findByEmail(body.email);
 		if (!user) {
-			throw new C.Error("auth.invalid", C.Status.BAD_REQUEST);
+			throw new C.Exception("auth.invalid", C.Status.BAD_REQUEST);
 		}
 
 		const pwdMatch = await Encrypt.verifyPassword(body.password, user.password);
 		if (!pwdMatch) {
-			throw new C.Error("auth.invalid", C.Status.BAD_REQUEST);
+			throw new C.Exception("auth.invalid", C.Status.BAD_REQUEST);
 		}
 
 		const profile = await this.db.profile.findUnique({ where: { userId: user.id } });
 		if (!profile) {
-			throw new C.Error("auth.invalid", C.Status.BAD_REQUEST);
+			throw new C.Exception("auth.invalid", C.Status.BAD_REQUEST);
 		}
 
 		const jti = await this.createRefreshToken(user.id);
@@ -66,7 +66,7 @@ export class AuthService {
 
 		const exists = await this.findByEmail(email);
 		if (exists) {
-			throw new C.Error("auth.registerExists", C.Status.BAD_REQUEST);
+			throw new C.Exception("auth.registerExists", C.Status.BAD_REQUEST);
 		}
 
 		const otpCode = await this.db.$transaction(async (tx) => {
@@ -150,7 +150,7 @@ export class AuthService {
 		});
 
 		if (!response) {
-			throw new C.Error("auth.verification", C.Status.BAD_REQUEST);
+			throw new C.Exception("auth.verification", C.Status.BAD_REQUEST);
 		}
 
 		return response;
@@ -160,7 +160,7 @@ export class AuthService {
 		const payload = this.getRefreshPayload(body.refreshToken);
 		// SENARYO A: Alakasız bir token kullanıldıysa hata mesajı yeterli.
 		if (!payload.jti) {
-			throw new C.Error("Invalid refresh token", C.Status.BAD_REQUEST);
+			throw new C.Exception("Invalid refresh token", C.Status.BAD_REQUEST);
 		}
 		const tokenRecord = await this.db.refreshToken.findUnique({
 			where: { id: payload.jti },
@@ -170,21 +170,21 @@ export class AuthService {
 		// SENARYO B: Token veritabanında hiç yok (Silinmiş veya hiç oluşmamış)
 		// Bu durumda paniğe gerek yok, kullanıcının tekrar giriş yapması lazım.
 		if (!tokenRecord) {
-			throw new C.Error("Invalid refresh token", C.Status.UNAUTHORIZED);
+			throw new C.Exception("Invalid refresh token", C.Status.UNAUTHORIZED);
 		}
 
 		// SENARYO C: Panik.
 		// Token veritabanında var ama geçersiz. Token geçersizse çalınmış olabilir, kullanıcının bütün oturumlarını invalide etmeliyiz.
 		if (!tokenRecord.isValid) {
 			await this.invalidateAllTokensForUser(payload.userId);
-			throw new C.Error("Security breach: Refresh token reused!", C.Status.FORBIDDEN);
+			throw new C.Exception("Security breach: Refresh token reused!", C.Status.FORBIDDEN);
 		}
 
 		// SENARYO D: Her şey yolunda, mevcut token'ı kullanılmış işaretleyip yenisini
 		// gönderebiliriz. (rotation)
 		return await this.db.$transaction(async (tx) => {
 			if (!payload.jti) {
-				throw new C.Error("Invalid refresh token", C.Status.BAD_REQUEST);
+				throw new C.Exception("Invalid refresh token", C.Status.BAD_REQUEST);
 			}
 
 			await this.invalidateRefreshToken(payload.jti, payload.userId, tx);
@@ -216,12 +216,12 @@ export class AuthService {
 	getRefreshPayload(refreshToken: string | undefined): Encrypt.JwtPayload {
 		if (!refreshToken) {
 			console.log("!refreshToken");
-			throw new C.Error("UNAUTHORIZED", C.Status.UNAUTHORIZED);
+			throw new C.Exception("UNAUTHORIZED", C.Status.UNAUTHORIZED);
 		}
 		try {
 			return Encrypt.verifyJwt(refreshToken, this.jwtRefreshSecret) as Encrypt.JwtPayload;
 		} catch {
-			throw new C.Error("Invalid refresh token", C.Status.BAD_REQUEST);
+			throw new C.Exception("Invalid refresh token", C.Status.BAD_REQUEST);
 		}
 	}
 
@@ -242,13 +242,13 @@ export class AuthService {
 		const token = this.getAccessToken(headers);
 		if (!token) {
 			console.log("!token");
-			throw new C.Error("UNAUTHORIZED", C.Status.UNAUTHORIZED);
+			throw new C.Exception("UNAUTHORIZED", C.Status.UNAUTHORIZED);
 		}
 		try {
 			return Encrypt.verifyJwt(token, this.jwtAccessSecret) as Encrypt.JwtPayload;
 		} catch (err) {
 			console.log(err);
-			throw new C.Error("Invalid access token", C.Status.UNAUTHORIZED);
+			throw new C.Exception("Invalid access token", C.Status.UNAUTHORIZED);
 		}
 	}
 

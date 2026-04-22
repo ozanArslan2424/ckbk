@@ -1,7 +1,7 @@
 import { LoaderIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-import type { useInfiniteScrollQuery } from "@/Hooks/useInfiniteScroll";
+import type { useInfiniteScrollQuery } from "@/hooks/useInfiniteScroll";
 
 type InfiniteScrollLoaderProps = Pick<
 	ReturnType<typeof useInfiniteScrollQuery>,

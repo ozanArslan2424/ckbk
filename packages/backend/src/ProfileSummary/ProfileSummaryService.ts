@@ -12,7 +12,7 @@ export class ProfileSummaryService {
 	): Promise<ProfileSummaryType["get"]["response"]> {
 		const profile = await this.db.profile.findUnique({ where: { id: params.id } });
 		if (!profile) {
-			throw new C.Error("Profile not found", C.Status.NOT_FOUND);
+			throw new C.Exception("Profile not found", C.Status.NOT_FOUND);
 		}
 		const where = { profileId: profile.id };
 		const latestPromise = this.db.recipe.findFirst({

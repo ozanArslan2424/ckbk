@@ -1,65 +1,119 @@
-import type { Args, CorpusApi, Entities, Models } from "@/Api/CorpusApi";
-import type { QueryClient } from "@/Query/QueryClient";
-import type { MakeMutArgs } from "@/Query/QueryTypes";
+import type { Args, CorpusApi, Models } from "@/lib/CorpusApi";
+import type { QueryClient, MutArgs } from "@/lib/QueryClient";
 
 export class RecipeClient {
 	constructor(
-		private readonly query: QueryClient,
+		private readonly queryClient: QueryClient,
 		private readonly api: CorpusApi,
 	) {}
 
-	create(args: MakeMutArgs<Models.RecipePost> & { listArgs: Args.RecipeGet }) {
-		return this.query.makeMutation<Models.RecipePost>({
-			mutationFn: (vars) => this.api.recipePost(vars),
-			...args,
-			onSuccess: (...rest) => {
-				this.query.invalidateAll([this.api.endpoints.recipeGet, args.listArgs]);
-				args.onSuccess?.(...rest);
-			},
-		});
-	}
+	private readonly listDefaultData: Models.RecipeGet["response"] = {
+		totalPages: 1,
+		totalCount: 1,
+		currentPage: 1,
+		currentLimit: 1,
+		data: [],
+	};
 
-	list(args: Args.RecipeGet) {
-		return this.query.makeQuery({
-			queryKey: [this.api.endpoints.recipeGet, args],
-			queryFn: () => this.api.recipeGet(args),
+	list(recipeGetArgs: Args.RecipeGet) {
+		return this.queryClient.makeInfiniteQuery({
+			queryKey: [this.api.endpoints.recipeGet, recipeGetArgs],
+			queryFn: ({ pageParam }) =>
+				this.api.recipeGet({
+					...recipeGetArgs,
+					search: { ...recipeGetArgs.search, page: pageParam },
+				}),
+			initialPageParam: 1,
+			getNextPageParam: (res) =>
+				res.totalPages > res.currentPage ? res.currentPage + 1 : undefined,
 		});
 	}
 
 	listPopular(args: Args.RecipePopularGet) {
-		return this.query.makeQuery({
+		return this.queryClient.makeQuery({
 			queryKey: [this.api.endpoints.recipePopularGet, args],
 			queryFn: () => this.api.recipePopularGet(args),
 		});
 	}
 
-	like(args: MakeMutArgs<Models.RecipeLikePost>) {
-		return this.query.makeMutation<Models.RecipeLikePost, () => void>({
+	create(recipeGetArgs: Args.RecipeGet, args: MutArgs<Models.RecipePost>) {
+		const queryKey = [this.api.endpoints.recipeGet, recipeGetArgs];
+
+		return this.queryClient.makeMutation<Models.RecipePost>({
+			mutationFn: this.api.recipePost,
+			...args,
+			onSuccess: (res, ...rest) => {
+				this.queryClient.updateInfiniteQueryData(
+					queryKey,
+					this.listDefaultData,
+					(page) => page.data.some((r) => r.id === res.id),
+					(prev) => {
+						return {
+							...prev,
+							totalPages: Math.ceil((prev.totalCount + 1) / prev.currentLimit),
+							totalCount: prev.totalCount + 1,
+							data: [res, ...prev.data],
+						};
+					},
+				);
+				args.onSuccess?.(res, ...rest);
+			},
+		});
+	}
+
+	update(recipeGetArgs: Args.RecipeGet, args: MutArgs<Models.RecipeIdPut>) {
+		const queryKey = [this.api.endpoints.recipeGet, recipeGetArgs];
+
+		return this.queryClient.makeMutation<Models.RecipeIdPut>({
+			mutationFn: this.api.recipeIdPut,
+			...args,
+			onSuccess: (res, ...rest) => {
+				this.queryClient.updateInfiniteQueryData(
+					queryKey,
+					this.listDefaultData,
+					(page) => page.data.some((r) => r.id === res.id),
+					(prev) => {
+						return {
+							...prev,
+							data: prev.data.map((r) => (r.id === res.id ? res : r)),
+						};
+					},
+				);
+				const params = { id: res.id.toString() };
+				this.queryClient.invalidateAll([
+					this.api.endpoints.ingredientByRecipeIdGet(params),
+					this.api.endpoints.stepByRecipeIdGet(params),
+				]);
+				args.onSuccess?.(res, ...rest);
+			},
+		});
+	}
+
+	like(recipeGetArgs: Args.RecipeGet, args: MutArgs<Models.RecipeLikePost>) {
+		const queryKey = [this.api.endpoints.recipeGet, recipeGetArgs];
+
+		return this.queryClient.makeMutation<Models.RecipeLikePost, () => void>({
 			mutationFn: (vars) => this.api.recipeLikePost(vars),
 			...args,
 			onMutate: (vars, ctx) => {
-				if (!vars.body) return () => {};
-
-				const rev1 = this.query.updateListData<Entities.Recipe>({
-					queryKey: [this.api.endpoints.recipeGet],
-					action: "update",
-					id: vars.body.id,
-					data: { isLiked: vars.body.isLiked },
-				});
-
-				const rev2 = this.query.updateListData<Entities.Recipe>({
-					queryKey: [this.api.endpoints.recipePopularGet],
-					action: "update",
-					id: vars.body.id,
-					data: { isLiked: vars.body.isLiked },
-				});
-
 				args.onMutate?.(vars, ctx);
-
-				return () => {
-					rev1();
-					rev2();
-				};
+				return this.queryClient.updateInfiniteQueryData(
+					queryKey,
+					this.listDefaultData,
+					(page) => page.data.some((r) => r.id === vars.body?.id),
+					(prev) => ({
+						...prev,
+						data: prev.data.map((recipe) => {
+							if (recipe.id === vars.body?.id) {
+								const isLiked = vars.body.isLiked;
+								const prevLikeCount = recipe.likeCount ?? 0;
+								const likeCount = isLiked ? prevLikeCount + 1 : prevLikeCount - 1;
+								return { ...recipe, isLiked, likeCount };
+							}
+							return recipe;
+						}),
+					}),
+				);
 			},
 			onError: (err, vars, revert, ctx) => {
 				revert?.();

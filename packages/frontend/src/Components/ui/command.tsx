@@ -2,7 +2,7 @@ import { Command as CommandPrimitive } from "cmdk";
 import { SearchIcon } from "lucide-react";
 import * as React from "react";
 
-import { Modal, type ModalProps } from "@/Components/modals/Modal";
+import { Modal, type ModalProps } from "@/components/modals/Modal";
 import { cn } from "@/lib/utils";
 
 export function Command({ className, ...props }: React.ComponentProps<typeof CommandPrimitive>) {

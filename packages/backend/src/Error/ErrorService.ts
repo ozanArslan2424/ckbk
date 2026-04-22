@@ -8,13 +8,13 @@ export class ErrorService {
 	private readonly logger = new Logger(this.constructor.name);
 	constructor(private readonly localeService: LocaleService) {}
 
-	async onError(err: Error): Promise<C.Response> {
+	async onError(err: Error): Promise<C.Res> {
 		const { status, key } = this.getStatusAndKey(err);
 		const message = this.localeService.translate("error", key);
 		if (status !== C.Status.UNAUTHORIZED) {
 			this.logger.error(message);
 		}
-		return new C.Response({ message }, { status });
+		return new C.Res({ message }, { status });
 	}
 
 	private getStatusAndKey(err: Error) {
@@ -33,7 +33,7 @@ export class ErrorService {
 			status = C.Status.BAD_REQUEST;
 		} else if (err instanceof Prisma.PrismaClientRustPanicError) {
 			key = this.getPrismaErrorKey("rustPanic");
-		} else if (err instanceof C.Error) {
+		} else if (err instanceof C.Exception) {
 			key = err.message;
 			status = err.status;
 		}

@@ -6,6 +6,7 @@
 	"recipe": "Tarif",
 	"steps": "Adımlar",
 	"ingredients": "Malzemeler",
+	"success": "Yeni tarif eklendi!",
 
 	"createModal": {
 		"title": "Yeni bir tarif oluştur",

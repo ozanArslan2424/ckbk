@@ -1,15 +1,15 @@
 import { createBrowserRouter } from "react-router";
 
-import { AppLayout } from "./Pages/AppLayout";
-import { AuthLayout } from "./Pages/AuthLayout";
-import { DashboardPage } from "./Pages/DashboardPage";
-import { ErrorBoundary } from "./Pages/ErrorBoundary";
-import { LandingPage } from "./Pages/LandingPage";
-import { LoginPage } from "./Pages/LoginPage";
-import { ProtectedLayout } from "./Pages/ProtectedLayout";
-import { PublicLayout } from "./Pages/PublicLayout";
-import { RegisterPage } from "./Pages/RegisterPage";
-import { VerifyPage } from "./Pages/VerifyPage";
+import { AppLayout } from "./components/layout/AppLayout";
+import { AuthLayout } from "./components/layout/AuthLayout";
+import { ErrorBoundary } from "./components/layout/ErrorBoundary";
+import { ProtectedLayout } from "./components/layout/ProtectedLayout";
+import { PublicLayout } from "./components/layout/PublicLayout";
+import { DashboardPage } from "./pages/DashboardPage";
+import { LandingPage } from "./pages/LandingPage";
+import { LoginPage } from "./pages/LoginPage";
+import { RegisterPage } from "./pages/RegisterPage";
+import { VerifyPage } from "./pages/VerifyPage";
 
 export const routes = {
 	landing: "/",

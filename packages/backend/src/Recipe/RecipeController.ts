@@ -10,7 +10,7 @@ export class RecipeController extends C.Controller {
 	override prefix?: string | undefined = "/recipe";
 	override beforeEach?: C.MiddlewareHandler | undefined = (c) => {
 		if (!c.data.profile) {
-			throw new C.Error("Unauthorized", C.Status.UNAUTHORIZED);
+			throw new C.Exception("Unauthorized", C.Status.UNAUTHORIZED);
 		}
 	};
 
@@ -18,6 +18,12 @@ export class RecipeController extends C.Controller {
 		{ method: "POST", path: "/" },
 		(c) => this.service.create(c.body, c.data.profile!),
 		RecipeModel.create,
+	);
+
+	update = this.route(
+		{ method: "PUT", path: "/:id" },
+		(c) => this.service.update(c.params, c.body, c.data.profile!),
+		RecipeModel.update,
 	);
 
 	list = this.route(

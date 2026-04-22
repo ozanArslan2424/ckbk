@@ -1,11 +1,11 @@
-import { useCardDeckContext } from "@/Components/CardDeck";
-import { FormCard } from "@/Components/form/FormCard";
-import { Tooltip } from "@/Components/ui/tooltip";
-import { useDnd } from "@/Hooks/useDnd";
+import type { StepComplete } from "@/app/Step/Types/StepComplete";
+import { useCardDeckContext } from "@/components/CardDeck";
+import { FormCard } from "@/components/form/FormCard";
+import { Tooltip } from "@/components/ui/tooltip";
+import { useCommonLocale } from "@/hooks/useCommonLocale";
+import { useDnd } from "@/hooks/useDnd";
+import { useLocale } from "@/hooks/useLocale";
 import { cn, repeat } from "@/lib/utils";
-import { useCommonLocale } from "@/Locale/useCommonLocale";
-import { useLocale } from "@/Locale/useLocale";
-import type { StepComplete } from "@/Types/StepComplete";
 
 type StepFormProps = {
 	addDisabled: boolean;
