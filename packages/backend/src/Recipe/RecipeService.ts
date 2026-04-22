@@ -50,12 +50,12 @@ export class RecipeService {
 		}
 
 		if (body.deletedIngredientIds.length) {
-			if (!data.ingredients) data.ingredients = {};
+			data.ingredients ??= {};
 			data.ingredients.deleteMany = this.db.whereIn("id", body.deletedIngredientIds);
 		}
 
 		if (body.newIngredients.length) {
-			if (!data.ingredients) data.ingredients = {};
+			data.ingredients ??= {};
 			data.ingredients.connectOrCreate = body.newIngredients.map((it) => ({
 				where: { recipeId_materialId: { recipeId: params.id, materialId: it.materialId } },
 				create: it,
@@ -63,7 +63,7 @@ export class RecipeService {
 		}
 
 		if (body.updatedSteps.length) {
-			if (!data.steps) data.steps = {};
+			data.steps ??= {};
 			data.steps.updateMany = body.updatedSteps.map((step) => ({
 				where: { id: step.id },
 				data: { body: step.body, order: step.order },
@@ -71,7 +71,7 @@ export class RecipeService {
 		}
 
 		if (body.newSteps.length) {
-			if (!data.steps) data.steps = {};
+			data.steps ??= {};
 			data.steps.create = body.newSteps.map((it) => it);
 		}
 
@@ -108,7 +108,7 @@ export class RecipeService {
 				include: { likes: { select: { profileId: true } } },
 			});
 			const countPromise = tx.recipe.count({ where });
-			return await Promise.all([recipesPromise, countPromise]);
+			return Promise.all([recipesPromise, countPromise]);
 		});
 
 		return new PaginatedData(
@@ -172,38 +172,28 @@ export class RecipeService {
 	private buildListWhere(filters: RecipeType["list"]["search"], profileId: ProfileEntity["id"]) {
 		const where: Prisma.RecipeFindManyArgs["where"] = {};
 
-		if (filters.mine) {
+		if (filters.owner === "me") {
 			where.profileId = profileId;
+		} else if (filters.owner === "others") {
+			where.profileId = { not: profileId };
 		} else {
-			where.OR = [{ profileId: profileId }, { isPublic: true }];
+			this.db.whereAnd(where, { OR: [{ profileId: profileId }, { isPublic: true }] });
 		}
 
 		if (filters.materialIds && filters.materialIds.length > 0) {
-			where.AND = filters.materialIds.map((id) => ({
-				ingredients: {
-					some: { materialId: id },
-				},
-			}));
+			this.db.whereAnd(
+				where,
+				...filters.materialIds.map((id) => ({ ingredients: { some: { materialId: id } } })),
+			);
 		}
 
 		if (filters.search) {
-			where.OR = [
-				...(where.OR ? where.OR : []),
-				{
-					title: {
-						contains: filters.search,
-						// TODO: not in sqlite
-						// mode: "insensitive"
-					},
-				},
-				{
-					description: {
-						contains: filters.search,
-						// TODO: not in sqlite
-						// mode: "insensitive"
-					},
-				},
-			];
+			this.db.whereAnd(where, {
+				OR: [
+					{ title: { contains: filters.search } },
+					{ description: { contains: filters.search } },
+				],
+			});
 		}
 
 		return where;

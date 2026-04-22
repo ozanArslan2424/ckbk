@@ -42,23 +42,24 @@ export function LoginPage() {
 	return (
 		<>
 			<header className="flex flex-col items-center gap-1">
-				<h1 className="text-2xl font-bold">{txt.title}</h1>
+				<h1 className="text-center text-2xl font-bold">{txt.title}</h1>
 			</header>
 
-			<form className="flex flex-col gap-4 py-4" {...form.methods}>
+			<form className="flex flex-col gap-4" {...form.methods}>
 				<FormRootError form={form} />
 
 				{fields.map((field) => (
 					<FormField key={field.name} {...field} />
 				))}
 
-				<button type="submit" className="lg w-full" disabled={form.isPending}>
+				<button type="submit" className="w-full" disabled={form.isPending}>
 					{form.isPending ? <LoaderIcon className="animate-spin" /> : txt.submitLabel}
 				</button>
 			</form>
 
 			<footer className="space-y-1">
 				<button
+					type="button"
 					// to={clientRoutes.forgotPassword}
 					onClick={() => toast("bro got b12 deficiency frfr no cap")}
 					className="unset text-foreground/70 hover:text-foreground block w-full text-center text-sm transition-all"

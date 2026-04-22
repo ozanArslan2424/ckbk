@@ -75,7 +75,7 @@ export function ImageUpload({
 				<button
 					type="button"
 					onClick={() => inputRef.current?.click()}
-					className="input-like flex h-full w-full flex-col items-center justify-center gap-2 border-dashed"
+					className="unset input-like flex h-full w-full flex-col items-center justify-center gap-2 border-dashed"
 				>
 					<ImagePlusIcon />
 					<span className="text-sm font-semibold">{txt.upload}</span>

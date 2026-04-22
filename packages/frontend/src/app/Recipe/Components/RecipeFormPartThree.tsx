@@ -1,5 +1,5 @@
 import type { StepComplete } from "@/app/Step/Types/StepComplete";
-import { useCardDeckContext } from "@/components/CardDeck";
+import { useCardDeckContext } from "@/components/cards/CardDeck";
 import { FormCard } from "@/components/form/FormCard";
 import { Tooltip } from "@/components/ui/tooltip";
 import { useCommonLocale } from "@/hooks/useCommonLocale";
@@ -52,11 +52,16 @@ export function RecipeFormPartThree({
 			footer={
 				ctx ? (
 					<>
-						<button onClick={ctx.onPrev} className="secondary w-max">
+						<button type="button" onClick={ctx.onPrev} className="secondary w-max">
 							{txtCommon.previous}
 						</button>
 						<Tooltip tip={txt.minStepTip}>
-							<button disabled={steps.length < 1} onClick={ctx.onNext} className="secondary w-max">
+							<button
+								type="button"
+								disabled={steps.length < 1}
+								onClick={ctx.onNext}
+								className="w-max"
+							>
 								{txtCommon.submit}
 							</button>
 						</Tooltip>
@@ -107,7 +112,7 @@ export function RecipeFormPartThree({
 				</div>
 			))}
 
-			<button className="secondary" onClick={onAddStep} disabled={addDisabled}>
+			<button type="button" className="secondary" onClick={onAddStep} disabled={addDisabled}>
 				<svg
 					className="size-4"
 					width="16"

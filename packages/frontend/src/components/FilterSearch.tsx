@@ -40,7 +40,7 @@ export function FilterSearch({
 				id={`${uid}_filter_search`}
 				name={`${uid}_filter_search`}
 				type="search"
-				className="soft h-9 min-h-9 max-w-40 text-xs font-bold"
+				className="h-9 min-h-9 max-w-40 text-xs font-bold"
 				value={value}
 				onChange={handleChange}
 				{...rest}

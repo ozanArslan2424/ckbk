@@ -17,39 +17,31 @@
 		}
 
 		header:not(.unset) {
-			@apply bg-secondary text-secondary-foreground relative px-5 py-4;
+			@apply bg-secondary text-secondary-foreground relative px-4 py-2;
+
 			p:not(.unset) {
 				@apply text-foreground/70;
 			}
 		}
 
 		footer:not(.unset) {
-			@apply mt-auto border-t px-5 py-2;
+			@apply mt-auto border-t px-4 py-2;
 		}
 
-		article:not(.unset) {
-			@apply px-4 py-2;
-		}
-
+		article:not(.unset),
 		form:not(.unset) {
-			@apply p-4;
+			@apply px-4 py-5;
 		}
 
 		&.lg {
-			header {
-				@apply px-7 py-6;
-			}
-
-			footer {
-				@apply px-7 py-4;
-			}
-
-			article {
+			header:not(.unset),
+			footer:not(.unset) {
 				@apply px-6 py-4;
 			}
 
-			form {
-				@apply p-6;
+			article:not(.unset),
+			form:not(.unset) {
+				@apply px-6 py-7;
 			}
 		}
 	}

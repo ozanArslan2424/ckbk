@@ -8,25 +8,21 @@ import { RecipeUpdateModal } from "@/app/Recipe/Components/RecipeUpdateModal";
 import { useRecipeGetArgs } from "@/app/Recipe/Hooks/useRecipeGetArgs";
 import type { RecipeDetails } from "@/app/Recipe/Types/RecipeDetails";
 import { PageContent } from "@/components/layout/PageContent";
-import { useInfiniteScrollQuery } from "@/hooks/useInfiniteScroll";
 import { useLocale } from "@/hooks/useLocale";
 import { useModal } from "@/hooks/useModal";
 import type { Args, Entities } from "@/lib/CorpusApi";
 import { Events } from "@/lib/Events";
-import { Help } from "@/lib/Help";
 
 export function DashboardPage() {
-	const { recipeClient, ingredientClient, stepClient, queryClient } = useAppContext();
+	const { ingredientClient, stepClient, queryClient } = useAppContext();
 	const { recipeGetArgs, updateSearchParams } = useRecipeGetArgs();
 	const { txt } = useLocale("dashboard", {
-		title: Help.toBoolean(recipeGetArgs.search.mine) ? ["yourRecipes"] : ["recentRecipes"],
+		title: recipeGetArgs.search.owner === "me" ? ["yourRecipes"] : ["recentRecipes"],
 	});
 
 	const createModal = useModal();
 	const detailsModal = useModal<RecipeDetails>();
 	const updateModal = useModal<RecipeDetails>();
-
-	const recipesQuery = useInfiniteScrollQuery(recipeClient.list(recipeGetArgs));
 
 	const onClickCreateFactory = Events.click(() => {
 		createModal.onOpenChange(true);
@@ -44,8 +40,8 @@ export function DashboardPage() {
 		updateSearchParams({ search: value === "" ? null : value });
 	};
 
-	const handleChangeMine = (value: boolean) => {
-		updateSearchParams({ mine: value });
+	const handleChangeOwner = (value: Args.RecipeGet["search"]["owner"] | null) => {
+		updateSearchParams({ owner: value });
 	};
 
 	const onClickViewFactory = Events.click<[Entities.Recipe], HTMLDivElement>(async (_, recipe) => {
@@ -83,13 +79,12 @@ export function DashboardPage() {
 						onChangeSortBy={handleChangeSortBy}
 						onChangeSortOrder={handleChangeSortOrder}
 						onChangeSearch={handleChangeSearch}
-						onChangeMine={handleChangeMine}
+						onChangeOwner={handleChangeOwner}
 					/>
 
 					<div className="h-1" />
 
 					<RecipeGrid
-						query={recipesQuery}
 						onClickUpdateFactory={onClickUpdateFactory}
 						onClickViewFactory={onClickViewFactory}
 					/>

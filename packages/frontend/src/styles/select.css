@@ -1,0 +1,68 @@
+@import "./theme.css";
+
+@layer base {
+	[data-slot="select-trigger"] {
+		@apply border-border bg-background hover:border-ring/50 aria-expanded:ring-ring/40 aria-expanded:border-ring data-placeholder:text-foreground/35 flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm shadow-xs ring-2 ring-transparent transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-50 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4;
+	}
+
+	[data-slot="select-content"] {
+		@apply border-border bg-card text-card-foreground relative isolate z-50 max-h-(--available-height) w-(--anchor-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-xl border p-1.5 shadow-md duration-100;
+
+		&[data-open] {
+			@apply animate-in fade-in-0 zoom-in-95;
+		}
+		&[data-closed] {
+			@apply animate-out fade-out-0 zoom-out-95;
+		}
+
+		&[data-side="bottom"] {
+			@apply slide-in-from-top-2;
+		}
+		&[data-side="top"] {
+			@apply slide-in-from-bottom-2;
+		}
+		&[data-side="left"] {
+			@apply slide-in-from-right-2;
+		}
+		&[data-side="right"] {
+			@apply slide-in-from-left-2;
+		}
+	}
+
+	[data-slot="select-scroll-up-button"],
+	[data-slot="select-scroll-down-button"] {
+		@apply bg-card text-muted-foreground z-10 flex w-full cursor-default items-center justify-center py-1 [&_svg:not([class*='size-'])]:size-4;
+	}
+
+	[data-slot="select-group"] {
+		@apply scroll-my-1 p-1;
+	}
+
+	[data-slot="select-label"] {
+		@apply text-muted-foreground px-2.5 py-1.5 text-xs font-semibold tracking-wide uppercase;
+	}
+
+	[data-slot="select-item"] {
+		@apply text-foreground relative flex w-full cursor-pointer items-center gap-2 rounded-lg py-1.5 pr-8 pl-2.5 text-sm transition-colors duration-100 outline-none select-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4;
+
+		&:focus {
+			@apply bg-primary/10 text-primary;
+		}
+
+		&[data-highlighted] {
+			@apply bg-primary/10 text-primary;
+		}
+
+		&[data-selected] {
+			@apply font-semibold;
+		}
+
+		&[data-disabled] {
+			@apply pointer-events-none opacity-40;
+		}
+	}
+
+	[data-slot="select-separator"] {
+		@apply bg-border/60 pointer-events-none -mx-1.5 my-1 h-px;
+	}
+}

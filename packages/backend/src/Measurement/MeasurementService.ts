@@ -7,12 +7,12 @@ export class MeasurementService {
 	async create(
 		body: MeasurementType["create"]["body"],
 	): Promise<MeasurementType["create"]["response"]> {
-		return await this.db.measurement.create({
+		return this.db.measurement.create({
 			data: { title: body.title, description: body.description },
 		});
 	}
 
 	async list(): Promise<MeasurementType["list"]["response"]> {
-		return await this.db.measurement.findMany();
+		return this.db.measurement.findMany();
 	}
 }

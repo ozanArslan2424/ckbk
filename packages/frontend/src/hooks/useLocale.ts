@@ -21,10 +21,8 @@ export function useLocale<T extends LocaleText>(ns?: NS, localeText?: T) {
 		return new Proxy(target, {
 			get(_, prop: string) {
 				const params = localeText[prop];
-				if (params) {
-					return t(...params);
-				}
-				return undefined;
+				// oxlint-disable-next-line typescript/no-unnecessary-condition
+				return params ? t(...params) : undefined;
 			},
 			ownKeys() {
 				return Reflect.ownKeys(localeText);
@@ -36,7 +34,7 @@ export function useLocale<T extends LocaleText>(ns?: NS, localeText?: T) {
 				};
 			},
 		});
-	}, [t, i18n.language, localeText]);
+	}, [t, localeText]);
 
 	return {
 		t,

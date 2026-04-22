@@ -20,7 +20,7 @@ export class IngredientController extends C.Controller {
 		{ method: "POST", path: "/" },
 		async (c) => {
 			this.guard(c.data.profile);
-			return await this.service.create(c.body, c.data.profile);
+			return this.service.create(c.body, c.data.profile);
 		},
 		IngredientModel.create,
 	);
@@ -29,7 +29,7 @@ export class IngredientController extends C.Controller {
 		{ method: "PUT", path: "/:id" },
 		async (c) => {
 			this.guard(c.data.profile);
-			return await this.service.update(c.params, c.body, c.data.profile);
+			return this.service.update(c.params, c.body, c.data.profile);
 		},
 		IngredientModel.update,
 	);
@@ -38,7 +38,7 @@ export class IngredientController extends C.Controller {
 		"/by-recipe/:id",
 		async (c) => {
 			this.guard(c.data.profile);
-			return await this.service.listByRecipe(c.params.id);
+			return this.service.listByRecipe(c.params.id);
 		},
 		IngredientModel.listByRecipe,
 	);

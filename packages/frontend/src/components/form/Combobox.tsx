@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState, useRef, useEffect } from "react";
 
 import { useCommonLocale } from "@/hooks/useCommonLocale";
 import { cn } from "@/lib/utils";
@@ -37,19 +37,19 @@ export function Combobox<O extends ComboboxOption>({
 	disabled,
 }: ComboboxProps<O>) {
 	const { txt } = useCommonLocale();
-	const [open, setOpen] = React.useState(false);
-	const [inputValue, setInputValue] = React.useState("");
-	const [opts, setOpts] = React.useState(options);
-	const [selected, setSelected] = React.useState<O | null>(
-		opts.find((opt) => opt.value === value) || null,
+	const [open, setOpen] = useState(false);
+	const [inputValue, setInputValue] = useState("");
+	const [opts, setOpts] = useState(options);
+	const [selected, setSelected] = useState<O | null>(
+		opts.find((opt) => opt.value === value) ?? null,
 	);
 
-	const containerRef = React.useRef<HTMLDivElement>(null);
-	const inputRef = React.useRef<HTMLInputElement>(null);
+	const containerRef = useRef<HTMLDivElement>(null);
+	const inputRef = useRef<HTMLInputElement>(null);
 
 	// Close on outside click
-	React.useEffect(() => {
-		if (!open) return;
+	useEffect(() => {
+		if (!open) return () => {};
 		function handlePointerDown(e: PointerEvent) {
 			if (!containerRef.current?.contains(e.target as Node)) {
 				setOpen(false);
@@ -57,7 +57,9 @@ export function Combobox<O extends ComboboxOption>({
 			}
 		}
 		document.addEventListener("pointerdown", handlePointerDown);
-		return () => document.removeEventListener("pointerdown", handlePointerDown);
+		return () => {
+			document.removeEventListener("pointerdown", handlePointerDown);
+		};
 	}, [open]);
 
 	function handleSelect(opt: O | null) {
@@ -98,7 +100,7 @@ export function Combobox<O extends ComboboxOption>({
 				type="hidden"
 				id={id}
 				name={name}
-				value={selected?.value || ""}
+				value={selected?.value ?? ""}
 				onFocus={(e) => {
 					e.preventDefault();
 					inputRef.current?.focus();
@@ -113,7 +115,7 @@ export function Combobox<O extends ComboboxOption>({
 					!selected && !inputValue && "text-muted-foreground",
 					className,
 				)}
-				placeholder={open ? searchPlaceholder || txt.searchPlaceholder : placeholder}
+				placeholder={open ? (searchPlaceholder ?? txt.searchPlaceholder) : placeholder}
 				value={displayValue}
 				onChange={(e) => {
 					setInputValue(e.target.value);

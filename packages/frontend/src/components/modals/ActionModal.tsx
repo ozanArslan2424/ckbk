@@ -35,7 +35,7 @@ export function ActionModal<T>({
 							key={action.key}
 							value={action.key}
 							onSelect={(key) => {
-								rest.onOpenChange?.(false);
+								rest.onOpenChange(false);
 								action.onSelect(key);
 							}}
 							className="flex items-center justify-between"
@@ -47,7 +47,7 @@ export function ActionModal<T>({
 					<CommandItem
 						value="close"
 						onSelect={() => {
-							rest.onOpenChange?.(false);
+							rest.onOpenChange(false);
 						}}
 						className="flex items-center justify-between"
 					>

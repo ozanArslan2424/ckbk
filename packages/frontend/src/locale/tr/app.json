@@ -79,6 +79,8 @@
 
 	"ownerFilter": {
 		"label": "Sahiplik",
-		"innerText": "Sadece sizin"
+		"all": "Hepsi",
+		"me": "Sizin",
+		"others": "Sizin değil"
 	}
 }

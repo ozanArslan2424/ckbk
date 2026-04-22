@@ -49,6 +49,7 @@ export function RecipeUpdateModal(props: Props) {
 				},
 			});
 		}
+		// oxlint-disable-next-line eslint-plugin-react-hooks/exhaustive-deps
 	}, [props.modal.data]);
 
 	const onSubmitFactory = Events.click<[RecipeDetails]>((e, recipe) => {
@@ -100,7 +101,9 @@ export function RecipeUpdateModal(props: Props) {
 			</div>
 
 			<div className="bg-background flex w-full items-center justify-between gap-4 rounded-md p-4">
-				<button className="outlined hover:bg-rose-400/10 hover:text-rose-500">{txt.delete}</button>
+				<button type="button" className="outlined hover:bg-rose-400/10 hover:text-rose-500">
+					{txt.delete}
+				</button>
 
 				<div className="flex items-center gap-4">
 					<button type="reset" className="ghost" onClick={form.handleReset}>

@@ -4,10 +4,10 @@
 	@keyframes scaleTo100 {
 		from {
 			opacity: 0;
-			transform: scale(0);
+			transform: scale(0.88);
 		}
 		to {
-			opacity: 100;
+			opacity: 1;
 			transform: scale(1);
 		}
 	}
@@ -15,10 +15,13 @@
 	@keyframes goUp {
 		from {
 			opacity: 0;
-			transform: translateY(var(--go-up-from, 40px));
+			transform: translateY(var(--go-up-from, 24px));
+		}
+		60% {
+			opacity: 1;
 		}
 		to {
-			opacity: 100;
+			opacity: 1;
 			transform: translateY(0);
 		}
 	}
@@ -26,23 +29,97 @@
 	@keyframes goDown {
 		from {
 			opacity: 0;
-			transform: translateY(var(--go-down-from, -40px));
+			transform: translateY(var(--go-down-from, -24px));
+		}
+		60% {
+			opacity: 1;
 		}
 		to {
-			opacity: 100;
+			opacity: 1;
 			transform: translateY(0);
 		}
 	}
 
+	@keyframes slideInRight {
+		from {
+			opacity: 0;
+			transform: translateX(var(--slide-from, 28px));
+		}
+		to {
+			opacity: 1;
+			transform: translateX(0);
+		}
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+
+	@keyframes shimmer {
+		from {
+			background-position: -200% center;
+		}
+		to {
+			background-position: 200% center;
+		}
+	}
+
 	.animate_up {
-		animation: goUp 0.3s ease;
+		animation: goUp 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
 	}
 
 	.animate_down {
-		animation: goDown 0.3s ease;
+		animation: goDown 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
 	}
 
 	.animate_scale {
-		animation: scaleTo100 0.3s ease;
+		animation: scaleTo100 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+	}
+
+	.animate_right {
+		animation: slideInRight 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+	}
+
+	.animate_fade {
+		animation: fadeIn 0.28s ease both;
+	}
+
+	.stagger > * {
+		animation-fill-mode: both;
+	}
+	.stagger > *:nth-child(1) {
+		animation-delay: 0ms;
+	}
+	.stagger > *:nth-child(2) {
+		animation-delay: 60ms;
+	}
+	.stagger > *:nth-child(3) {
+		animation-delay: 120ms;
+	}
+	.stagger > *:nth-child(4) {
+		animation-delay: 180ms;
+	}
+	.stagger > *:nth-child(5) {
+		animation-delay: 240ms;
+	}
+	.stagger > *:nth-child(6) {
+		animation-delay: 300ms;
+	}
+
+	.animate_shimmer {
+		background: linear-gradient(
+			90deg,
+			var(--color-muted) 25%,
+			color-mix(in srgb, var(--color-muted) 60%, transparent) 50%,
+			var(--color-muted) 75%
+		);
+		background-size: 200% auto;
+		animation: shimmer 1.6s linear infinite;
+		border-radius: var(--radius-md);
 	}
 }

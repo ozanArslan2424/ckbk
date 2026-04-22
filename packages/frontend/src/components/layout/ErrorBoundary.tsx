@@ -1,6 +1,6 @@
 import { isRouteErrorResponse, useRouteError } from "react-router";
 
-import { ErrorCard } from "@/components/ErrorCard";
+import { ErrorCard } from "@/components/cards/ErrorCard";
 
 export function ErrorBoundary() {
 	const error = useRouteError();

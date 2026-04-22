@@ -1,4 +1,4 @@
-import { useCardDeckContext } from "@/components/CardDeck";
+import { useCardDeckContext } from "@/components/cards/CardDeck";
 import { Checkbox } from "@/components/form/Checkbox";
 import { FormCard } from "@/components/form/FormCard";
 import { FormFieldPlain } from "@/components/form/FormFieldPlain";
@@ -45,7 +45,7 @@ export function RecipeFormPartOne({
 			title={txt.recipeDetails}
 			footer={
 				ctx ? (
-					<button disabled={title.length <= 5} onClick={ctx.onNext} className="secondary w-max">
+					<button type="button" disabled={title.length <= 5} onClick={ctx.onNext} className="w-max">
 						{txtCommon.next}
 					</button>
 				) : null

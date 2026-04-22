@@ -79,6 +79,8 @@
 
 	"ownerFilter": {
 		"label": "Ownership",
-		"innerText": "Only yours"
+		"all": "All",
+		"me": "Yours",
+		"others": "Not Yours"
 	}
 }

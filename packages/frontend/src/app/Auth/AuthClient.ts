@@ -22,14 +22,14 @@ export class AuthClient {
 	queryMe(args: Args.AuthMeGet) {
 		return this.queryClient.makeQuery({
 			queryKey: [this.api.endpoints.authMeGet],
-			queryFn: () => this.api.authMeGet(args),
+			queryFn: async () => this.api.authMeGet(args),
 		});
 	}
 
 	login(opts?: MutArgs<Models.AuthLoginPost>) {
 		return this.queryClient.makeMutation<Models.AuthLoginPost>({
 			...opts,
-			mutationFn: (vars) => this.api.authLoginPost(vars),
+			mutationFn: async (vars) => this.api.authLoginPost(vars),
 			onSuccess: (res, vars, ...rest) => {
 				this.setAuthenticatedData(res.accessToken, res.refreshToken);
 				this.queryClient.clear();
@@ -41,14 +41,14 @@ export class AuthClient {
 	register(opts?: MutArgs<Models.AuthRegisterPost>) {
 		return this.queryClient.makeMutation<Models.AuthRegisterPost>({
 			...opts,
-			mutationFn: (args) => this.api.authRegisterPost(args),
+			mutationFn: async (args) => this.api.authRegisterPost(args),
 		});
 	}
 
 	verify(opts?: MutArgs<Models.AuthVerifyPost>) {
 		return this.queryClient.makeMutation<Models.AuthVerifyPost>({
 			...opts,
-			mutationFn: (vars) => this.api.authVerifyPost(vars),
+			mutationFn: async (vars) => this.api.authVerifyPost(vars),
 			onSuccess: (res, vars, ...rest) => {
 				this.setAuthenticatedData(res.accessToken, res.refreshToken);
 				this.queryClient.clear();
@@ -59,7 +59,7 @@ export class AuthClient {
 
 	logout(opts?: MutArgs<Models.AuthLogoutPost>) {
 		return this.queryClient.makeMutation<Models.AuthLogoutPost>({
-			mutationFn: () =>
+			mutationFn: async () =>
 				this.api.authLogoutPost({
 					body: {
 						refreshToken: sessionStorage.getItem("refreshToken") ?? undefined,

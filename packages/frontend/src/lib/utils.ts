@@ -40,7 +40,7 @@ export function prefixId(id: number | string, prefix?: string): string {
 		return `${prefix}_${id}`;
 	}
 
-	return id.toString().split("_")[1] as string;
+	return id.toString().split("_")[1];
 }
 
 export function isValidIndex(

@@ -14,7 +14,7 @@ import { Store } from "@/lib/Store";
 import localeConfig from "@/locale/localeConfig";
 
 const languageHeader = "x-lang";
-const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const baseURL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 const refreshTokenKey = "refreshToken";
 
 function makeContext() {
@@ -42,7 +42,7 @@ function makeContext() {
 		setAccessToken: (value) => store.set("accessToken", value),
 	});
 
-	api.setFetchFn((d) => request.corpus(d));
+	api.setFetchFn(async (d) => request.corpus(d));
 
 	const authClient = new AuthClient(queryClient, api, store);
 	const ingredientClient = new IngredientClient(queryClient, api);
@@ -69,9 +69,7 @@ const context = makeContext();
 const AppContext = createContext<typeof context>(context);
 
 export function useAppContext() {
-	const value = use(AppContext);
-	if (!value) throw new Error("AppContext requires a provider.");
-	return value;
+	return use(AppContext);
 }
 
 export function AppContextProvider({ children }: PropsWithChildren) {

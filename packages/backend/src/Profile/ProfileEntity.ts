@@ -10,5 +10,6 @@ export class ProfileEntity extends C.Entity({
 		name: "string",
 		email: "string.email",
 		image: "string | null",
+		emailVerified: type("boolean").default(false),
 	}),
 }) {}

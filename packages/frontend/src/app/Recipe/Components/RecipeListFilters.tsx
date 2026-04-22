@@ -3,17 +3,15 @@ import { useMemo } from "react";
 import { useRecipeGetArgs } from "@/app/Recipe/Hooks/useRecipeGetArgs";
 import { FilterSearch } from "@/components/FilterSearch";
 import { FilterSelect } from "@/components/FilterSelect";
-import { FilterToggle } from "@/components/FilterToggle";
 import { useCommonLocale } from "@/hooks/useCommonLocale";
 import { useLocale } from "@/hooks/useLocale";
 import type { Args } from "@/lib/CorpusApi";
-import { Help } from "@/lib/Help";
 
 type Props = {
 	onChangeSortBy: (value: Args.RecipeGet["search"]["sortBy"] | null) => void;
 	onChangeSortOrder: (value: Args.RecipeGet["search"]["sortOrder"] | null) => void;
 	onChangeSearch: (value: string) => void;
-	onChangeMine: (value: boolean) => void;
+	onChangeOwner: (value: Args.RecipeGet["search"]["owner"] | null) => void;
 };
 
 export function RecipeListFilters(props: Props) {
@@ -24,20 +22,23 @@ export function RecipeListFilters(props: Props) {
 	});
 	const { recipeGetArgs } = useRecipeGetArgs();
 
-	const KEYS = ["createdAt", "title", "likes", "steps"] as const;
-
-	const SORT_BY_OPTIONS = KEYS.map((key) => ({
-		value: key,
-		label: t(`sortBy.${key}`),
-	}));
+	const SORT_BY_OPTIONS = useMemo(() => {
+		const KEYS = ["createdAt", "title", "likes", "steps"] as const;
+		return KEYS.map((value) => ({ label: t(`sortBy.${value}`), value }));
+	}, [t]);
 
 	const SORT_ORDER_OPTIONS = useMemo(() => {
-		const key = recipeGetArgs.search.sortBy ?? "default";
-		return [
-			{ label: t(`sortOrder.${key}.desc`), value: "desc" as const },
-			{ label: t(`sortOrder.${key}.asc`), value: "asc" as const },
-		];
-	}, [recipeGetArgs.search]);
+		const KEYS = ["desc", "asc"] as const;
+		return KEYS.map((value) => ({
+			label: t(`sortOrder.${recipeGetArgs.search.sortBy}.${value}`),
+			value,
+		}));
+	}, [t, recipeGetArgs.search]);
+
+	const OWNER_OPTIONS = useMemo(() => {
+		const KEYS = ["all", "me", "others"] as const;
+		return KEYS.map((value) => ({ label: t(`ownerFilter.${value}`), value }));
+	}, [t]);
 
 	return (
 		<div className="flex flex-wrap items-center gap-4 py-2">
@@ -62,11 +63,11 @@ export function RecipeListFilters(props: Props) {
 				options={SORT_ORDER_OPTIONS}
 			/>
 
-			<FilterToggle
+			<FilterSelect
 				label={txt.ownerFilterLabel}
-				innerText={txt.ownerFilterInnerText}
-				value={Help.toBoolean(recipeGetArgs.search.mine)}
-				onChange={props.onChangeMine}
+				value={recipeGetArgs.search.owner}
+				onChange={props.onChangeOwner}
+				options={OWNER_OPTIONS}
 			/>
 		</div>
 	);

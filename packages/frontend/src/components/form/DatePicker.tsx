@@ -61,12 +61,11 @@ export function DatePicker({
 					renderTrigger ? (
 						renderTrigger(open, dateValue)
 					) : (
-						<button className={cn("outlined w-full justify-between font-normal", className)}>
-							{dateValue
-								? timestamp(dateValue).shortDate
-								: placeholder
-									? placeholder
-									: ". . / . . / . . . ."}
+						<button
+							type="button"
+							className={cn("outlined w-full justify-between font-normal", className)}
+						>
+							{dateValue ? timestamp(dateValue).shortDate : (placeholder ?? ". . / . . / . . . .")}
 							<ChevronDownIcon className={cn("transition-all", open ? "rotate-180" : "rotate-0")} />
 						</button>
 					)

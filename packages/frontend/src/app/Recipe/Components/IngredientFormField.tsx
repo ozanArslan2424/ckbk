@@ -1,5 +1,5 @@
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import { useState, useRef, useCallback, useId } from "react";
+import { useState, useRef, useId } from "react";
 
 import { useAppContext } from "@/app/AppContext";
 import type { IngredientComplete } from "@/app/Ingredient/Types/IngredientComplete";
@@ -65,43 +65,36 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 		),
 	);
 
-	const trySubmit = useCallback(
-		(next: Partial<Entities.Ingredient>) => {
-			if (
-				submittedRef.current ||
-				!next.materialId ||
-				!next.measurementId ||
-				next.quantity === undefined ||
-				next.quantity <= 0 ||
-				!Number.isFinite(next.quantity)
-			) {
-				return;
-			}
+	const trySubmit = (next: Partial<Entities.Ingredient>) => {
+		if (
+			submittedRef.current ||
+			!next.materialId ||
+			!next.measurementId ||
+			next.quantity === undefined ||
+			next.quantity <= 0 ||
+			!Number.isFinite(next.quantity)
+		) {
+			return;
+		}
 
-			submittedRef.current = true;
+		submittedRef.current = true;
 
-			props.onComplete({
-				id: props.ingredient?.id ?? -props.ingredientCount,
-				materialId: next.materialId,
-				measurementId: next.measurementId,
-				quantity: next.quantity,
-			});
-		},
+		props.onComplete({
+			id: props.ingredient?.id ?? -props.ingredientCount,
+			materialId: next.materialId,
+			measurementId: next.measurementId,
+			quantity: next.quantity,
+		});
+	};
 
-		[props.onComplete],
-	);
-
-	const updateIngredient = useCallback(
-		(partial: Partial<Entities.Ingredient>) => {
-			submittedRef.current = false;
-			setIngredient((prev) => {
-				const next = { ...prev, ...partial };
-				trySubmit(next);
-				return next;
-			});
-		},
-		[trySubmit],
-	);
+	const updateIngredient = (partial: Partial<Entities.Ingredient>) => {
+		submittedRef.current = false;
+		setIngredient((prev) => {
+			const next = { ...prev, ...partial };
+			trySubmit(next);
+			return next;
+		});
+	};
 
 	const onBlurQuantityFactory = Events.focus((e) => {
 		const value = parseFloat(e.target.value);
@@ -135,7 +128,7 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 		<div className="grid grid-cols-12">
 			<div className="col-span-5">
 				<label htmlFor={`${uid}-ma`} className="text-muted-foreground text-xs font-semibold">
-					{txt.materialLabel} {props.ingredient?.id}
+					{txt.materialLabel}
 				</label>
 				<Combobox
 					value={ingredient.materialId?.toString()}

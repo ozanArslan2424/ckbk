@@ -9,7 +9,7 @@ import type { Events } from "@/lib/Events";
 
 type RecipeDetailsModalProps = {
 	modal: ModalState<RecipeDetails>;
-	onClickUpdateFactory: Events.Factory<Events.ClickEvent<HTMLButtonElement>, [Entities.Recipe]>;
+	onClickUpdateFactory: Events.Factory<Events.ClickEvent, [Entities.Recipe]>;
 };
 
 export function RecipeDetailsModal(props: RecipeDetailsModalProps) {

@@ -12,9 +12,13 @@ export class MaterialController extends C.Controller {
 
 	create = this.route(
 		{ method: "POST", path: "/" },
-		(c) => this.service.create(c.body),
+		async (c) => this.service.create(c.body),
 		MaterialModel.create,
 	);
 
-	list = this.route({ method: "GET", path: "/" }, () => this.service.list(), MaterialModel.list);
+	list = this.route(
+		{ method: "GET", path: "/" },
+		async () => this.service.list(),
+		MaterialModel.list,
+	);
 }

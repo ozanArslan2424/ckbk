@@ -1,0 +1,86 @@
+@import "./theme.css";
+
+@layer base {
+	[data-slot="dropdown-menu-content"],
+	[data-slot="dropdown-menu-sub-content"] {
+		@apply border-border bg-card text-card-foreground z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-32 origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-lg border p-1.5 shadow-md;
+
+		&[data-state="open"] {
+			@apply animate-in fade-in-0 zoom-in-95;
+		}
+		&[data-state="closed"] {
+			@apply animate-out fade-out-0 zoom-out-95;
+		}
+
+		&[data-side="bottom"] {
+			@apply slide-in-from-top-2;
+		}
+		&[data-side="top"] {
+			@apply slide-in-from-bottom-2;
+		}
+		&[data-side="left"] {
+			@apply slide-in-from-right-2;
+		}
+		&[data-side="right"] {
+			@apply slide-in-from-left-2;
+		}
+	}
+
+	[data-slot="dropdown-menu-sub-content"] {
+		@apply shadow-lg;
+	}
+
+	[data-slot="dropdown-menu-item"],
+	[data-slot="dropdown-menu-checkbox-item"],
+	[data-slot="dropdown-menu-radio-item"],
+	[data-slot="dropdown-menu-sub-trigger"] {
+		@apply text-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-pointer items-center gap-2 rounded-md px-2.5 py-1.5 text-sm transition-colors duration-100 outline-none select-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4;
+
+		&:focus {
+			@apply bg-primary/10 text-primary [&_svg]:text-primary;
+		}
+
+		&[data-disabled] {
+			@apply pointer-events-none opacity-40;
+		}
+
+		&[data-inset] {
+			@apply pl-8;
+		}
+	}
+
+	[data-slot="dropdown-menu-item"][data-variant="destructive"] {
+		@apply text-rose-500 [&_svg]:text-rose-500;
+
+		&:focus {
+			@apply bg-rose-400/10 text-rose-500;
+		}
+	}
+
+	[data-slot="dropdown-menu-checkbox-item"],
+	[data-slot="dropdown-menu-radio-item"] {
+		@apply pr-2 pl-8;
+	}
+
+	[data-slot="dropdown-menu-sub-trigger"] {
+		&[data-state="open"] {
+			@apply bg-primary/10 text-primary;
+		}
+	}
+
+	[data-slot="dropdown-menu-label"] {
+		@apply text-muted-foreground px-2.5 py-1.5 text-xs font-semibold tracking-wide uppercase;
+
+		&[data-inset] {
+			@apply pl-8;
+		}
+	}
+
+	[data-slot="dropdown-menu-separator"] {
+		@apply bg-border/60 -mx-1.5 my-1 h-px;
+	}
+
+	[data-slot="dropdown-menu-shortcut"] {
+		@apply text-muted-foreground ml-auto text-xs tracking-widest;
+	}
+}

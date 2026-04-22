@@ -9,59 +9,58 @@
 	button:not(.unset),
 	.button,
 	.chip {
-		@apply inline-flex items-center justify-center gap-2 border whitespace-nowrap shadow-xs transition-all disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0;
+		@apply inline-flex items-center justify-center gap-2 border whitespace-nowrap transition-all duration-150 select-none disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:shrink-0;
 
 		&:not(.secondary):not(.accent):not(.ghost):not(.outlined) {
 			&:not(.soft) {
-				@apply border-primary bg-primary text-primary-foreground [&_svg]:text-primary-foreground hover:bg-primary/70 hover:border-transparent not-disabled:active:opacity-90;
+				@apply border-primary bg-primary text-primary-foreground [&_svg]:text-primary-foreground shadow-sm hover:border-transparent hover:brightness-110;
 			}
 			&.soft {
-				@apply bg-primary/20 text-primary [&_svg]:text-primary hover:bg-primary/20 border-transparent not-disabled:active:opacity-90;
+				@apply bg-primary/12 text-primary [&_svg]:text-primary hover:bg-primary/20 border-primary/20 shadow-none;
 			}
 		}
 
 		&.outlined {
+			@apply [&_svg]:text-foreground text-foreground border-border bg-transparent shadow-none;
+
 			&:not(.neon) {
-				@apply hover:bg-primary/20;
+				@apply hover:bg-primary/10 hover:border-primary/40;
 			}
-
 			&.neon {
-				@apply hover:border-primary;
+				@apply hover:border-primary hover:shadow-[0_0_0_2px_color-mix(in_srgb,var(--color-primary)_25%,transparent)];
 			}
-
-			@apply [&_svg]:text-foreground text-foreground border-border/70 bg-transparent not-disabled:active:opacity-90;
 		}
 
 		&.ghost {
-			@apply text-foreground [&_svg]:text-foreground hover:bg-primary/20 hover:border-primary/20 border-transparent bg-transparent shadow-none not-disabled:active:opacity-90;
+			@apply text-foreground [&_svg]:text-foreground hover:bg-primary/10 hover:text-primary hover:[&_svg]:text-primary border-transparent bg-transparent shadow-none;
 		}
 
 		&.secondary {
-			@apply border-secondary bg-secondary [&_svg]:text-secondary-foreground text-secondary-foreground hover:border-secondary/70 hover:bg-secondary/70 not-disabled:active:opacity-90;
+			@apply border-secondary bg-secondary [&_svg]:text-secondary-foreground text-secondary-foreground shadow-sm hover:brightness-95;
 		}
 
 		&.accent {
-			@apply border-accent bg-accent text-accent-foreground [&_svg]:text-accent-foreground hover:border-accent/70 hover:bg-accent/70 not-disabled:active:opacity-90;
+			@apply border-accent bg-accent text-accent-foreground [&_svg]:text-accent-foreground shadow-sm hover:brightness-110;
 		}
 
 		&.xs {
-			@apply rounded-sm px-2 py-1 text-xs font-semibold [&_svg]:size-3;
+			@apply rounded-md px-2.5 py-1 text-xs font-semibold tracking-wide [&_svg]:size-3;
 		}
 
 		&.sm {
-			@apply h-7 rounded-md px-3 text-sm font-semibold [&_svg]:size-4;
+			@apply h-8 rounded-md px-3.5 text-sm font-semibold [&_svg]:size-3.5;
 		}
 
 		&:not(.xs):not(.sm):not(.icon):not(.square):not(.lg) {
-			@apply h-10 rounded-md px-3 font-bold [&_svg]:size-4;
+			@apply h-10 rounded-lg px-4 font-bold tracking-wide [&_svg]:size-4;
 		}
 
 		&.lg {
-			@apply h-10 rounded-md px-3 font-bold lg:h-12 lg:px-3 lg:text-lg [&_svg]:size-4 lg:[&_svg]:size-5;
+			@apply h-11 rounded-lg px-5 font-bold tracking-wide lg:h-13 lg:px-6 lg:text-lg [&_svg]:size-5 lg:[&_svg]:size-5;
 		}
 
 		&.icon {
-			@apply h-7 w-7 shrink-0 rounded-md px-1 [&_svg]:size-4;
+			@apply h-8 w-8 shrink-0 rounded-lg px-0 [&_svg]:size-4;
 		}
 
 		&.square {
@@ -70,22 +69,22 @@
 			&:not(.xs):not(.sm):not(.lg):not(.xl) {
 				@apply size-9 p-2 [&_svg]:size-5;
 			}
-
 			&.xs {
 				@apply size-6 p-1 [&_svg]:size-3.5;
 			}
-
 			&.sm {
-				@apply size-7 p-1 [&_svg]:size-4;
+				@apply size-7 p-1.5 [&_svg]:size-4;
 			}
-
 			&.lg {
-				@apply size-10 p-2.5 font-bold [&_svg]:size-5;
+				@apply size-11 p-2.5 [&_svg]:size-5;
 			}
-
 			&.xl {
-				@apply size-9 p-2 font-black sm:size-12 sm:p-3 [&_svg]:size-5 sm:[&_svg]:size-7;
+				@apply size-10 p-2.5 sm:size-13 sm:p-3.5 [&_svg]:size-5 sm:[&_svg]:size-7;
 			}
+		}
+
+		&.chip {
+			@apply border-border/60 bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary hover:border-primary/30 rounded-full px-3 py-1 text-xs font-semibold shadow-none transition-colors duration-150;
 		}
 	}
 }

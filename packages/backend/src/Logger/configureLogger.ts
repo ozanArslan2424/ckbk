@@ -17,8 +17,8 @@ export function configureLogger(key: string, level: string) {
 	const activeAppenders = ["console"];
 
 	if (!isDevelopment) {
-		appenders["errorFile"] = { type: "file", filename: "logs/error.log", layout: { type: "json" } };
-		appenders["combinedFile"] = {
+		appenders.errorFile = { type: "file", filename: "logs/error.log", layout: { type: "json" } };
+		appenders.combinedFile = {
 			type: "file",
 			filename: "logs/combined.log",
 			layout: { type: "json" },

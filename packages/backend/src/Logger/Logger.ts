@@ -5,7 +5,7 @@ import { configureLogger } from "@/Logger/configureLogger";
 
 export class Logger {
 	private readonly logLevel = X.Config.get("LOG_LEVEL", { fallback: "info" });
-	private logger: Log4jsLogger;
+	private readonly logger: Log4jsLogger;
 
 	constructor(key: string, loggerEnabled?: boolean) {
 		configureLogger(key, loggerEnabled === false ? "off" : this.logLevel);

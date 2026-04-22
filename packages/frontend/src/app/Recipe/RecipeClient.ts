@@ -18,7 +18,7 @@ export class RecipeClient {
 	list(recipeGetArgs: Args.RecipeGet) {
 		return this.queryClient.makeInfiniteQuery({
 			queryKey: [this.api.endpoints.recipeGet, recipeGetArgs],
-			queryFn: ({ pageParam }) =>
+			queryFn: async ({ pageParam }) =>
 				this.api.recipeGet({
 					...recipeGetArgs,
 					search: { ...recipeGetArgs.search, page: pageParam },
@@ -32,7 +32,7 @@ export class RecipeClient {
 	listPopular(args: Args.RecipePopularGet) {
 		return this.queryClient.makeQuery({
 			queryKey: [this.api.endpoints.recipePopularGet, args],
-			queryFn: () => this.api.recipePopularGet(args),
+			queryFn: async () => this.api.recipePopularGet(args),
 		});
 	}
 
@@ -67,7 +67,7 @@ export class RecipeClient {
 		return this.queryClient.makeMutation<Models.RecipeIdPut>({
 			mutationFn: this.api.recipeIdPut,
 			...args,
-			onSuccess: (res, ...rest) => {
+			onSuccess: async (res, ...rest) => {
 				this.queryClient.updateInfiniteQueryData(
 					queryKey,
 					this.listDefaultData,
@@ -80,7 +80,7 @@ export class RecipeClient {
 					},
 				);
 				const params = { id: res.id.toString() };
-				this.queryClient.invalidateAll([
+				await this.queryClient.invalidateAll([
 					this.api.endpoints.ingredientByRecipeIdGet(params),
 					this.api.endpoints.stepByRecipeIdGet(params),
 				]);
@@ -93,7 +93,7 @@ export class RecipeClient {
 		const queryKey = [this.api.endpoints.recipeGet, recipeGetArgs];
 
 		return this.queryClient.makeMutation<Models.RecipeLikePost, () => void>({
-			mutationFn: (vars) => this.api.recipeLikePost(vars),
+			mutationFn: async (vars) => this.api.recipeLikePost(vars),
 			...args,
 			onMutate: (vars, ctx) => {
 				args.onMutate?.(vars, ctx);

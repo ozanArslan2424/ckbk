@@ -1,23 +1,88 @@
 @import "./theme.css";
 
+[popover]::backdrop {
+	background: color-mix(in srgb, var(--color-foreground) 18%, transparent);
+	backdrop-filter: blur(1px);
+}
+
 [popover] {
-	&::backdrop {
-		background: rgba(0, 0, 0, 0.25);
-	}
+	margin: 0;
+	padding: 0;
+	border: none;
+	background: transparent;
 }
 
 .popover {
-	button:nth-of-type(1) {
+	position: relative;
+	display: inline-flex;
+
+	/* first direct button child is the trigger */
+	> button:nth-of-type(1) {
 		anchor-name: --popover-anchor;
 	}
 
 	[popover]:popover-open {
+		/* anchor positioning */
 		position: absolute;
 		position-anchor: --popover-anchor;
 		top: anchor(--popover-anchor bottom);
 		left: anchor(--popover-anchor left);
-		box-shadow: var(--shadow-md);
+		margin-top: 6px;
+
+		background: var(--color-card);
+		color: var(--color-card-foreground);
 		border: 1px solid var(--color-border);
+		border-radius: var(--radius-xl);
+		box-shadow:
+			0 4px 6px -1px rgb(0 0 0 / 0.08),
+			0 10px 24px -4px rgb(0 0 0 / 0.12);
+
+		animation: goUp 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+		transform-origin: top left;
+
+		min-width: 180px;
+		overflow: hidden;
+	}
+}
+
+.popover-menu {
+	display: flex;
+	flex-direction: column;
+	padding: 0.375rem;
+	gap: 1px;
+
+	> button,
+	> a {
+		display: flex;
+		cursor: pointer;
+		align-items: center;
+		gap: calc(var(--spacing) * 2);
+		color: var(--foreground);
 		border-radius: var(--radius-lg);
+		padding-inline: calc(var(--spacing) * 3);
+		padding-block: calc(var(--spacing) * 2);
+		text-align: left;
+		font-size: var(--text-sm);
+		line-height: var(--tw-leading, var(--text-sm--line-height));
+		font-weight: var(--font-weight-medium);
+		transition-property:
+			color, background-color, border-color, outline-color, text-decoration-color, fill, stroke,
+			--tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+		transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+		transition-duration: var(--tw-duration, var(--default-transition-duration));
+		--tw-duration: 100ms;
+		transition-duration: 100ms;
+
+		&:hover {
+			@media (hover: hover) {
+				background-color: color-mix(in oklab, var(--primary) 10%, transparent);
+				color: var(--primary);
+			}
+		}
+	}
+
+	> hr {
+		border-color: color-mix(in oklab, var(--border) 60%, transparent);
+		margin-block: calc(var(--spacing) * 1);
 	}
 }

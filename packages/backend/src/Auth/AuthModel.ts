@@ -6,16 +6,14 @@ import { ProfileEntity } from "@/Profile/ProfileEntity";
 export type AuthType = X.InferModel<typeof AuthModel>;
 
 export class AuthModel {
-	private static authResponse = type({
+	private static readonly authResponse = type({
 		profile: ProfileEntity.schema,
 		accessToken: "string",
 		refreshToken: "string",
 	});
 
 	static me = {
-		response: ProfileEntity.schema.and({
-			emailVerified: "boolean",
-		}),
+		response: ProfileEntity.schema,
 	};
 
 	static register = {

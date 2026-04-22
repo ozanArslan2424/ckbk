@@ -2,34 +2,42 @@
 
 @layer base {
 	.squircle {
-		@apply inline-flex aspect-square shrink-0 items-center justify-center rounded-lg [&_svg]:pointer-events-none [&_svg]:shrink-0;
+		@apply inline-flex aspect-square shrink-0 items-center justify-center rounded-xl transition-colors duration-150 [&_svg]:pointer-events-none [&_svg]:shrink-0;
 
-		&:not(.secondary):not(.accent):not(.outlined) {
-			@apply bg-primary/10 text-primary;
+		&:not(.secondary):not(.accent):not(.outlined):not(.ring) {
+			@apply bg-primary/12 text-primary;
 		}
 
 		&.outlined {
-			@apply border-primary/10 text-foreground border bg-transparent;
+			@apply border-primary/25 text-primary border-2 bg-transparent;
+		}
+
+		&.ring {
+			@apply bg-primary/8 text-primary ring-primary/20 ring-2;
 		}
 
 		&.secondary {
-			@apply bg-secondary/10 text-secondary;
+			@apply bg-secondary text-secondary-foreground;
 		}
 
 		&.accent {
-			@apply bg-accent/10 text-accent;
+			@apply bg-accent/15 text-accent;
 		}
 
-		&:not(.lg):not(.xl) {
+		&:not(.sm):not(.lg):not(.xl) {
 			@apply size-9 p-2 [&_svg]:size-5;
 		}
 
+		&.sm {
+			@apply size-7 rounded-lg p-1.5 [&_svg]:size-4;
+		}
+
 		&.lg {
-			@apply size-10 p-2.5 font-bold [&_svg]:size-6;
+			@apply size-11 p-2.5 [&_svg]:size-6;
 		}
 
 		&.xl {
-			@apply size-9 p-2 font-black sm:size-12 sm:p-3 [&_svg]:size-5 sm:[&_svg]:size-7;
+			@apply size-10 p-2.5 sm:size-13 sm:p-3.5 [&_svg]:size-5 sm:[&_svg]:size-7;
 		}
 	}
 }

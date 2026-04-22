@@ -13,10 +13,14 @@ export class MeasurementController extends C.Controller {
 	create = this.route(
 		{ method: "POST", path: "/" },
 		async (c) => {
-			return await this.service.create(c.body);
+			return this.service.create(c.body);
 		},
 		MeasurementModel.create,
 	);
 
-	list = this.route({ method: "GET", path: "/" }, () => this.service.list(), MeasurementModel.list);
+	list = this.route(
+		{ method: "GET", path: "/" },
+		async () => this.service.list(),
+		MeasurementModel.list,
+	);
 }

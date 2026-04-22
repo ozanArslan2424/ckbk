@@ -19,7 +19,7 @@ export class LocaleService {
 	storedLanguage: string;
 
 	setLanguage(headers: C.Headers) {
-		this.storedLanguage = headers.get(this.languageHeader) || this.fallbackLanguage;
+		this.storedLanguage = headers.get(this.languageHeader) ?? this.fallbackLanguage;
 	}
 
 	getLanguage() {
@@ -51,7 +51,7 @@ export class LocaleService {
 	}
 
 	private getTemplate(collection: TranslatorCollection, key: string, lang: string): string {
-		return collection[key]?.[lang] || key;
+		return collection[key]?.[lang] ?? key;
 	}
 
 	private getCollection(collectionKey: TranslatorCollectionKey): TranslatorCollection {

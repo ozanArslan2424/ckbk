@@ -4,16 +4,22 @@ import { Tooltip } from "@/components/ui/tooltip";
 import type { UseFormReturn } from "@/hooks/useForm";
 import { cn } from "@/lib/utils";
 
+type NodeName<F> = keyof F extends string ? keyof F : never;
+
+type NodeProps<F> = {
+	id: string;
+	name: NodeName<F>;
+	defaultValue?: string | NonNullable<Partial<F>[NodeName<F>]>;
+	className?: string;
+};
+
 export type FormFieldProps<F> = {
 	id?: string;
-	name: keyof F extends string ? keyof F : never;
+	name: NodeName<F>;
 	label?: string;
 	tooltip?: string;
 	form: UseFormReturn<F, any, any, any>;
-	children: ReactElement<
-		{ id: string; name: string; defaultValue?: string | undefined },
-		React.FunctionComponent
-	>;
+	children: ReactElement<NodeProps<F>, React.FunctionComponent>;
 	className?: string;
 	sublabel?: string;
 	labelClassName?: string;
@@ -21,20 +27,13 @@ export type FormFieldProps<F> = {
 };
 
 export function FormField<F>(props: FormFieldProps<F>) {
-	const id = props.id || props.name;
-	const error = props.form.errors?.[props.name as keyof typeof props.form.errors];
+	const id = props.id ?? props.name;
+	const error = props.form.errors[props.name as keyof typeof props.form.errors];
 
-	const node = cloneElement<{
-		id: string;
-		name: string;
-		defaultValue?: string | undefined;
-		className?: string;
-	}>(props.children, {
+	const node = cloneElement<NodeProps<F>>(props.children, {
 		id,
-		name: props.name as string,
-		defaultValue:
-			(props.form.defaultValues?.[props.name as keyof typeof props.form.defaultValues] as string) ??
-			"",
+		name: props.name,
+		defaultValue: props.form.defaultValues?.[props.name] ?? "",
 	});
 
 	const renderNode = () =>

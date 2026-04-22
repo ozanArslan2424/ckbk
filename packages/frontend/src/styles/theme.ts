@@ -4,5 +4,7 @@ import "./card.css";
 import "./input.css";
 import "./kbd.css";
 import "./popover.css";
+import "./dropdown.css";
+import "./select.css";
 import "./squircle.css";
 import "./theme.css";

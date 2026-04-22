@@ -144,6 +144,7 @@ function CalendarDayButton({
 
 	return (
 		<button
+			type="button"
 			ref={ref}
 			data-day={day.date.toLocaleDateString()}
 			data-selected-single={

@@ -2,7 +2,6 @@ import { X } from "@ozanarslan/corpus";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { PrismaClient } from "prisma/generated/client";
 
-import { Help } from "@/lib/help.namespace";
 import { Logger } from "@/Logger/Logger";
 
 export class DatabaseClient extends PrismaClient {
@@ -15,7 +14,7 @@ export class DatabaseClient extends PrismaClient {
 
 	async connect(): Promise<void> {
 		const maxAttempts = 3;
-		const baseDelay = Help.milliseconds["1s"];
+		const baseDelay = 1000; // 1 second
 
 		for (let attempt = 1; attempt <= maxAttempts; attempt++) {
 			try {
@@ -36,7 +35,9 @@ export class DatabaseClient extends PrismaClient {
 
 				const delay = baseDelay * Math.pow(2, attempt - 1);
 				this.logger.log(`Retrying in ${delay}ms...`);
-				await new Promise((resolve) => setTimeout(resolve, delay));
+				await new Promise((resolve) => {
+					setTimeout(resolve, delay);
+				});
 			}
 		}
 	}
@@ -52,5 +53,13 @@ export class DatabaseClient extends PrismaClient {
 
 	whereIn<K extends string, T, Arr extends Array<T>>(key: K, arr: Arr) {
 		return arr.length ? { [key]: { in: arr } } : undefined;
+	}
+
+	whereAnd<W extends { AND?: unknown }>(
+		where: W,
+		...and: Array<W extends { AND?: (infer A)[] | (infer _) } ? A : never>
+	) {
+		if (!where.AND || !Array.isArray(where.AND)) where.AND = [];
+		(where.AND as any[]).push(...and);
 	}
 }

@@ -18,6 +18,7 @@ export function useCommonLocale() {
 		back: ["back"],
 		loading: ["loading"],
 		error: ["error"],
+		noMore: ["noMore"],
 		noData: ["noData"],
 		noResults: ["noResults"],
 		search: ["search"],
@@ -38,5 +39,6 @@ export function useCommonLocale() {
 		lastPage: ["lastPage"],
 		prevPage: ["prevPage"],
 		nextPage: ["nextPage"],
+		footer: ["footer"],
 	});
 }

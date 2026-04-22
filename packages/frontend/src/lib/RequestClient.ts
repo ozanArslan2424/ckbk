@@ -36,17 +36,17 @@ type RequestConfig = {
 };
 
 export class RequestClient implements RequestInterface {
-	private instance: AxiosInstance;
+	private readonly instance: AxiosInstance;
 	private isRefreshing = false;
 	private failedQueue: ((token: string) => void)[] = [];
 
-	private baseURL: RequestConfig["baseURL"];
-	private withCredentials?: RequestConfig["withCredentials"];
-	private refreshIgnoredEndpoints: RequestConfig["refreshIgnoredEndpoints"];
-	private onRefreshToken: RequestConfig["onRefreshToken"];
-	private onBeforeRequest?: RequestConfig["onBeforeRequest"];
-	private getAccessToken: RequestConfig["getAccessToken"];
-	private setAccessToken: RequestConfig["setAccessToken"];
+	private readonly baseURL: RequestConfig["baseURL"];
+	private readonly withCredentials?: RequestConfig["withCredentials"];
+	private readonly refreshIgnoredEndpoints: RequestConfig["refreshIgnoredEndpoints"];
+	private readonly onRefreshToken: RequestConfig["onRefreshToken"];
+	private readonly onBeforeRequest?: RequestConfig["onBeforeRequest"];
+	private readonly getAccessToken: RequestConfig["getAccessToken"];
+	private readonly setAccessToken: RequestConfig["setAccessToken"];
 
 	constructor(readonly config: RequestConfig) {
 		this.baseURL = config.baseURL;
@@ -69,7 +69,7 @@ export class RequestClient implements RequestInterface {
 			withCredentials: this.withCredentials,
 			paramsSerializer: (params) =>
 				qs.stringify(params, {
-					filter: (_, value) => (value ? value : undefined),
+					filter: (_, value) => value ?? undefined,
 					skipNulls: true,
 					arrayFormat: "indices",
 					serializeDate: (date) => date.toISOString(),
@@ -93,7 +93,7 @@ export class RequestClient implements RequestInterface {
 
 				return config;
 			},
-			(err) => Promise.reject(err),
+			async (err) => Promise.reject(err),
 		);
 	}
 
@@ -140,10 +140,10 @@ export class RequestClient implements RequestInterface {
 					this.instance.defaults.headers.common.Authorization = this.bearer(newToken);
 					config.headers.Authorization = this.bearer(newToken);
 					this.processQueue(newToken);
-					return this.instance(config);
+					return await this.instance(config);
 				} catch (refreshErr) {
 					this.failedQueue = [];
-					return Promise.reject(refreshErr);
+					return await Promise.reject(refreshErr);
 				} finally {
 					this.isRefreshing = false;
 				}
@@ -156,27 +156,29 @@ export class RequestClient implements RequestInterface {
 		return res.data;
 	}
 
-	get: RequestInterface["get"] = (url, config) => this.resolve(this.instance.get(url, config));
+	get: RequestInterface["get"] = async (url, config) =>
+		this.resolve(this.instance.get(url, config));
 
-	delete: RequestInterface["delete"] = (url, config) =>
+	delete: RequestInterface["delete"] = async (url, config) =>
 		this.resolve(this.instance.delete(url, config));
 
-	head: RequestInterface["head"] = (url, config) => this.resolve(this.instance.head(url, config));
+	head: RequestInterface["head"] = async (url, config) =>
+		this.resolve(this.instance.head(url, config));
 
-	options: RequestInterface["options"] = (url, config) =>
+	options: RequestInterface["options"] = async (url, config) =>
 		this.resolve(this.instance.options(url, config));
 
-	post: RequestInterface["post"] = (url, body, config) =>
+	post: RequestInterface["post"] = async (url, body, config) =>
 		this.resolve(this.instance.post(url, body, config));
 
-	put: RequestInterface["put"] = (url, body, config) =>
+	put: RequestInterface["put"] = async (url, body, config) =>
 		this.resolve(this.instance.put(url, body, config));
 
-	patch: RequestInterface["patch"] = (url, body, config) =>
+	patch: RequestInterface["patch"] = async (url, body, config) =>
 		this.resolve(this.instance.patch(url, body, config));
 
-	send: RequestInterface["send"] = (args) => {
-		switch (args?.method) {
+	send: RequestInterface["send"] = async (args) => {
+		switch (args.method) {
 			case "GET":
 				return this.get(args.url, args.config);
 			case "POST":
@@ -195,7 +197,7 @@ export class RequestClient implements RequestInterface {
 	};
 
 	async corpus<R>(args: RequestDescriptor): Promise<R> {
-		return await this.send({
+		return this.send({
 			url: args.endpoint,
 			body: args.body,
 			method: args.method,

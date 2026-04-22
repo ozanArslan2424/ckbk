@@ -1,11 +1,13 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+
 @custom-variant dark (&:is(.dark *));
+
 @theme inline {
-	--radius-sm: calc(0.5rem - 4px);
-	--radius-md: calc(0.5rem - 2px);
-	--radius-lg: 0.5rem;
-	--radius-xl: calc(0.5rem + 4px);
+	--radius-sm: calc(0.375rem - 2px);
+	--radius-md: 0.375rem;
+	--radius-lg: 0.625rem;
+	--radius-xl: calc(0.625rem + 6px);
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-border: var(--border);
@@ -36,40 +38,63 @@
 :root {
 	--light-text: hsl(90, 30%, 98%);
 	--dark-text: hsl(120, 8%, 12%);
-	--background: hsl(96, 25%, 96%); /* soft mint parchment */
+
+	/* linen parchment — warm, tactile */
+	--background: hsl(120, 10%, 99.9%);
 	--foreground: var(--dark-text);
 	--border: hsl(96, 18%, 82%);
-	--ring: hsl(96, 35%, 48%); /* soft sage focus */
-	--card: hsl(90, 22%, 98%);
+	--ring: hsl(96, 35%, 48%);
+
+	/* aged ivory card surface */
+	--card: hsl(90, 0%, 99%);
 	--card-foreground: var(--dark-text);
-	--primary: hsl(96, 35%, 45%); /* gentle sage */
+
+	/* deep herb green */
+	--primary: hsl(142, 40%, 34%);
 	--primary-foreground: var(--light-text);
-	--secondary: hsl(96, 20%, 88%); /* pale sage */
-	--secondary-foreground: hsl(96, 25%, 20%);
-	--tertiary: hsl(156, 25%, 75%); /* soft seafoam */
+
+	/* pale sage wash */
+	--secondary: hsl(96, 20%, 88%);
+	--secondary-foreground: hsl(96, 28%, 18%);
+
+	/* dusty seafoam */
+	--tertiary: hsl(165, 24%, 72%);
 	--tertiary-foreground: var(--dark-text);
-	--accent: hsl(96, 30%, 68%); /* light sage */
-	--accent-foreground: hsl(96, 25%, 15%);
-	--muted: hsl(90, 18%, 90%);
-	--muted-foreground: hsl(96, 15%, 48%);
+
+	/* terracotta accent — the signature pop */
+	--accent: hsl(18, 62%, 52%);
+	--accent-foreground: var(--light-text);
+
+	--muted: hsl(42, 18%, 88%);
+	--muted-foreground: hsl(38, 14%, 46%);
 }
+
 .dark {
 	--light-text: hsl(96, 20%, 95%);
 	--dark-text: hsl(120, 6%, 8%);
-	--background: hsl(120, 8%, 10%); /* deep forest */
+
+	/* smoked walnut */
+	--background: hsl(30, 8%, 10%);
 	--foreground: var(--light-text);
-	--border: hsl(96, 12%, 22%);
-	--ring: hsl(96, 40%, 52%);
-	--card: hsl(96, 10%, 14%);
+	--border: hsl(30, 10%, 20%);
+	--ring: hsl(142, 35%, 46%);
+
+	--card: hsl(30, 10%, 14%);
 	--card-foreground: var(--light-text);
-	--primary: hsl(96, 35%, 52%); /* muted sage */
+
+	--primary: hsl(142, 38%, 50%);
 	--primary-foreground: var(--dark-text);
-	--secondary: hsl(96, 15%, 20%); /* dark sage */
-	--secondary-foreground: hsl(96, 20%, 85%);
-	--tertiary: hsl(156, 20%, 28%);
+
+	--secondary: hsl(30, 12%, 20%);
+	--secondary-foreground: hsl(38, 18%, 82%);
+
+	--tertiary: hsl(165, 18%, 26%);
 	--tertiary-foreground: var(--light-text);
-	--accent: hsl(96, 25%, 42%); /* deeper sage */
+
+	/* terracotta stays vibrant in dark */
+	--accent: hsl(18, 58%, 56%);
 	--accent-foreground: var(--light-text);
-	--muted: hsl(96, 10%, 18%);
-	--muted-foreground: hsl(96, 12%, 52%);
+
+	--muted: hsl(30, 8%, 18%);
+	--muted-foreground: hsl(38, 10%, 50%);
 }

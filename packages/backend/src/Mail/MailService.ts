@@ -7,7 +7,7 @@ import { Logger } from "@/Logger/Logger";
 
 export class MailService {
 	private readonly logger = new Logger(this.constructor.name);
-	private transporter: nodemailer.Transporter;
+	private readonly transporter: nodemailer.Transporter;
 
 	constructor(private readonly localeService: LocaleService) {
 		this.transporter = this.createTransporter();
@@ -68,8 +68,8 @@ export class MailService {
 		subject: string;
 		text: string;
 		html?: string;
-	}) {
-		return await this.transporter.sendMail({
+	}): Promise<unknown> {
+		return this.transporter.sendMail({
 			from: `"${X.Config.get("APP_NAME")}" <${X.Config.get("SMTP_USER")}>`,
 			to: `"${toName || ""}" <${toEmail}>`,
 			subject,
@@ -108,7 +108,6 @@ export class MailService {
 		});
 
 		this.logger.log("Message Sent", info);
-		return info;
 	}
 
 	async sendTextMail({
@@ -133,6 +132,5 @@ export class MailService {
 		});
 
 		this.logger.log("Message Sent", info);
-		return info;
 	}
 }

@@ -29,18 +29,18 @@ export function AuthLayout() {
 	return (
 		<>
 			<AppHeader />
-			<div className="flex h-full flex-col items-center p-6 md:p-10">
-				<div className="w-full max-w-md">
-					<h1 className="text-primary pt-12 pb-6 text-center text-6xl leading-none font-black">
+
+			<div className="flex min-h-[calc(100vh-3.5rem)] flex-col items-center p-6 md:p-10">
+				<div className="flex w-full max-w-sm flex-col gap-6 pt-20">
+					<h1 className="text-primary pb-6 text-center text-6xl leading-none font-black">
 						{CONFIG.appTitle}
 					</h1>
 
-					<div className="flex flex-col gap-6">
-						<Outlet />
-						<p className="text-foreground/70 hover:text-foreground cursor-pointer text-center text-sm whitespace-nowrap transition-all">
-							{txt.tosLabel}
-						</p>
-					</div>
+					<Outlet />
+
+					<p className="text-muted-foreground hover:text-foreground/70 cursor-pointer text-center text-xs transition-colors">
+						{txt.tosLabel}
+					</p>
 				</div>
 			</div>
 		</>

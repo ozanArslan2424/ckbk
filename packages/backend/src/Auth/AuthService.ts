@@ -1,16 +1,18 @@
 import { C, X } from "@ozanarslan/corpus";
+import jwt from "jsonwebtoken";
 
 import type { AuthType } from "@/Auth/AuthModel";
 import type { DatabaseClient } from "@/Database/DatabaseClient";
 import type { TransactionClient } from "@/Database/DatabaseTypes";
-import { Encrypt } from "@/lib/encrypt.namespace";
-import { Help } from "@/lib/help.namespace";
 import type { MailService } from "@/Mail/MailService";
+import { ProfileEntity } from "@/Profile/ProfileEntity";
 
 export class AuthService {
 	readonly jwtRefreshSecret = X.Config.get("JWT_REFRESH_SECRET");
 	readonly jwtAccessSecret = X.Config.get("JWT_ACCESS_SECRET");
 	readonly authHeader = "authorization";
+	readonly verificationExpireMs = 60 * 60 * 1000; // 1 hour
+	readonly refreshExpireMs = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 	constructor(
 		private readonly db: DatabaseClient,
@@ -25,17 +27,16 @@ export class AuthService {
 			include: { profile: true },
 		});
 
-		if (!user || !user.profile) {
+		if (!user?.profile) {
 			console.log("!user");
 			throw new C.Exception("UNAUTHORIZED", C.Status.UNAUTHORIZED);
 		}
-		const profile = { ...user.profile, emailVerified: user.emailVerified };
-		return profile;
+		return new ProfileEntity({ ...user.profile, emailVerified: user.emailVerified });
 	}
 
 	async findByEmail(email: string, tx?: TransactionClient) {
 		const client = tx ?? this.db;
-		return await client.user.findUnique({ where: { email } });
+		return client.user.findUnique({ where: { email } });
 	}
 
 	async login(body: AuthType["login"]["body"]) {
@@ -44,19 +45,20 @@ export class AuthService {
 			throw new C.Exception("auth.invalid", C.Status.BAD_REQUEST);
 		}
 
-		const pwdMatch = await Encrypt.verifyPassword(body.password, user.password);
+		const pwdMatch = await this.verifyPassword(body.password, user.password);
 		if (!pwdMatch) {
 			throw new C.Exception("auth.invalid", C.Status.BAD_REQUEST);
 		}
 
-		const profile = await this.db.profile.findUnique({ where: { userId: user.id } });
-		if (!profile) {
+		const profileRaw = await this.db.profile.findUnique({ where: { userId: user.id } });
+		if (!profileRaw) {
 			throw new C.Exception("auth.invalid", C.Status.BAD_REQUEST);
 		}
 
+		const profile = new ProfileEntity(profileRaw);
 		const jti = await this.createRefreshToken(user.id);
-		const refreshToken = await this.signRefreshToken(jti, user.id);
-		const accessToken = this.signAccessToken(profile.userId);
+		const refreshToken = this.signRefreshToken(jti, user.id);
+		const accessToken = this.signAccessToken(profileRaw.userId);
 		return { profile, accessToken, refreshToken };
 	}
 
@@ -70,10 +72,10 @@ export class AuthService {
 		}
 
 		const otpCode = await this.db.$transaction(async (tx) => {
-			const password = await Encrypt.hashPassword(body.password);
+			const password = await this.hashPassword(body.password);
 
-			const verificationExpiresAt = new Date(Date.now() + Help.milliseconds["1h"]);
-			const otpCode = Help.generateOTP();
+			const verificationExpiresAt = new Date(Date.now() + this.verificationExpireMs);
+			const otpCode = this.generateOTP();
 
 			const user = await tx.user.create({ data: { email, password, lastActive: new Date() } });
 
@@ -136,16 +138,15 @@ export class AuthService {
 			await tx.user.update({ where: { id: user.id }, data: { emailVerified: true } });
 			await tx.verification.delete({ where: whereToken });
 
-			let profile = await tx.profile.findUnique({ where: { email } });
-			if (!profile) {
-				profile = await tx.profile.create({
-					data: { userId: user.id, email, name: email.split("@")[0] ?? email },
-				});
-			}
+			let profileRaw = await tx.profile.findUnique({ where: { email } });
+			profileRaw ??= await tx.profile.create({
+				data: { userId: user.id, email, name: email.split("@")[0] ?? email },
+			});
+			const profile = new ProfileEntity({ ...profileRaw, emailVerified: true });
 
 			const jti = await this.createRefreshToken(user.id, tx);
-			const refreshToken = await this.signRefreshToken(jti, user.id);
-			const accessToken = this.signAccessToken(profile.userId);
+			const refreshToken = this.signRefreshToken(jti, user.id);
+			const accessToken = this.signAccessToken(profileRaw.userId);
 			return { profile, accessToken, refreshToken };
 		});
 
@@ -182,14 +183,14 @@ export class AuthService {
 
 		// SENARYO D: Her şey yolunda, mevcut token'ı kullanılmış işaretleyip yenisini
 		// gönderebiliriz. (rotation)
-		return await this.db.$transaction(async (tx) => {
+		return this.db.$transaction(async (tx) => {
 			if (!payload.jti) {
 				throw new C.Exception("Invalid refresh token", C.Status.BAD_REQUEST);
 			}
 
 			await this.invalidateRefreshToken(payload.jti, payload.userId, tx);
 			const jti = await this.createRefreshToken(tokenRecord.userId, tx);
-			const refreshToken = await this.signRefreshToken(jti, tokenRecord.userId);
+			const refreshToken = this.signRefreshToken(jti, tokenRecord.userId);
 			const accessToken = this.signAccessToken(tokenRecord.userId);
 
 			return { accessToken, refreshToken };
@@ -206,46 +207,44 @@ export class AuthService {
 		}
 	}
 
-	async signRefreshToken(jti: string, userId: string) {
-		const refreshToken = Encrypt.signJwt({ userId, jti }, this.jwtRefreshSecret, {
+	signRefreshToken(jti: string, userId: string) {
+		const refreshToken = jwt.sign({ userId, jti }, this.jwtRefreshSecret, {
 			expiresIn: "7d",
 		});
 		return refreshToken;
 	}
 
-	getRefreshPayload(refreshToken: string | undefined): Encrypt.JwtPayload {
+	getRefreshPayload(refreshToken: string | undefined): jwt.JwtPayload {
 		if (!refreshToken) {
 			console.log("!refreshToken");
 			throw new C.Exception("UNAUTHORIZED", C.Status.UNAUTHORIZED);
 		}
 		try {
-			return Encrypt.verifyJwt(refreshToken, this.jwtRefreshSecret) as Encrypt.JwtPayload;
+			return jwt.verify(refreshToken, this.jwtRefreshSecret) as jwt.JwtPayload;
 		} catch {
 			throw new C.Exception("Invalid refresh token", C.Status.BAD_REQUEST);
 		}
 	}
 
 	signAccessToken(userId: string) {
-		return Encrypt.signJwt({ userId }, this.jwtAccessSecret, {
-			expiresIn: "15m",
-		});
+		return jwt.sign({ userId }, this.jwtAccessSecret, { expiresIn: "15m" });
 	}
 
 	getAccessToken(headers: C.Headers): string | null {
 		const authHeader = headers.get(this.authHeader);
 		if (!authHeader) return null;
 		const token = authHeader.split(" ")[1];
-		return token || null;
+		return token ?? null;
 	}
 
-	getAccessPayload(headers: C.Headers): Encrypt.JwtPayload {
+	getAccessPayload(headers: C.Headers): jwt.JwtPayload {
 		const token = this.getAccessToken(headers);
 		if (!token) {
 			console.log("!token");
 			throw new C.Exception("UNAUTHORIZED", C.Status.UNAUTHORIZED);
 		}
 		try {
-			return Encrypt.verifyJwt(token, this.jwtAccessSecret) as Encrypt.JwtPayload;
+			return jwt.verify(token, this.jwtAccessSecret) as jwt.JwtPayload;
 		} catch (err) {
 			console.log(err);
 			throw new C.Exception("Invalid access token", C.Status.UNAUTHORIZED);
@@ -254,15 +253,11 @@ export class AuthService {
 
 	async createRefreshToken(userId: string, tx?: TransactionClient) {
 		const client = tx ?? this.db;
-		const { id } = await client.refreshToken.create({
-			data: {
-				userId,
-				expiresAt: new Date(Date.now() + Help.milliseconds["7d"]),
-				isValid: true,
-			},
+		const token = await client.refreshToken.create({
+			data: { userId, expiresAt: new Date(Date.now() + this.refreshExpireMs), isValid: true },
 			select: { id: true },
 		});
-		return id;
+		return token.id;
 	}
 
 	// Token'ı silmek yerine geçersiz kılıyoruz (Audit ve Reuse Detection için)
@@ -291,5 +286,22 @@ export class AuthService {
 				OR: [{ expiresAt: { lt: new Date() } }, { isValid: false }],
 			},
 		});
+	}
+
+	private async hashPassword(password: string) {
+		return Bun.password.hash(password);
+	}
+
+	private async verifyPassword(password: string, hashedPassword: string) {
+		return Bun.password.verify(password, hashedPassword);
+	}
+
+	private generateOTP(): string {
+		const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		let otp = "";
+		for (let i = 0; i < 6; i++) {
+			otp += chars[Math.floor(Math.random() * chars.length)];
+		}
+		return otp;
 	}
 }

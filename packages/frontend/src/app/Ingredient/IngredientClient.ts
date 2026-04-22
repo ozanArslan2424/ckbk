@@ -28,7 +28,7 @@ export class IngredientClient {
 				this.api.endpoints.ingredientByRecipeIdGet(ingredientByRecipeIdGetArgs.params),
 				ingredientByRecipeIdGetArgs,
 			],
-			queryFn: () => this.api.ingredientByRecipeIdGet(ingredientByRecipeIdGetArgs),
+			queryFn: async () => this.api.ingredientByRecipeIdGet(ingredientByRecipeIdGetArgs),
 		});
 	}
 

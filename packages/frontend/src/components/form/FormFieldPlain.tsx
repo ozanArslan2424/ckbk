@@ -20,7 +20,7 @@ export type FormFieldPlainProps = {
 };
 
 export function FormFieldPlain(props: FormFieldPlainProps) {
-	const id = props.id || props.name;
+	const id = props.id ?? props.name;
 	const error = props.error;
 
 	const node = cloneElement<{
@@ -29,7 +29,7 @@ export function FormFieldPlain(props: FormFieldPlainProps) {
 		className?: string;
 	}>(props.children, {
 		id,
-		name: props.name as string,
+		name: props.name,
 	});
 
 	const renderNode = () =>

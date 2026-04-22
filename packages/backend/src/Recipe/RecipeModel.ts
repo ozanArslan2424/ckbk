@@ -10,8 +10,7 @@ export type RecipeType = X.InferModel<typeof RecipeModel>;
 
 export class RecipeModel {
 	static create = {
-		body: RecipeEntity.schema.pick("title", "description").and({
-			isPublic: type("string").pipe((v) => v === "true"),
+		body: RecipeEntity.schema.pick("title", "description", "isPublic").and({
 			"image?": "File",
 		}),
 		response: RecipeEntity.schema,
@@ -33,9 +32,9 @@ export class RecipeModel {
 	static list = {
 		search: type({
 			"search?": "string",
-			"mine?": "boolean",
 			"page?": "number",
 			"limit?": "number",
+			"owner?": type("'me'|'others'|'all'"),
 			"sortOrder?": type("'asc'|'desc'"),
 			"sortBy?": type("'createdAt'|'title'|'likes'|'steps'"),
 			"materialIds?": "number[]",

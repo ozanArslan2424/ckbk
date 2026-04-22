@@ -1,4 +1,12 @@
-import { createContext, useContext, useEffect, useLayoutEffect, type ReactElement } from "react";
+import {
+	createContext,
+	use,
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	type ReactElement,
+} from "react";
 import { useState, useRef } from "react";
 
 // Transform duration ms
@@ -95,9 +103,7 @@ type CardDeckContextValue = {
 const CardDeckContext = createContext<CardDeckContextValue | null>(null);
 
 export function useCardDeckContext() {
-	const ctx = useContext(CardDeckContext);
-	// if (!ctx) throw new Error("useCardDeck must be used inside a CardDeck");
-	return ctx;
+	return use(CardDeckContext);
 }
 
 export function CardDeck({ children, onFinish }: CardDeckProps) {
@@ -106,30 +112,36 @@ export function CardDeck({ children, onFinish }: CardDeckProps) {
 	const [dir, setDir] = useState<"next" | "prev">("next");
 	const isAnimating = useRef(false);
 
-	function move(to: "next" | "prev") {
-		if (isAnimating.current) return;
-		if (to === "next" && index === children.length - 1) {
-			onFinish?.();
-			return;
-		}
-		if (to === "prev" && index === 0) return;
-		isAnimating.current = true;
-		setDir(to);
-		if (to === "next") setExiting(true);
-		setTimeout(
-			() => {
-				setIndex((i) => (to === "next" ? i + 1 : i - 1));
-				setExiting(false);
-				isAnimating.current = false;
-			},
-			to === "next" ? ANIM_DURATION_MS : 0,
-		);
-	}
+	const move = useCallback(
+		(to: "next" | "prev") => {
+			if (isAnimating.current) return;
+			if (to === "next" && index === children.length - 1) {
+				onFinish?.();
+				return;
+			}
+			if (to === "prev" && index === 0) return;
+			isAnimating.current = true;
+			setDir(to);
+			if (to === "next") setExiting(true);
+			setTimeout(
+				() => {
+					setIndex((i) => (to === "next" ? i + 1 : i - 1));
+					setExiting(false);
+					isAnimating.current = false;
+				},
+				to === "next" ? ANIM_DURATION_MS : 0,
+			);
+		},
+		[onFinish, index, children],
+	);
 
-	const contextValue: CardDeckContextValue = {
-		onNext: () => move("next"),
-		onPrev: () => move("prev"),
-	};
+	const contextValue: CardDeckContextValue = useMemo(
+		() => ({
+			onNext: () => move("next"),
+			onPrev: () => move("prev"),
+		}),
+		[move],
+	);
 
 	return (
 		<CardDeckContext.Provider value={contextValue}>
@@ -150,30 +162,36 @@ export function CardDeckScrollable({ children, onFinish }: CardDeckProps) {
 	const [dir, setDir] = useState<"next" | "prev">("next");
 	const isAnimating = useRef(false);
 
-	function move(to: "next" | "prev") {
-		if (isAnimating.current) return;
-		if (to === "next" && index === children.length - 1) {
-			onFinish?.();
-			return;
-		}
-		if (to === "prev" && index === 0) return;
-		isAnimating.current = true;
-		setDir(to);
-		if (to === "next") setExiting(true);
-		setTimeout(
-			() => {
-				setIndex((i) => (to === "next" ? i + 1 : i - 1));
-				setExiting(false);
-				isAnimating.current = false;
-			},
-			to === "next" ? ANIM_DURATION_MS : 0,
-		);
-	}
+	const move = useCallback(
+		(to: "next" | "prev") => {
+			if (isAnimating.current) return;
+			if (to === "next" && index === children.length - 1) {
+				onFinish?.();
+				return;
+			}
+			if (to === "prev" && index === 0) return;
+			isAnimating.current = true;
+			setDir(to);
+			if (to === "next") setExiting(true);
+			setTimeout(
+				() => {
+					setIndex((i) => (to === "next" ? i + 1 : i - 1));
+					setExiting(false);
+					isAnimating.current = false;
+				},
+				to === "next" ? ANIM_DURATION_MS : 0,
+			);
+		},
+		[onFinish, index, children],
+	);
 
-	const contextValue: CardDeckContextValue = {
-		onNext: () => move("next"),
-		onPrev: () => move("prev"),
-	};
+	const contextValue: CardDeckContextValue = useMemo(
+		() => ({
+			onNext: () => move("next"),
+			onPrev: () => move("prev"),
+		}),
+		[move],
+	);
 
 	const wrapperRef = useRef<HTMLDivElement>(null);
 	const accumulated = useRef(0);
@@ -185,7 +203,7 @@ export function CardDeckScrollable({ children, onFinish }: CardDeckProps) {
 
 	useEffect(() => {
 		const el = wrapperRef.current;
-		if (!el) return;
+		if (!el) return () => {};
 		const handleWheel = (e: WheelEvent) => {
 			e.preventDefault();
 			accumulated.current += e.deltaY;
@@ -198,7 +216,9 @@ export function CardDeckScrollable({ children, onFinish }: CardDeckProps) {
 			}
 		};
 		el.addEventListener("wheel", handleWheel, { passive: false });
-		return () => el.removeEventListener("wheel", handleWheel);
+		return () => {
+			el.removeEventListener("wheel", handleWheel);
+		};
 	}, []);
 
 	return (

@@ -39,6 +39,7 @@ export function ConfirmModal({
 		<Modal showTitle showDescription id={prefixId(id, "confirm")} {...dialog}>
 			<div className="grid grid-cols-3 gap-4">
 				<button
+					type="button"
 					onClick={handleCancel}
 					{...cancelProps}
 					className={cn("ghost relative col-span-1", cancelProps?.className)}
@@ -46,6 +47,7 @@ export function ConfirmModal({
 					{cancelProps?.children ?? txt.cancel}
 				</button>
 				<button
+					type="button"
 					onClick={handleConfirm}
 					{...confirmProps}
 					className={cn("relative col-span-2", confirmProps?.className)}

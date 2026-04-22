@@ -87,7 +87,8 @@ export function Modal<T = undefined>({
 						data-slot="dialog-header"
 						className={cn(
 							"flex flex-col gap-2 text-center sm:text-left",
-							showTitle === true || showDescription === true ? "" : "sr-only",
+
+							showTitle || showDescription ? "" : "sr-only",
 						)}
 					>
 						<Primitive.Title data-slot="dialog-title" className={showTitle ? "" : "sr-only"}>
@@ -115,7 +116,7 @@ export function Modal<T = undefined>({
 								closeButtonProps?.className,
 							)}
 						>
-							{closeButtonProps?.children ? closeButtonProps.children : <XIcon />}
+							{closeButtonProps?.children ?? <XIcon />}
 							<span className="sr-only">{txt.close}</span>
 						</Primitive.Close>
 					)}

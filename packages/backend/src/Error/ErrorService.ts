@@ -8,7 +8,7 @@ export class ErrorService {
 	private readonly logger = new Logger(this.constructor.name);
 	constructor(private readonly localeService: LocaleService) {}
 
-	async onError(err: Error): Promise<C.Res> {
+	onError(err: Error): C.Res {
 		const { status, key } = this.getStatusAndKey(err);
 		const message = this.localeService.translate("error", key);
 		if (status !== C.Status.UNAUTHORIZED) {

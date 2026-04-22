@@ -1,5 +1,5 @@
 import { useRecipeForm } from "@/app/Recipe/Hooks/useRecipeForm";
-import { CardDeck } from "@/components/CardDeck";
+import { CardDeck } from "@/components/cards/CardDeck";
 import { Modal } from "@/components/modals/Modal";
 import { useLocale } from "@/hooks/useLocale";
 import type { ModalState } from "@/hooks/useModal";

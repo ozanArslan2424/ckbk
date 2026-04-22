@@ -11,7 +11,7 @@ export function PageContent({
 }: ComponentProps<"div"> & { browserTitle?: string }) {
 	return (
 		<div
-			className={cn("px-4 lg:px-12 flex w-full flex-col gap-4 py-4 md:gap-6 md:py-6", className)}
+			className={cn("flex w-full flex-col gap-4 px-4 py-5 md:gap-6 md:py-7 lg:px-8", className)}
 			{...rest}
 		>
 			<title>{browserTitle}</title>

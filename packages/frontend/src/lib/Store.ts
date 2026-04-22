@@ -1,5 +1,5 @@
 export class Store {
-	private _data = new Map<string, any>();
+	private readonly _data = new Map<string, any>();
 
 	constructor(initialData: StoreSchema) {
 		for (const [key, value] of Object.entries(initialData)) {

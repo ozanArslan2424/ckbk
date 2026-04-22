@@ -23,7 +23,7 @@ export function useInfiniteScrollQuery<
 	const scroller = useInView({
 		threshold: 0,
 		rootMargin: `${rootMargin ?? 100}px`,
-		onChange: (inView) => (inView ? infiniteListQuery.fetchNextPage() : undefined),
+		onChange: (inView) => (inView ? () => infiniteListQuery.fetchNextPage() : undefined),
 	});
 
 	return { scrollRef: scroller.ref, ...infiniteListQuery };

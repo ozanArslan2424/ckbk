@@ -1,9 +1,7 @@
 import "@ozanarslan/corpus";
 import type { AuthType } from "@/Auth/AuthModel";
-import type { DatabaseClient } from "@/Database/DatabaseClient";
 
 declare module "@ozanarslan/corpus" {
-	interface DatabaseClientInterface extends DatabaseClient {}
 	interface Env {
 		PORT: string;
 		APP_NAME: string;

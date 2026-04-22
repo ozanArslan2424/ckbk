@@ -18,7 +18,7 @@ export class StepService {
 			throw new C.Exception("Cannot add steps to someone else's recipe.", C.Status.FORBIDDEN);
 		}
 
-		return await this.db.step.create({
+		return this.db.step.create({
 			data: {
 				body: body.body,
 				order: body.order,
@@ -39,7 +39,7 @@ export class StepService {
 			throw new C.Exception("Cannot add steps to someone else's recipe.", C.Status.FORBIDDEN);
 		}
 
-		return await this.db.step.update({
+		return this.db.step.update({
 			where: { id: params.id },
 			data: {
 				body: body.body,
@@ -50,6 +50,6 @@ export class StepService {
 	}
 
 	async listByRecipe(recipeId: number): Promise<StepType["listByRecipe"]["response"]> {
-		return await this.db.step.findMany({ where: { recipeId } });
+		return this.db.step.findMany({ where: { recipeId } });
 	}
 }

@@ -25,7 +25,7 @@ export class StepClient {
 				this.api.endpoints.stepByRecipeIdGet(stepByRecipeIdGetArgs.params),
 				stepByRecipeIdGetArgs,
 			],
-			queryFn: () => this.api.stepByRecipeIdGet(stepByRecipeIdGetArgs),
+			queryFn: async () => this.api.stepByRecipeIdGet(stepByRecipeIdGetArgs),
 		});
 	}
 

@@ -76,5 +76,5 @@ server.setOnBeforeListen(async () => {
 	await db.connect();
 });
 
-server.setOnBeforeClose(async () => await db.disconnect());
+server.setOnBeforeClose(async () => db.disconnect());
 void server.listen(X.Config.get("PORT", { parser: parseInt, fallback: 3000 }));

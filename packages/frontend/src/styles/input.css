@@ -1,34 +1,54 @@
 @import "./theme.css";
 
 @layer base {
+	input:not(.unset),
+	textarea:not(.unset),
+	.input-like {
+		@apply placeholder:text-foreground/35 w-full rounded-lg transition-all duration-150 outline-none file:cursor-pointer file:border-0 file:bg-transparent file:text-sm file:font-semibold disabled:cursor-not-allowed disabled:opacity-50;
 
-    input:not(.unset),
-    textarea:not(.unset),
-    .input-like {
-        @apply placeholder:text-foreground/50 min-h-10 w-full rounded-lg transition-colors outline-none file:cursor-pointer disabled:opacity-70;
+		&.ghost {
+			@apply text-foreground border-border focus-visible:border-primary rounded-none border-0 border-b-2 bg-transparent px-0 py-1 text-lg font-bold ring-0 transition-colors duration-150 outline-none sm:text-xl;
+		}
 
-        &.ghost {
-            @apply text-foreground text-lg font-bold ring-2 ring-transparent sm:text-xl;
-        }
+		&.soft {
+			@apply bg-primary/8 border-primary/15 text-foreground focus-visible:ring-primary/30 focus-visible:bg-primary/12 focus-visible:border-primary/30 hover:border-primary/25 hover:bg-primary/12 min-h-10 border px-3 py-2 text-sm shadow-none ring-2 ring-transparent transition-all duration-150;
+		}
 
-        &.soft {
-            @apply hover:bg-primary/20 [&_svg]:text-foreground text-foreground border-border/70 bg-transparent not-disabled:active:opacity-90 border px-3 py-2 text-sm shadow-xs ring-2 ring-transparent focus-visible:ring-ring focus-visible:hover:bg-transparent;
-        }
+		&:not(.ghost):not(.soft) {
+			@apply bg-background border-border text-foreground focus-visible:ring-ring/40 focus-visible:border-ring hover:border-ring/50 min-h-10 border px-3 py-2 text-sm shadow-xs ring-2 ring-transparent transition-all duration-150;
+		}
+	}
 
-        &:not(.ghost):not(.soft) {
-            @apply not-disabled:hover:border-primary bg-background border-border/70 focus-visible:ring-ring border px-3 py-2 text-sm shadow-xs ring-2 ring-transparent;
-        }
-    }
+	textarea:not(.unset) {
+		@apply min-h-24 resize-y leading-relaxed;
+	}
 
-    label:not(.unset) {
-        @apply text-foreground/70 text-sm font-semibold;
+	label:not(.unset) {
+		@apply text-foreground/65 text-sm font-semibold tracking-wide;
 
-        &.sublabel {
-            @apply text-xs text-muted-foreground;
-        }
+		&.sublabel {
+			@apply text-muted-foreground text-xs font-normal tracking-normal;
+		}
 
-        &.error {
-            @apply text-rose-500;
-        }
-    }
+		&.error {
+			@apply text-rose-500;
+		}
+
+		&[data-required]::after {
+			content: " *";
+			@apply text-accent font-bold;
+		}
+	}
+
+	.field {
+		@apply flex flex-col gap-1.5;
+
+		.field-hint {
+			@apply text-muted-foreground text-xs leading-snug;
+		}
+
+		.field-error {
+			@apply text-xs leading-snug font-medium text-rose-500;
+		}
+	}
 }

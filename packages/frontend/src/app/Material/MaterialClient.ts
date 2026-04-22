@@ -21,7 +21,7 @@ export class MaterialClient {
 	list(materialGetArgs: Args.MaterialGet) {
 		return this.queryClient.makeQuery({
 			queryKey: [this.api.endpoints.materialGet, materialGetArgs],
-			queryFn: () => this.api.materialGet(materialGetArgs),
+			queryFn: async () => this.api.materialGet(materialGetArgs),
 		});
 	}
 

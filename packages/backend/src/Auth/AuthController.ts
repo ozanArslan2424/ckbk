@@ -12,13 +12,13 @@ export class AuthController extends C.Controller {
 
 	me = this.route(
 		{ method: "GET", path: "/me" },
-		(c) => this.authService.getProfile(c.headers),
+		async (c) => this.authService.getProfile(c.headers),
 		AuthModel.me,
 	);
 
 	login = this.route(
 		{ method: "POST", path: "/login" },
-		(c) => this.authService.login(c.body),
+		async (c) => this.authService.login(c.body),
 		AuthModel.login,
 	);
 
@@ -34,19 +34,19 @@ export class AuthController extends C.Controller {
 
 	logout = this.route(
 		{ method: "POST", path: "/logout" },
-		(c) => this.authService.logout(c.body),
+		async (c) => this.authService.logout(c.body),
 		AuthModel.logout,
 	);
 
 	refresh = this.route(
 		{ method: "POST", path: "/refresh" },
-		(c) => this.authService.refresh(c.body),
+		async (c) => this.authService.refresh(c.body),
 		AuthModel.refresh,
 	);
 
 	verify = this.route(
 		{ method: "POST", path: "/verify" },
-		(c) => this.authService.verify(c.body),
+		async (c) => this.authService.verify(c.body),
 		AuthModel.verify,
 	);
 }

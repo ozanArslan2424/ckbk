@@ -1,7 +1,6 @@
 import { CheckIcon } from "lucide-react";
 import { useCallback, useEffect, useState, type ComponentProps, type ReactNode } from "react";
 
-import { Help } from "@/lib/Help";
 import { cn } from "@/lib/utils";
 
 type CheckboxProps = {
@@ -12,13 +11,13 @@ type CheckboxProps = {
 	onChange?: (checked: boolean) => void;
 	renderChildren?: (checked: boolean) => ReactNode;
 	unstyled?: boolean;
-} & Omit<ComponentProps<"button">, "onChange" | "value">;
+} & Omit<ComponentProps<"button">, "onChange" | "value" | "defaultValue">;
 
 export function Checkbox({
 	id,
 	name,
 	value,
-	defaultValue,
+	defaultValue = false,
 	onChange,
 	className,
 	renderChildren,
@@ -26,29 +25,27 @@ export function Checkbox({
 	...rest
 }: CheckboxProps) {
 	const isControlled = value !== undefined;
-	const [internal, setInternal] = useState<Help.StringBoolean>(
-		Help.toStringBoolean(isControlled ? value : defaultValue),
-	);
+	const [internal, setInternal] = useState<boolean>(isControlled ? value : defaultValue);
 
 	useEffect(() => {
-		if (isControlled) setInternal(Help.toStringBoolean(value));
+		if (isControlled) setInternal(value);
 	}, [isControlled, value]);
 
-	const checked = isControlled ? Help.toBoolean(value) : Help.toBoolean(internal);
+	const checked = isControlled ? value : internal;
 
 	const handleClick = useCallback(() => {
 		const next = !checked;
-		if (!isControlled) setInternal(Help.toStringBoolean(next));
+		if (!isControlled) setInternal(next);
 		onChange?.(next);
 	}, [checked, isControlled, onChange]);
 
 	return (
 		<>
 			<input
-				type="text"
+				type="checkbox"
 				id={`${name}_input`}
 				name={name}
-				value={internal}
+				checked={internal}
 				readOnly
 				className="sr-only"
 			/>

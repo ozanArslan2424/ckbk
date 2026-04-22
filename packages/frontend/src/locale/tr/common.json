@@ -21,6 +21,7 @@
 	"back": "Geri dön",
 	"loading": "Yükleniyor...",
 	"error": "Bir hata oluştu, lütfen tekrar deneyin.",
+	"noMore": "Listenin sonu.",
 	"noData": "Gösterilecek veri bulunamadı.",
 	"noResults": "Sonuç bulunamadı.",
 	"search": "Ara",
@@ -40,5 +41,6 @@
 	"firstPage": "İlk sayfaya git",
 	"lastPage": "Son sayfaya git",
 	"prevPage": "Önceki sayfaya git",
-	"nextPage": "Sonraki sayfaya git"
+	"nextPage": "Sonraki sayfaya git",
+	"footer": "Tasarlayan ve geliştiren"
 }

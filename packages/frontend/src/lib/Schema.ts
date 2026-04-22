@@ -5,7 +5,7 @@ import { Help } from "@/lib/Help";
 import { isObjectWith } from "@/lib/utils";
 
 export namespace Schema {
-	export interface Schema<T = unknown> extends StandardSchemaV1<unknown, T> {}
+	export type Schema<T = unknown> = StandardSchemaV1<unknown, T>;
 
 	export type Infer<T extends Schema> = StandardSchemaV1.InferOutput<T>;
 

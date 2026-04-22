@@ -65,8 +65,8 @@ export class QueryClient extends Tanstack.QueryClient {
 		},
 	});
 
-	invalidateAll(...queryKeys: QueryKey[]) {
-		return Promise.all(queryKeys.map((queryKey) => this.invalidateQueries({ queryKey })));
+	async invalidateAll(...queryKeys: QueryKey[]) {
+		return Promise.all(queryKeys.map(async (queryKey) => this.invalidateQueries({ queryKey })));
 	}
 
 	readQueryData<QData, QKey extends QueryKey = QueryKey>(
@@ -83,7 +83,7 @@ export class QueryClient extends Tanstack.QueryClient {
 	): () => QData | undefined {
 		const snapshot = this.getQueryData<QData>(queryKey);
 		this.setQueryData<QData>(queryKey, (prev) => {
-			if (!prev) prev = defaultPrev;
+			prev ??= defaultPrev;
 			return cb(prev);
 		});
 		return () => {
@@ -100,8 +100,8 @@ export class QueryClient extends Tanstack.QueryClient {
 	): () => InfiniteQueryData<QData> | undefined {
 		const snapshot = this.getQueryData<InfiniteQueryData<QData>>(queryKey);
 		this.setQueryData<InfiniteQueryData<QData>>(queryKey, (prevList) => {
-			if (!prevList) prevList = { pages: [], pageParams: [1] };
-			let prev = prevList.pages.find((page) => find(page)) || prevList.pages[0];
+			prevList ??= { pages: [], pageParams: [1] };
+			let prev = prevList.pages.find((page) => find(page)) ?? prevList.pages[0];
 			if (!prev) prev = defaultPrev;
 			const next = cb(prev);
 			return {

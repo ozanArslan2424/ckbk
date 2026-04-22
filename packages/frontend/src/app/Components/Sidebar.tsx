@@ -28,7 +28,7 @@ export function Sidebar(props: Props) {
 
 				<div className="h-1" />
 
-				<button onClick={handleClickCreate} className="primary md">
+				<button type="button" onClick={handleClickCreate} className="primary md">
 					{txtRecipe.create}
 				</button>
 			</aside>
@@ -37,6 +37,7 @@ export function Sidebar(props: Props) {
 			<div className="fixed right-6 bottom-6 z-100 lg:hidden">
 				<div className="flex flex-col gap-3">
 					<button
+						type="button"
 						onClick={handleClickCreate}
 						className="square xl secondary animate_scale shadow-xl"
 					>

@@ -10,5 +10,5 @@ export class ProfileSummaryController extends C.Controller {
 
 	override prefix?: string | undefined = "/profile-summary";
 
-	get = this.route("/", (c) => this.service.get(c.params), ProfileSummaryModel.get);
+	get = this.route("/", async (c) => this.service.get(c.params), ProfileSummaryModel.get);
 }

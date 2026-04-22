@@ -1,9 +1,8 @@
 import { DatabaseClient } from "@/Database/DatabaseClient";
-import { Encrypt } from "@/lib/encrypt.namespace";
 
 const db = new DatabaseClient();
 
-const password = await Encrypt.hashPassword("123456789");
+const password = await Bun.password.hash("123456789");
 
 async function main() {
 	console.log("Starting seed...");
@@ -194,11 +193,11 @@ async function main() {
 	console.log("Seed finished successfully.");
 }
 
-main()
-	.catch((e) => {
-		console.error(e);
-		process.exit(1);
-	})
-	.finally(async () => {
-		await db.disconnect();
-	});
+try {
+	await main();
+} catch (err) {
+	console.error(err);
+	process.exit(1);
+} finally {
+	await db.disconnect();
+}

@@ -143,10 +143,10 @@ export function useRecipeForm(onSuccess?: () => void, onReset?: () => void) {
 		recipeClient.create(recipeGetArgs, {
 			async onSuccess(res) {
 				try {
-					const ingPromises = state.ingredients.map((ing) =>
+					const ingPromises = state.ingredients.map(async (ing) =>
 						api.ingredientPost({ body: { ...ing, recipeId: res.id } }),
 					);
-					const stepPromises = state.steps.map((step) =>
+					const stepPromises = state.steps.map(async (step) =>
 						api.stepPost({ body: { ...step, recipeId: res.id } }),
 					);
 					await Promise.all([...ingPromises, ...stepPromises]);

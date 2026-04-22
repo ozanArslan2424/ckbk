@@ -21,7 +21,7 @@ export class MeasurementClient {
 	list(measurementGetArgs: Args.MeasurementGet) {
 		return this.queryClient.makeQuery({
 			queryKey: [this.api.endpoints.measurementGet, measurementGetArgs],
-			queryFn: () => this.api.measurementGet(measurementGetArgs),
+			queryFn: async () => this.api.measurementGet(measurementGetArgs),
 		});
 	}
 
