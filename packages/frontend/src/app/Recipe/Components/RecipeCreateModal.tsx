@@ -1,4 +1,4 @@
-import { useRecipeForm } from "@/app/Recipe/Hooks/useRecipeForm";
+import { useCookBookForm } from "@/app/Cookbook/useCookbookForm";
 import { CardDeck } from "@/components/cards/CardDeck";
 import { Modal } from "@/components/modals/Modal";
 import { useLocale } from "@/hooks/useLocale";
@@ -13,7 +13,7 @@ type Props = {
 };
 
 export function RecipeCreateModal(props: Props) {
-	const form = useRecipeForm(() => {
+	const form = useCookBookForm(() => {
 		props.modal.onOpenChange(false);
 	});
 	const { txt } = useLocale("app", {

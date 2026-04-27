@@ -12,10 +12,15 @@ import { TXT } from "@/lib/TXT";
 type IngredientFormFieldProps = {
 	ingredientCount: number;
 	ingredient: IngredientComplete | undefined;
+	usedIngredients: IngredientComplete[];
 	onComplete: (ingredient: IngredientComplete) => void;
 };
 
 export function IngredientFormField(props: IngredientFormFieldProps) {
+	const uid = useId();
+
+	const submittedRef = useRef(false);
+
 	const { txt } = useLocale("app", {
 		materialLabel: ["form.material.label"],
 		materialPlaceholder: ["form.material.placeholder"],
@@ -23,43 +28,44 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 		measurementLabel: ["form.measurement.label"],
 		measurementPlaceholder: ["form.measurement.placeholder"],
 	});
-	const { materialClient, measurementClient } = useAppContext();
-	const [ingredient, setIngredient] = useState<Partial<IngredientComplete>>(props.ingredient ?? {});
-	const materialListQuery = useSuspenseQuery(materialClient.list({}));
-	const measurementListQuery = useSuspenseQuery(measurementClient.list({}));
-	const [measurementOptions, setMeasurementOptions] = useState(
-		measurementListQuery.data.map((m) => ({
-			value: m.id.toString(),
-			label: m.title,
-		})),
-	);
-	const [materialOptions, setMaterialOptions] = useState(() =>
-		materialListQuery.data.map((m) => ({
-			value: m.id.toString(),
-			label: m.title,
-		})),
-	);
 
-	const uid = useId();
-	const submittedRef = useRef(false);
+	const { materialClient, measurementClient } = useAppContext();
+
+	const [ingredient, setIngredient] = useState<Partial<IngredientComplete>>(props.ingredient ?? {});
+
+	const materialOptions = useSuspenseQuery({
+		...materialClient.list({}),
+		select: (data) =>
+			data
+				.filter((m) => !props.usedIngredients.some((ing) => ing.materialId === m.id))
+				.map((m) => ({ value: m.id.toString(), label: m.title })),
+	});
+
 	const materialCreateMut = useMutation(
 		materialClient.create(
 			{},
 			{
-				onSuccess(res) {
+				onSuccess: (res) => {
 					updateIngredient({ materialId: res.id });
-					setMaterialOptions((p) => [...p, { value: res.id.toString(), label: res.title }]);
 				},
 			},
 		),
 	);
+
+	const measurementOptions = useSuspenseQuery({
+		...measurementClient.list({}),
+		select: (data) =>
+			data
+				.filter((m) => !props.usedIngredients.some((ing) => ing.measurementId === m.id))
+				.map((m) => ({ value: m.id.toString(), label: m.title })),
+	});
+
 	const measurementCreateMut = useMutation(
 		measurementClient.create(
 			{},
 			{
-				onSuccess(res) {
+				onSuccess: (res) => {
 					updateIngredient({ measurementId: res.id });
-					setMeasurementOptions((p) => [...p, { value: res.id.toString(), label: res.title }]);
 				},
 			},
 		),
@@ -96,30 +102,25 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 		});
 	};
 
-	const onBlurQuantityFactory = Events.focus((e) => {
+	const handleChangeQuantity = Events.blurChange((e) => {
 		const value = parseFloat(e.target.value);
 		if (TXT.isDefined(e.target.value) && Number.isFinite(value) && value > 0) {
 			updateIngredient({ quantity: value });
 		}
-	});
-	const onChangeQuantityFactory = Events.change((e) => {
-		const value = parseFloat(e.target.value);
-		if (TXT.isDefined(e.target.value) && Number.isFinite(value) && value > 0) {
-			updateIngredient({ quantity: value });
-		}
-	});
+	})();
 
 	const handleCreateMaterial = (title: string) => {
 		materialCreateMut.mutate({ body: { title, description: null } });
 	};
+
 	const handleChangeMaterial = (value: string | null) => {
 		if (value) updateIngredient({ materialId: parseInt(value) });
 	};
-	const handleChangeQuantity = onChangeQuantityFactory();
-	const handleBlurQuantity = onBlurQuantityFactory();
+
 	const handleCreateMeasurement = (title: string) => {
 		measurementCreateMut.mutate({ body: { title, description: null } });
 	};
+
 	const handleChangeMeasurement = (value: string | null) => {
 		if (value) updateIngredient({ measurementId: parseInt(value) });
 	};
@@ -136,7 +137,7 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 					id={`${uid}-ma`}
 					name={`${uid}-ma`}
 					placeholder={txt.materialPlaceholder}
-					options={materialOptions}
+					options={materialOptions.data}
 					onCreateOption={({ label }) => handleCreateMaterial(label)}
 					onValueChange={handleChangeMaterial}
 				/>
@@ -154,7 +155,7 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 					min="0"
 					value={ingredient.quantity}
 					onChange={handleChangeQuantity}
-					onBlur={handleBlurQuantity}
+					onBlur={handleChangeQuantity}
 				/>
 			</div>
 			<div className="col-span-4">
@@ -167,7 +168,7 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 					id={`${uid}-me`}
 					name={`${uid}-me`}
 					placeholder={txt.measurementPlaceholder}
-					options={measurementOptions}
+					options={measurementOptions.data}
 					onCreateOption={({ label }) => handleCreateMeasurement(label)}
 					onValueChange={handleChangeMeasurement}
 				/>

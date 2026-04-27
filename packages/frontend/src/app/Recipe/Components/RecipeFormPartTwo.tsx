@@ -15,13 +15,7 @@ type IngredientFormProps = {
 	onCompleteIngredient: (ingredient: IngredientComplete) => void;
 };
 
-export function RecipeFormPartTwo({
-	addDisabled,
-	ingredients,
-	ingredientCount,
-	onAddIngredient,
-	onCompleteIngredient,
-}: IngredientFormProps) {
+export function RecipeFormPartTwo(props: IngredientFormProps) {
 	const { txt: txtCommon } = useCommonLocale();
 	const { txt } = useLocale("app", {
 		addIngredient: ["form.ingredient.add"],
@@ -35,7 +29,7 @@ export function RecipeFormPartTwo({
 			title={txt.ingredients}
 			cornerSlot={
 				<span className="bg-secondary text-secondary-foreground rounded-full px-2 py-0.5 text-xs font-medium">
-					{ingredientCount}
+					{props.ingredientCount}
 				</span>
 			}
 			footer={
@@ -48,7 +42,7 @@ export function RecipeFormPartTwo({
 						<Tooltip tip={txt.minIngredientTip}>
 							<button
 								type="button"
-								disabled={ingredients.length < 1}
+								disabled={props.ingredients.length < 1}
 								onClick={ctx.onNext}
 								className="w-max"
 							>
@@ -59,16 +53,22 @@ export function RecipeFormPartTwo({
 				) : null
 			}
 		>
-			{repeat(ingredientCount).map((i) => (
+			{repeat(props.ingredientCount).map((i) => (
 				<IngredientFormField
 					key={i}
-					ingredientCount={ingredientCount}
-					ingredient={ingredients[i]}
-					onComplete={onCompleteIngredient}
+					ingredientCount={props.ingredientCount}
+					usedIngredients={props.ingredients}
+					ingredient={props.ingredients[i]}
+					onComplete={props.onCompleteIngredient}
 				/>
 			))}
 
-			<button type="button" className="secondary" onClick={onAddIngredient} disabled={addDisabled}>
+			<button
+				type="button"
+				className="secondary"
+				onClick={props.onAddIngredient}
+				disabled={props.addDisabled}
+			>
 				<svg
 					className="size-4"
 					width="16"

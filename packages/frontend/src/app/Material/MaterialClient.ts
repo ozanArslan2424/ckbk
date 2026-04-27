@@ -1,10 +1,11 @@
-import { type Args, type CorpusApi, Entities, type Models } from "@/lib/CorpusApi";
+import type { CorpusApi, Models, Args } from "@/lib/CorpusApi";
+import { Entities } from "@/lib/CorpusApi";
 import type { MutArgs, QueryClient } from "@/lib/QueryClient";
 
 export class MaterialClient {
 	constructor(
-		private readonly queryClient: QueryClient,
 		private readonly api: CorpusApi,
+		private readonly queryClient: QueryClient,
 	) {}
 
 	private readonly listDefaultData: Models.MaterialGet["response"] = [];

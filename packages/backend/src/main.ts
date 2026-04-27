@@ -1,8 +1,12 @@
+import path from "node:path";
+
 import { C, X } from "@ozanarslan/corpus";
 
 import { AuthController } from "@/Auth/AuthController";
 import { AuthGuard } from "@/Auth/AuthGuard";
 import { AuthService } from "@/Auth/AuthService";
+import { CookbookController } from "@/Cookbook/CookbookController";
+import { CookbookService } from "@/Cookbook/CookbookService";
 import { DatabaseClient } from "@/Database/DatabaseClient";
 import { ErrorService } from "@/Error/ErrorService";
 import { IngredientController } from "@/Ingredient/IngredientController";
@@ -34,17 +38,19 @@ const materialService = new MaterialService(db);
 const measurementService = new MeasurementService(db);
 const recipeService = new RecipeService(db);
 const stepService = new StepService(db);
+const cookBookEntryService = new CookbookService(db);
 
-const dist = X.Config.resolvePath(X.Config.cwd(), "../frontend/dist");
+const dist = path.resolve(process.cwd(), "../frontend/dist");
 new C.BundleRoute("/*", dist);
-
 new C.Route("/health", () => "ok");
+
 new AuthController(authService);
 const ingredientController = new IngredientController(ingredientService);
 const materialController = new MaterialController(materialService);
 const measurementController = new MeasurementController(measurementService);
 const recipeController = new RecipeController(recipeService);
 const stepController = new StepController(stepService);
+const cookBookEntryController = new CookbookController(cookBookEntryService);
 
 new X.RateLimiter();
 new X.Cors({
@@ -61,6 +67,7 @@ new AuthGuard(authService, [
 	measurementController,
 	recipeController,
 	stepController,
+	cookBookEntryController,
 ]);
 
 server.setOnError((err) => errorService.onError(err));

@@ -5,8 +5,8 @@ import { routes } from "@/router";
 
 export class AuthClient {
 	constructor(
-		private readonly queryClient: QueryClient,
 		private readonly api: CorpusApi,
+		private readonly queryClient: QueryClient,
 		private readonly store: Store,
 	) {}
 

@@ -49,12 +49,12 @@ export class RecipeService {
 			data.image = `data:${body.image.type};base64,${base64}`;
 		}
 
-		if (body.deletedIngredientIds.length) {
+		if (body.deletedIngredientIds?.length) {
 			data.ingredients ??= {};
 			data.ingredients.deleteMany = this.db.whereIn("id", body.deletedIngredientIds);
 		}
 
-		if (body.newIngredients.length) {
+		if (body.newIngredients?.length) {
 			data.ingredients ??= {};
 			data.ingredients.connectOrCreate = body.newIngredients.map((it) => ({
 				where: { recipeId_materialId: { recipeId: params.id, materialId: it.materialId } },
@@ -62,7 +62,7 @@ export class RecipeService {
 			}));
 		}
 
-		if (body.updatedSteps.length) {
+		if (body.updatedSteps?.length) {
 			data.steps ??= {};
 			data.steps.updateMany = body.updatedSteps.map((step) => ({
 				where: { id: step.id },
@@ -70,7 +70,7 @@ export class RecipeService {
 			}));
 		}
 
-		if (body.newSteps.length) {
+		if (body.newSteps?.length) {
 			data.steps ??= {};
 			data.steps.create = body.newSteps.map((it) => it);
 		}

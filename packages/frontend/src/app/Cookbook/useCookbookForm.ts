@@ -5,13 +5,12 @@ import { toast } from "sonner";
 import { useAppContext } from "@/app/AppContext";
 import type { IngredientComplete } from "@/app/Ingredient/Types/IngredientComplete";
 import { useRecipeGetArgs } from "@/app/Recipe/Hooks/useRecipeGetArgs";
-import type { RecipeDetails } from "@/app/Recipe/Types/RecipeDetails";
 import type { StepComplete } from "@/app/Step/Types/StepComplete";
 import { useLocale } from "@/hooks/useLocale";
+import { Entities } from "@/lib/CorpusApi";
 import { Help } from "@/lib/Help";
-import { getErrorMessage } from "@/lib/utils";
 
-export type RecipeFormState = {
+export type CookBookEntryFormState = {
 	ingredients: IngredientComplete[];
 	ingredientCount: number;
 	ingredientAddDisabled: boolean;
@@ -24,7 +23,7 @@ export type RecipeFormState = {
 	isPublic: boolean;
 };
 
-const initialState: RecipeFormState = {
+const initialState: CookBookEntryFormState = {
 	ingredients: [],
 	ingredientCount: 1,
 	ingredientAddDisabled: false,
@@ -40,21 +39,21 @@ const initialState: RecipeFormState = {
 type Action =
 	| {
 			type: "ADD_INGREDIENT";
-			payload: RecipeFormState["ingredients"][number];
+			payload: CookBookEntryFormState["ingredients"][number];
 	  }
 	| { type: "WRITE_STEP"; payload: { index: number; body: string } }
 	| { type: "INCREASE_INGREDIENT_COUNT" }
 	| { type: "INCREASE_STEP_COUNT" }
 	| { type: "CHANGE_IMAGE"; payload: File }
 	| { type: "REMOVE_IMAGE" }
-	| { type: "CHANGE_TITLE"; payload: RecipeFormState["title"] }
-	| { type: "CHANGE_DESCRIPTION"; payload: RecipeFormState["description"] }
-	| { type: "CHANGE_IS_PUBLIC"; payload: RecipeFormState["isPublic"] }
+	| { type: "CHANGE_TITLE"; payload: CookBookEntryFormState["title"] }
+	| { type: "CHANGE_DESCRIPTION"; payload: CookBookEntryFormState["description"] }
+	| { type: "CHANGE_IS_PUBLIC"; payload: CookBookEntryFormState["isPublic"] }
 	| { type: "MOVE_STEP"; payload: { from: number; to: number } }
-	| { type: "SET"; payload: RecipeFormState }
+	| { type: "SET"; payload: CookBookEntryFormState }
 	| { type: "RESET" };
 
-function reducer(state: RecipeFormState, action: Action): RecipeFormState {
+function reducer(state: CookBookEntryFormState, action: Action): CookBookEntryFormState {
 	switch (action.type) {
 		case "ADD_INGREDIENT": {
 			const exists = state.ingredients.findIndex((i) => i.id === action.payload.id);
@@ -131,37 +130,43 @@ function reducer(state: RecipeFormState, action: Action): RecipeFormState {
 	}
 }
 
-export function useRecipeForm(onSuccess?: () => void, onReset?: () => void) {
-	const { api, recipeClient } = useAppContext();
-	const { recipeGetArgs } = useRecipeGetArgs();
-	const { txt } = useLocale("app", {
-		success: ["success"],
-	});
+export function useCookBookForm(onSuccess?: () => void, onReset?: () => void) {
 	const [state, dispatch] = useReducer(reducer, initialState);
+	const { recipeGetArgs } = useRecipeGetArgs();
+	const { cookbookClient, recipeClient, ingredientClient, stepClient } = useAppContext();
+	const { txt } = useLocale("app", {
+		createSuccess: ["success.create"],
+		updateSuccess: ["success.update"],
+	});
 
-	const recipeCreateMut = useMutation(
-		recipeClient.create(recipeGetArgs, {
-			async onSuccess(res) {
-				try {
-					const ingPromises = state.ingredients.map(async (ing) =>
-						api.ingredientPost({ body: { ...ing, recipeId: res.id } }),
-					);
-					const stepPromises = state.steps.map(async (step) =>
-						api.stepPost({ body: { ...step, recipeId: res.id } }),
-					);
-					await Promise.all([...ingPromises, ...stepPromises]);
-					toast.success(txt.success);
-					onSuccess?.();
-					dispatch({ type: "RESET" });
-				} catch (err) {
-					console.error(err);
-					toast.error(getErrorMessage(err));
-				}
+	const createMut = useMutation(
+		cookbookClient.create({
+			onSuccess(res) {
+				toast.success(txt.createSuccess);
+				onSuccess?.();
+				dispatch({ type: "RESET" });
+				recipeClient.addToList(recipeGetArgs, res); // extra keys shouldn't be an issue
+				const otherArgs = { params: { id: res.id } };
+				res.ingredients.forEach((it) => ingredientClient.addToList(otherArgs, it));
+				res.steps.forEach((it) => stepClient.addToList(otherArgs, it));
 			},
 		}),
 	);
 
-	const recipeUpdateMut = useMutation(recipeClient.update(recipeGetArgs, {}));
+	const updateMut = useMutation(
+		cookbookClient.update({
+			onSuccess(res, vars) {
+				toast.success(txt.updateSuccess);
+				onSuccess?.();
+				recipeClient.updateInList(recipeGetArgs, vars.params.id, () => res);
+				const otherArgs = { params: { id: vars.params.id } };
+				ingredientClient.clearList(otherArgs); // finding and replacing is too surgical
+				stepClient.clearList(otherArgs); // finding and replacing is too surgical
+				res.ingredients.forEach((it) => ingredientClient.addToList(otherArgs, it));
+				res.steps.forEach((it) => stepClient.addToList(otherArgs, it));
+			},
+		}),
+	);
 
 	function handleCreate() {
 		const formData = new FormData();
@@ -169,16 +174,24 @@ export function useRecipeForm(onSuccess?: () => void, onReset?: () => void) {
 		formData.set("description", state.description);
 		formData.set("isPublic", Help.toStringBoolean(state.isPublic));
 		if (state.image) formData.set("image", state.image);
-		recipeCreateMut.mutate({ formData });
+
+		for (const [i, { id: _, ...rest }] of state.ingredients.entries()) {
+			formData.append(`ingredients[${i}]`, JSON.stringify(rest));
+		}
+
+		for (const [i, { id: _, ...rest }] of state.steps.entries()) {
+			formData.append(`steps[${i}]`, JSON.stringify(rest));
+		}
+
+		createMut.mutate({ formData });
 	}
 
-	function handleUpdate(prev: RecipeDetails) {
+	function handleUpdate(prev: Entities.Cookbook) {
 		const formData = new FormData();
 
-		if (state.title !== prev.recipe.title) formData.set("title", state.title);
-		if (state.description !== prev.recipe.description)
-			formData.set("description", state.description);
-		if (state.isPublic !== prev.recipe.isPublic)
+		if (state.title !== prev.title) formData.set("title", state.title);
+		if (state.description !== prev.description) formData.set("description", state.description);
+		if (state.isPublic !== prev.isPublic)
 			formData.set("isPublic", Help.toStringBoolean(state.isPublic));
 		if (state.image instanceof File) formData.set("image", state.image);
 
@@ -202,30 +215,22 @@ export function useRecipeForm(onSuccess?: () => void, onReset?: () => void) {
 		for (const [i, id] of deletedIngredientIds.entries()) {
 			formData.append(`deletedIngredientIds[${i}]`, id.toString());
 		}
-		// formData.set("deletedIngredientIds", JSON.stringify(deletedIngredientIds));
 
 		const newIngredients = [...state.ingredients.filter((i) => i.id < 0), ...changedIngredients];
 		for (const [i, { id: _, ...rest }] of newIngredients.entries()) {
 			formData.append(`newIngredients[${i}]`, JSON.stringify(rest));
 		}
-		// formData.set(
-		// 	"newIngredients",
-		// 	JSON.stringify(newIngredients.map(({ id: _, ...rest }) => rest)),
-		// );
 
 		const currStepIds = new Set(state.steps.map((s) => s.id));
 		const deletedStepIds = prev.steps.filter((s) => !currStepIds.has(s.id)).map((s) => s.id);
 		for (const [i, id] of deletedStepIds.entries()) {
 			formData.append(`deletedStepIds[${i}]`, id.toString());
 		}
-		// formData.set("deletedStepIds", JSON.stringify(deletedStepIds));
 
 		const newSteps = state.steps.filter((s) => s.id < 0);
 		for (const [i, { id: _, ...rest }] of newSteps.entries()) {
 			formData.append(`newSteps[${i}]`, JSON.stringify(rest));
 		}
-
-		// formData.set("newSteps", JSON.stringify(newSteps.map(({ id: _, ...rest }) => rest)));
 
 		const updatedSteps = state.steps.filter((s) => {
 			if (s.id < 0) return false;
@@ -236,10 +241,6 @@ export function useRecipeForm(onSuccess?: () => void, onReset?: () => void) {
 		for (const [i, { id, order, body }] of updatedSteps.entries()) {
 			formData.append(`updatedSteps[${i}]`, JSON.stringify({ id, order, body }));
 		}
-		// formData.set(
-		// 	"updatedSteps",
-		// 	JSON.stringify(updatedSteps.map(({ id, order, body }) => ({ id, order, body }))),
-		// );
 
 		const hasNoChanges =
 			!formData.has("title") &&
@@ -253,7 +254,7 @@ export function useRecipeForm(onSuccess?: () => void, onReset?: () => void) {
 
 		if (hasNoChanges) return;
 
-		recipeUpdateMut.mutate({ params: { id: prev.recipe.id.toString() }, formData });
+		updateMut.mutate({ params: { id: prev.id }, formData });
 	}
 
 	function handleReset() {
@@ -261,5 +262,15 @@ export function useRecipeForm(onSuccess?: () => void, onReset?: () => void) {
 		onReset?.();
 	}
 
-	return { ...state, dispatch, handleCreate, handleUpdate, handleReset };
+	function isIngredientComplete(ing: Partial<IngredientComplete>): ing is IngredientComplete {
+		return (
+			ing.materialId !== undefined &&
+			ing.measurementId !== undefined &&
+			ing.quantity !== undefined &&
+			Number.isFinite(ing.quantity) &&
+			ing.quantity > 0
+		);
+	}
+
+	return { ...state, dispatch, handleCreate, handleUpdate, handleReset, isIngredientComplete };
 }

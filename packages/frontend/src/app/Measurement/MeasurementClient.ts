@@ -1,10 +1,11 @@
-import { Entities, type Args, type CorpusApi, type Models } from "@/lib/CorpusApi";
+import type { CorpusApi, Models, Args } from "@/lib/CorpusApi";
+import { Entities } from "@/lib/CorpusApi";
 import type { MutArgs, QueryClient } from "@/lib/QueryClient";
 
 export class MeasurementClient {
 	constructor(
-		private readonly queryClient: QueryClient,
 		private readonly api: CorpusApi,
+		private readonly queryClient: QueryClient,
 	) {}
 
 	private readonly listDefaultData: Models.MeasurementGet["response"] = [];

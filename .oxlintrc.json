@@ -64,7 +64,6 @@
 		"typescript/require-array-sort-compare": "error",
 		"typescript/require-await": "error",
 		"typescript/restrict-plus-operands": "error",
-		"typescript/return-await": "error",
 		"typescript/switch-exhaustiveness-check": "error"
 	}
 }

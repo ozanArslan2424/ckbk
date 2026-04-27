@@ -1,10 +1,11 @@
-import { Entities, type Args, type CorpusApi, type Models } from "@/lib/CorpusApi";
+import type { CorpusApi, Models, Args } from "@/lib/CorpusApi";
+import { Entities } from "@/lib/CorpusApi";
 import type { MutArgs, QueryClient } from "@/lib/QueryClient";
 
 export class IngredientClient {
 	constructor(
-		private readonly queryClient: QueryClient,
 		private readonly api: CorpusApi,
+		private readonly queryClient: QueryClient,
 	) {}
 
 	private readonly listDefaultData: Models.IngredientByRecipeIdGet["response"] = [];
@@ -28,7 +29,7 @@ export class IngredientClient {
 				this.api.endpoints.ingredientByRecipeIdGet(ingredientByRecipeIdGetArgs.params),
 				ingredientByRecipeIdGetArgs,
 			],
-			queryFn: async () => this.api.ingredientByRecipeIdGet(ingredientByRecipeIdGetArgs),
+			queryFn: () => this.api.ingredientByRecipeIdGet(ingredientByRecipeIdGetArgs),
 		});
 	}
 
@@ -38,6 +39,7 @@ export class IngredientClient {
 	) {
 		const queryKey = [
 			this.api.endpoints.ingredientByRecipeIdGet(ingredientByRecipeIdGetArgs.params),
+			ingredientByRecipeIdGetArgs,
 		];
 		const defaultData = this.listDefaultData;
 		return this.queryClient.makeOptimisticMutation<Models.IngredientPost>({
@@ -62,5 +64,41 @@ export class IngredientClient {
 				};
 			},
 		});
+	}
+
+	clearList(ingredientByRecipeIdGetArgs: Args.IngredientByRecipeIdGet) {
+		const queryKey = [
+			this.api.endpoints.ingredientByRecipeIdGet(ingredientByRecipeIdGetArgs.params),
+			ingredientByRecipeIdGetArgs,
+		];
+		return this.queryClient.updateQueryData(queryKey, this.listDefaultData, () => []);
+	}
+
+	addToList(
+		ingredientByRecipeIdGetArgs: Args.IngredientByRecipeIdGet,
+		ingredient: Entities.Ingredient,
+	) {
+		const queryKey = [
+			this.api.endpoints.ingredientByRecipeIdGet(ingredientByRecipeIdGetArgs.params),
+			ingredientByRecipeIdGetArgs,
+		];
+		return this.queryClient.updateQueryData(queryKey, this.listDefaultData, (prev) => [
+			...prev,
+			ingredient,
+		]);
+	}
+
+	updateInList(
+		ingredientByRecipeIdGetArgs: Args.IngredientByRecipeIdGet,
+		id: Entities.Ingredient["id"],
+		updater: (prev: Entities.Ingredient) => Entities.Ingredient,
+	) {
+		const queryKey = [
+			this.api.endpoints.ingredientByRecipeIdGet(ingredientByRecipeIdGetArgs.params),
+			ingredientByRecipeIdGetArgs,
+		];
+		return this.queryClient.updateQueryData(queryKey, this.listDefaultData, (prev) =>
+			prev.map((mat) => (mat.id === id ? updater(mat) : mat)),
+		);
 	}
 }

@@ -6,7 +6,6 @@ import { RecipeGrid } from "@/app/Recipe/Components/RecipeGrid";
 import { RecipeListFilters } from "@/app/Recipe/Components/RecipeListFilters";
 import { RecipeUpdateModal } from "@/app/Recipe/Components/RecipeUpdateModal";
 import { useRecipeGetArgs } from "@/app/Recipe/Hooks/useRecipeGetArgs";
-import type { RecipeDetails } from "@/app/Recipe/Types/RecipeDetails";
 import { PageContent } from "@/components/layout/PageContent";
 import { useLocale } from "@/hooks/useLocale";
 import { useModal } from "@/hooks/useModal";
@@ -14,15 +13,15 @@ import type { Args, Entities } from "@/lib/CorpusApi";
 import { Events } from "@/lib/Events";
 
 export function DashboardPage() {
-	const { ingredientClient, stepClient, queryClient } = useAppContext();
+	const { queryClient, cookbookClient } = useAppContext();
 	const { recipeGetArgs, updateSearchParams } = useRecipeGetArgs();
 	const { txt } = useLocale("dashboard", {
 		title: recipeGetArgs.search.owner === "me" ? ["yourRecipes"] : ["recentRecipes"],
 	});
 
 	const createModal = useModal();
-	const detailsModal = useModal<RecipeDetails>();
-	const updateModal = useModal<RecipeDetails>();
+	const detailsModal = useModal<Entities.Cookbook>();
+	const updateModal = useModal<Entities.Cookbook>();
 
 	const onClickCreateFactory = Events.click(() => {
 		createModal.onOpenChange(true);
@@ -45,22 +44,16 @@ export function DashboardPage() {
 	};
 
 	const onClickViewFactory = Events.click<[Entities.Recipe], HTMLDivElement>(async (_, recipe) => {
-		const params = { id: recipe.id.toString() };
-		const ingredients = await queryClient.ensureQueryData(
-			ingredientClient.listByRecipeId({ params }),
-		);
-		const steps = await queryClient.ensureQueryData(stepClient.listByRecipeId({ params }));
-		detailsModal.handleOpen({ recipe, steps, ingredients });
+		const params = { id: recipe.id };
+		const entry = await queryClient.ensureQueryData(cookbookClient.get({ params }));
+		detailsModal.handleOpen(entry);
 	});
 
 	const onClickUpdateFactory = Events.click<[Entities.Recipe]>(async (e, recipe) => {
 		e.stopPropagation();
-		const params = { id: recipe.id.toString() };
-		const ingredients = await queryClient.ensureQueryData(
-			ingredientClient.listByRecipeId({ params }),
-		);
-		const steps = await queryClient.ensureQueryData(stepClient.listByRecipeId({ params }));
-		updateModal.handleOpen({ recipe, steps, ingredients });
+		const params = { id: recipe.id };
+		const entry = await queryClient.ensureQueryData(cookbookClient.get({ params }));
+		updateModal.handleOpen(entry);
 	});
 
 	return (

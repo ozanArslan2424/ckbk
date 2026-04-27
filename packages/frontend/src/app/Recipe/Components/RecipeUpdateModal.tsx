@@ -1,21 +1,21 @@
 import { useEffect } from "react";
 
+import { useCookBookForm } from "@/app/Cookbook/useCookbookForm";
 import { RecipeFormPartOne } from "@/app/Recipe/Components/RecipeFormPartOne";
 import { RecipeFormPartThree } from "@/app/Recipe/Components/RecipeFormPartThree";
 import { RecipeFormPartTwo } from "@/app/Recipe/Components/RecipeFormPartTwo";
-import { useRecipeForm } from "@/app/Recipe/Hooks/useRecipeForm";
-import type { RecipeDetails } from "@/app/Recipe/Types/RecipeDetails";
 import { Modal } from "@/components/modals/Modal";
 import { useLocale } from "@/hooks/useLocale";
 import type { ModalState } from "@/hooks/useModal";
+import type { Entities } from "@/lib/CorpusApi";
 import { Events } from "@/lib/Events";
 
 type Props = {
-	modal: ModalState<RecipeDetails>;
+	modal: ModalState<Entities.Cookbook>;
 };
 
 export function RecipeUpdateModal(props: Props) {
-	const form = useRecipeForm(
+	const form = useCookBookForm(
 		() => {
 			props.modal.onOpenChange(false);
 		},
@@ -24,7 +24,7 @@ export function RecipeUpdateModal(props: Props) {
 		},
 	);
 	const { txt } = useLocale("app", {
-		title: ["updateModal.title", { title: props.modal.data?.recipe.title }],
+		title: ["updateModal.title", { title: props.modal.data?.title }],
 		description: ["updateModal.description"],
 		delete: ["updateModal.delete"],
 		cancel: ["updateModal.cancel"],
@@ -42,19 +42,19 @@ export function RecipeUpdateModal(props: Props) {
 					steps: props.modal.data.steps,
 					stepCount: props.modal.data.steps.length,
 					stepAddDisabled: false,
-					image: props.modal.data.recipe.image ?? null,
-					title: props.modal.data.recipe.title,
-					description: props.modal.data.recipe.description,
-					isPublic: props.modal.data.recipe.isPublic,
+					image: props.modal.data.image ?? null,
+					title: props.modal.data.title,
+					description: props.modal.data.description,
+					isPublic: props.modal.data.isPublic,
 				},
 			});
 		}
 		// oxlint-disable-next-line eslint-plugin-react-hooks/exhaustive-deps
 	}, [props.modal.data]);
 
-	const onSubmitFactory = Events.click<[RecipeDetails]>((e, recipe) => {
+	const onSubmitFactory = Events.click<[Entities.Cookbook]>((e, entry) => {
 		e.preventDefault();
-		form.handleUpdate(recipe);
+		form.handleUpdate(entry);
 	});
 
 	if (!props.modal.data) return null;

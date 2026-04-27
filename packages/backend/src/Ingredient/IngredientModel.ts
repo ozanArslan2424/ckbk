@@ -14,13 +14,13 @@ export class IngredientModel {
 	};
 
 	static update = {
-		params: type({ id: type("string").pipe(Number) }),
+		params: type({ id: "number" }),
 		body: this.create.body.partial(),
 		response: IngredientEntity.schema,
 	};
 
 	static listByRecipe = {
-		params: type({ id: type("string").pipe(Number) }),
+		params: type({ id: "number" }),
 		response: IngredientEntity.schema.array(),
 	};
 }

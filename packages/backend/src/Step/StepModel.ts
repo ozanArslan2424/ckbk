@@ -12,13 +12,13 @@ export class StepModel {
 	};
 
 	static update = {
-		params: type({ id: type("string").pipe(Number) }),
+		params: type({ id: "number" }),
 		body: this.create.body.partial(),
 		response: StepEntity.schema,
 	};
 
 	static listByRecipe = {
-		params: type({ id: type("string").pipe(Number) }),
+		params: type({ id: "number" }),
 		response: StepEntity.schema.array(),
 	};
 }

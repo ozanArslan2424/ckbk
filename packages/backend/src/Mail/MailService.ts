@@ -1,3 +1,5 @@
+import path from "node:path";
+
 import { X } from "@ozanarslan/corpus";
 import nodemailer from "nodemailer";
 
@@ -14,7 +16,7 @@ export class MailService {
 	}
 
 	async loadTemplate(filename: string, variables: Record<string, string> = {}) {
-		const file = new X.File(X.Config.resolvePath(X.Config.cwd(), "public", "mail", filename));
+		const file = new X.File(path.resolve(process.cwd(), "public", "mail", filename));
 		return this.replaceVariables(await file.text(), variables);
 	}
 

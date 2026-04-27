@@ -12,7 +12,7 @@ export class ErrorService {
 		const { status, key } = this.getStatusAndKey(err);
 		const message = this.localeService.translate("error", key);
 		if (status !== C.Status.UNAUTHORIZED) {
-			this.logger.error(message);
+			this.logger.error(err.message);
 		}
 		return new C.Res({ message }, { status });
 	}

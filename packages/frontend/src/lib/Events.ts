@@ -1,8 +1,8 @@
 import React from "react";
 
 export namespace Events {
-	export type Handler<E> = (e: E) => void;
-	export type Factory<EventT, ArgsT extends any[]> = (...args: ArgsT) => Handler<EventT>;
+	export type Factory<E, ArgsT extends any[]> = (...args: ArgsT) => (e: E) => void;
+
 	function createFactory<EventT, ArgsT extends any[]>(
 		cb: (e: EventT, ...args: ArgsT) => void,
 	): Factory<EventT, ArgsT> {
@@ -13,7 +13,6 @@ export namespace Events {
 	}
 
 	export type ClickEvent<E = HTMLButtonElement> = React.MouseEvent<E>;
-	export type ClickHandler<E = HTMLButtonElement> = Handler<ClickEvent<E>>;
 	export type ClickFactory<T extends any[] = any[], E = HTMLButtonElement> = Factory<
 		ClickEvent<E>,
 		T
@@ -26,7 +25,6 @@ export namespace Events {
 	}
 
 	export type FocusEvent<E = HTMLInputElement> = React.FocusEvent<E>;
-	export type FocusHandler<E = HTMLInputElement> = Handler<FocusEvent<E>>;
 	export type FocusFactory<T extends any[] = any[], E = HTMLInputElement> = Factory<
 		FocusEvent<E>,
 		T
@@ -39,7 +37,6 @@ export namespace Events {
 	}
 
 	export type ChangeEvent<E = HTMLInputElement> = React.ChangeEvent<E>;
-	export type ChangeHandler<E = HTMLInputElement> = Handler<ChangeEvent<E>>;
 	export type ChangeFactory<T extends any[] = any[], E = HTMLInputElement> = Factory<
 		ChangeEvent<E>,
 		T
@@ -49,5 +46,17 @@ export namespace Events {
 		cb: (e: ChangeEvent<E>, ...args: T) => void,
 	) {
 		return createFactory<ChangeEvent<E>, T>(cb);
+	}
+
+	export type BlurChangeEvent<E = HTMLInputElement> = React.ChangeEvent<E> | React.FocusEvent<E>;
+	export type BlurChangeFactory<T extends any[] = any[], E = HTMLInputElement> = Factory<
+		BlurChangeEvent<E>,
+		T
+	>;
+
+	export function blurChange<T extends any[] = any[], E = HTMLInputElement>(
+		cb: (e: BlurChangeEvent<E>, ...args: T) => void,
+	) {
+		return createFactory<BlurChangeEvent<E>, T>(cb);
 	}
 }

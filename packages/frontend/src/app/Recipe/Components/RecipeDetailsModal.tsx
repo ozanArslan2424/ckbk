@@ -1,5 +1,4 @@
 import { useAppContext } from "@/app/AppContext";
-import type { RecipeDetails } from "@/app/Recipe/Types/RecipeDetails";
 import { Modal } from "@/components/modals/Modal";
 import { useDate } from "@/hooks/useDate";
 import { useLocale } from "@/hooks/useLocale";
@@ -8,7 +7,7 @@ import type { Entities } from "@/lib/CorpusApi";
 import type { Events } from "@/lib/Events";
 
 type RecipeDetailsModalProps = {
-	modal: ModalState<RecipeDetails>;
+	modal: ModalState<Entities.Cookbook>;
 	onClickUpdateFactory: Events.Factory<Events.ClickEvent, [Entities.Recipe]>;
 };
 
@@ -21,21 +20,19 @@ export function RecipeDetailsModal(props: RecipeDetailsModalProps) {
 		steps: ["steps"],
 		ingredients: ["ingredients"],
 		update: ["update"],
-		updatedAt: ["updatedAt", { date: timestamp(props.modal.data?.recipe.updatedAt).shortDate }],
+		updatedAt: ["updatedAt", { date: timestamp(props.modal.data?.updatedAt).shortDate }],
 	});
 
 	if (!props.modal.data) return null;
-	const recipe = props.modal.data.recipe;
-	const steps = props.modal.data.steps;
-	const ingredients = props.modal.data.ingredients;
-	const isOwner = store.get("auth")?.id === recipe.profileId;
-	const handleClickUpdate = props.onClickUpdateFactory(recipe);
+	const entry = props.modal.data;
+	const isOwner = store.get("auth")?.id === entry.profileId;
+	const handleClickUpdate = props.onClickUpdateFactory(entry);
 
 	return (
 		<Modal
 			{...props.modal}
-			title={props.modal.data.recipe.title}
-			description={props.modal.data.recipe.description}
+			title={props.modal.data.title}
+			description={props.modal.data.description}
 			showCloseButton
 			className="w-full sm:max-w-6xl"
 		>
@@ -44,10 +41,10 @@ export function RecipeDetailsModal(props: RecipeDetailsModalProps) {
 				<div className="col-span-1">
 					<div className="flex flex-col overflow-y-auto p-6">
 						<div className="bg-muted relative aspect-square overflow-hidden rounded-t-lg md:rounded-lg">
-							{recipe.image ? (
+							{entry.image ? (
 								<img
-									src={recipe.image}
-									alt={recipe.title}
+									src={entry.image}
+									alt={entry.title}
 									className="h-full w-full rounded-md object-cover"
 								/>
 							) : (
@@ -74,8 +71,8 @@ export function RecipeDetailsModal(props: RecipeDetailsModalProps) {
 							)}
 						</div>
 						<div className="flex flex-1 flex-col gap-3 p-5">
-							<h2>{recipe.title}</h2>
-							<p className="min-h-10 text-sm opacity-80">{recipe.description}</p>
+							<h2>{entry.title}</h2>
+							<p className="min-h-10 text-sm opacity-80">{entry.description}</p>
 							{isOwner && (
 								<button onClick={handleClickUpdate} type="button" className="sm outlined">
 									{txt.update}
@@ -94,7 +91,7 @@ export function RecipeDetailsModal(props: RecipeDetailsModalProps) {
 								{txt.steps}
 							</h3>
 							<ol className="flex flex-col gap-4">
-								{steps.map((step) => (
+								{entry.steps.map((step) => (
 									<li key={step.id} className="flex gap-3 text-sm">
 										<span className="bg-primary/10 text-primary flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-bold">
 											{step.order}
@@ -115,7 +112,7 @@ export function RecipeDetailsModal(props: RecipeDetailsModalProps) {
 								{txt.ingredients}
 							</h3>
 							<ul className="flex flex-col gap-1.5">
-								{ingredients.map((ing) => (
+								{entry.ingredients.map((ing) => (
 									<li
 										key={ing.id}
 										className="bg-muted flex items-center justify-between rounded-md px-3 py-2 text-sm"

@@ -2,6 +2,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { createContext, use, type PropsWithChildren } from "react";
 
 import { AuthClient } from "@/app/Auth/AuthClient";
+import { CookBookClient } from "@/app/Cookbook/CookbookClient";
 import { IngredientClient } from "@/app/Ingredient/IngredientClient";
 import { MaterialClient } from "@/app/Material/MaterialClient";
 import { MeasurementClient } from "@/app/Measurement/MeasurementClient";
@@ -44,12 +45,13 @@ function makeContext() {
 
 	api.setFetchFn(async (d) => request.corpus(d));
 
-	const authClient = new AuthClient(queryClient, api, store);
-	const ingredientClient = new IngredientClient(queryClient, api);
-	const materialClient = new MaterialClient(queryClient, api);
-	const measurementClient = new MeasurementClient(queryClient, api);
-	const recipeClient = new RecipeClient(queryClient, api);
-	const stepClient = new StepClient(queryClient, api);
+	const authClient = new AuthClient(api, queryClient, store);
+	const ingredientClient = new IngredientClient(api, queryClient);
+	const materialClient = new MaterialClient(api, queryClient);
+	const measurementClient = new MeasurementClient(api, queryClient);
+	const recipeClient = new RecipeClient(api, queryClient);
+	const stepClient = new StepClient(api, queryClient);
+	const cookbookClient = new CookBookClient(api, queryClient);
 
 	return {
 		api,
@@ -61,6 +63,7 @@ function makeContext() {
 		measurementClient,
 		recipeClient,
 		stepClient,
+		cookbookClient,
 	};
 }
 

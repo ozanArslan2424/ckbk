@@ -1,10 +1,11 @@
-import { Entities, type Args, type CorpusApi, type Models } from "@/lib/CorpusApi";
-import type { QueryClient, MutArgs } from "@/lib/QueryClient";
+import type { CorpusApi, Models, Args } from "@/lib/CorpusApi";
+import { Entities } from "@/lib/CorpusApi";
+import type { MutArgs, QueryClient } from "@/lib/QueryClient";
 
 export class StepClient {
 	constructor(
-		private readonly queryClient: QueryClient,
 		private readonly api: CorpusApi,
+		private readonly queryClient: QueryClient,
 	) {}
 
 	private readonly listDefaultData: Models.StepByRecipeIdGet["response"] = [];
@@ -54,5 +55,38 @@ export class StepClient {
 				};
 			},
 		});
+	}
+
+	clearList(stepByRecipeIdGetArgs: Args.StepByRecipeIdGet) {
+		const queryKey = [
+			this.api.endpoints.stepByRecipeIdGet(stepByRecipeIdGetArgs.params),
+			stepByRecipeIdGetArgs,
+		];
+		return this.queryClient.updateQueryData(queryKey, this.listDefaultData, () => []);
+	}
+
+	addToList(stepByRecipeIdGetArgs: Args.StepByRecipeIdGet, step: Entities.Step) {
+		const queryKey = [
+			this.api.endpoints.stepByRecipeIdGet(stepByRecipeIdGetArgs.params),
+			stepByRecipeIdGetArgs,
+		];
+		return this.queryClient.updateQueryData(queryKey, this.listDefaultData, (prev) => [
+			...prev,
+			step,
+		]);
+	}
+
+	updateInList(
+		stepByRecipeIdGetArgs: Args.StepByRecipeIdGet,
+		id: Entities.Step["id"],
+		updater: (prev: Entities.Step) => Entities.Step,
+	) {
+		const queryKey = [
+			this.api.endpoints.stepByRecipeIdGet(stepByRecipeIdGetArgs.params),
+			stepByRecipeIdGetArgs,
+		];
+		return this.queryClient.updateQueryData(queryKey, this.listDefaultData, (prev) =>
+			prev.map((mat) => (mat.id === id ? updater(mat) : mat)),
+		);
 	}
 }

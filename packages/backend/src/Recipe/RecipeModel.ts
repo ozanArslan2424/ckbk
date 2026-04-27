@@ -17,15 +17,17 @@ export class RecipeModel {
 	};
 
 	static update = {
-		params: type({ id: type("string").pipe(Number) }),
-		body: this.create.body.partial().and({
-			deletedIngredientIds: "number[]",
-			newIngredients: IngredientEntity.schema
-				.pick("id", "materialId", "measurementId", "quantity")
-				.array(),
-			updatedSteps: StepEntity.schema.pick("id", "order", "body").array(),
-			newSteps: StepEntity.schema.pick("order", "body").array(),
-		}),
+		params: type({ id: "number" }),
+		body: this.create.body
+			.and({
+				deletedIngredientIds: "number[]",
+				newIngredients: IngredientEntity.schema
+					.pick("materialId", "measurementId", "quantity")
+					.array(),
+				updatedSteps: StepEntity.schema.pick("id", "order", "body").array(),
+				newSteps: StepEntity.schema.pick("order", "body").array(),
+			})
+			.partial(),
 		response: RecipeEntity.schema,
 	};
 

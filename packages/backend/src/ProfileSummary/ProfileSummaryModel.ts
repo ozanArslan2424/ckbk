@@ -7,7 +7,7 @@ export type ProfileSummaryType = X.InferModel<typeof ProfileSummaryModel>;
 
 export class ProfileSummaryModel {
 	static get = {
-		params: type({ id: type("string").pipe(Number) }),
+		params: type({ id: "number" }),
 		response: ProfileSummaryEntity.schema,
 	};
 }
