@@ -1,3 +1,5 @@
+import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
+
 import { useAppContext } from "@/app/AppContext";
 import { Sidebar } from "@/app/Components/Sidebar";
 import { RecipeCreateModal } from "@/app/Recipe/Components/RecipeCreateModal";
@@ -5,7 +7,7 @@ import { RecipeDetailsModal } from "@/app/Recipe/Components/RecipeDetailsModal";
 import { RecipeGrid } from "@/app/Recipe/Components/RecipeGrid";
 import { RecipeListFilters } from "@/app/Recipe/Components/RecipeListFilters";
 import { RecipeUpdateModal } from "@/app/Recipe/Components/RecipeUpdateModal";
-import { useRecipeGetArgs } from "@/app/Recipe/Hooks/useRecipeGetArgs";
+import { useRecipeGetArgs } from "@/app/Recipe/useRecipeGetArgs";
 import { PageContent } from "@/components/layout/PageContent";
 import { useLocale } from "@/hooks/useLocale";
 import { useModal } from "@/hooks/useModal";
@@ -13,11 +15,14 @@ import type { Args, Entities } from "@/lib/CorpusApi";
 import { Events } from "@/lib/Events";
 
 export function DashboardPage() {
-	const { queryClient, cookbookClient } = useAppContext();
+	const { queryClient, cookbookClient, recipeClient } = useAppContext();
 	const { recipeGetArgs, updateSearchParams } = useRecipeGetArgs();
 	const { txt } = useLocale("dashboard", {
 		title: recipeGetArgs.search.owner === "me" ? ["yourRecipes"] : ["recentRecipes"],
 	});
+
+	const query = useInfiniteQuery(recipeClient.list(recipeGetArgs));
+	const likeMut = useMutation(recipeClient.like(recipeGetArgs, {}));
 
 	const createModal = useModal();
 	const detailsModal = useModal<Entities.Cookbook>();
@@ -56,6 +61,12 @@ export function DashboardPage() {
 		updateModal.handleOpen(entry);
 	});
 
+	const onClickLikeFactory = Events.click<[Entities.Recipe]>((e, recipe) => {
+		e.preventDefault();
+		e.stopPropagation();
+		likeMut.mutate({ body: { id: recipe.id, isLiked: !recipe.isLiked } });
+	});
+
 	return (
 		<PageContent>
 			<RecipeDetailsModal modal={detailsModal} onClickUpdateFactory={onClickUpdateFactory} />
@@ -78,6 +89,8 @@ export function DashboardPage() {
 					<div className="h-1" />
 
 					<RecipeGrid
+						query={query}
+						onClickLikeFactory={onClickLikeFactory}
 						onClickUpdateFactory={onClickUpdateFactory}
 						onClickViewFactory={onClickViewFactory}
 					/>

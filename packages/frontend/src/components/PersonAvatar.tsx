@@ -9,7 +9,7 @@ export function PersonAvatar<
 >({ person, className }: { person: T; className?: string }) {
 	const initials = person.name
 		.split(" ")
-		.map((p) => p[0].toLocaleUpperCase())
+		.map((p) => p[0]?.toLocaleUpperCase())
 		.slice(0, 2)
 		.join("");
 

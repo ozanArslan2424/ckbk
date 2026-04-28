@@ -1,4 +1,4 @@
-import { useCookBookForm } from "@/app/Cookbook/useCookbookForm";
+import { useCookbookForm } from "@/app/Cookbook/useCookbookForm";
 import { CardDeck } from "@/components/cards/CardDeck";
 import { Modal } from "@/components/modals/Modal";
 import { useLocale } from "@/hooks/useLocale";
@@ -13,7 +13,7 @@ type Props = {
 };
 
 export function RecipeCreateModal(props: Props) {
-	const form = useCookBookForm(() => {
+	const form = useCookbookForm(() => {
 		props.modal.onOpenChange(false);
 	});
 	const { txt } = useLocale("app", {
@@ -31,35 +31,9 @@ export function RecipeCreateModal(props: Props) {
 		>
 			<div className="max-w-lg p-8">
 				<CardDeck onFinish={form.handleCreate}>
-					<RecipeFormPartOne
-						image={form.image}
-						onImageChange={(p) =>
-							form.dispatch(p ? { type: "CHANGE_IMAGE", payload: p } : { type: "REMOVE_IMAGE" })
-						}
-						title={form.title}
-						onTitleChange={(p) => form.dispatch({ type: "CHANGE_TITLE", payload: p })}
-						description={form.description}
-						onDescriptionChange={(p) => form.dispatch({ type: "CHANGE_DESCRIPTION", payload: p })}
-						isPublic={form.isPublic}
-						onIsPublicChange={(p) => form.dispatch({ type: "CHANGE_IS_PUBLIC", payload: p })}
-					/>
-					<RecipeFormPartTwo
-						addDisabled={form.ingredientAddDisabled}
-						ingredients={form.ingredients}
-						ingredientCount={form.ingredientCount}
-						onAddIngredient={() => form.dispatch({ type: "INCREASE_INGREDIENT_COUNT" })}
-						onCompleteIngredient={(p) => form.dispatch({ type: "ADD_INGREDIENT", payload: p })}
-					/>
-					<RecipeFormPartThree
-						addDisabled={form.stepAddDisabled}
-						steps={form.steps}
-						stepCount={form.stepCount}
-						onAddStep={() => form.dispatch({ type: "INCREASE_STEP_COUNT" })}
-						onWriteStep={(index, body) =>
-							form.dispatch({ type: "WRITE_STEP", payload: { index, body } })
-						}
-						onMoveStep={(from, to) => form.dispatch({ type: "MOVE_STEP", payload: { from, to } })}
-					/>
+					<RecipeFormPartOne form={form} />
+					<RecipeFormPartTwo form={form} />
+					<RecipeFormPartThree form={form} />
 				</CardDeck>
 			</div>
 		</Modal>

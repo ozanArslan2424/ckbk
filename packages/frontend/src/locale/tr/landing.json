@@ -1,5 +1,15 @@
 {
 	"subtitle": "Kendine ait bir tarif kitabı",
 	"welcomeBack": "Yeniden hoş geldin,",
-	"explore": "Tarifleri keşfet"
+	"explore": "Tarifleri keşfet",
+	"tagline": "Saklamaya değer tarifler",
+	"login": "Giriş yap",
+	"register": "Hemen başla",
+	"feature1Title": "Mutfağınız, derli toplu",
+	"feature1Body": "Tarifleri hatırlamak ve paylaşmak için kaydedin.",
+	"feature2Title": "İhtiyaca göre ayarlayın",
+	"feature2Body": "Porsiyonları gerektiğinde azaltın ya da artırın.",
+	"feature3Title": "Sayfadan pişirin",
+	"feature3Body": "Uzun metinlerde kaybolmadan adımları takip edin.",
+	"footnote": "Bir demo projesi."
 }

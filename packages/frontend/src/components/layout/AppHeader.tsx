@@ -15,12 +15,12 @@ import { useLocale } from "@/hooks/useLocale";
 import { useTheme } from "@/hooks/useTheme";
 import { CONFIG } from "@/lib/CONFIG";
 import { Events } from "@/lib/Events";
-import { LANG_OPTIONS } from "@/locale/localeConfig";
+import { LANG_OPTIONS } from "@/locale/Locale";
 import { routes } from "@/router";
 
 export function AppHeader() {
 	const { authClient } = useAppContext();
-	const { i18n } = useLocale();
+	const { changeLanguage } = useLocale();
 	const { t, txt } = useCommonLocale();
 	const { theme, toggleTheme } = useTheme();
 	const meQuery = useQuery(authClient.queryMe({}));
@@ -59,7 +59,7 @@ export function AppHeader() {
 					</DropdownMenuTrigger>
 					<DropdownMenuContent side="bottom" align="end">
 						{LANG_OPTIONS.map((lang) => (
-							<DropdownMenuItem key={lang} onClick={async () => i18n.changeLanguage(lang)}>
+							<DropdownMenuItem key={lang} onClick={() => changeLanguage(lang)}>
 								{t(`languages.${lang}`)}
 							</DropdownMenuItem>
 						))}

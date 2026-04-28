@@ -1,43 +1,46 @@
 import type { UseMutationResult } from "@tanstack/react-query";
-import { useCallback, useRef, useState, useTransition } from "react";
+import { useCallback, useMemo, useRef, useState, useTransition } from "react";
 
 import type { FormFieldProps } from "@/components/form/FormField";
+import type { Help } from "@/lib/Help";
 import { Schema } from "@/lib/Schema";
 
-export type TFormErrors<T> = Record<keyof T | "_root", string[] | undefined>;
+type TFormErrors<T> = Record<keyof T | "_root", string[] | undefined>;
 
-export type UseFormArgs<T, V = void, R = unknown, TOnMutateResult = unknown> = {
-	schema: Schema.Schema<T>;
-	onSubmit: (submitData: {
-		values: T;
-		formData: FormData;
-		defaultValues?: Partial<T>;
-	}) => void | Promise<void>;
-	onReset?: () => void;
+type SubmitData<T> = {
+	values: T;
+	formData: FormData;
 	defaultValues?: Partial<T>;
-	mutation?: UseMutationResult<R, Error, V, TOnMutateResult>;
 };
 
-export type UseFormReturn<T, V = void, R = unknown, TOnMutateResult = unknown> = {
-	methods: {
-		onSubmit: (e: React.SubmitEvent<HTMLFormElement>) => void;
-		onReset: () => void;
-		ref: React.RefObject<HTMLFormElement | null>;
-		noValidate?: boolean;
-	};
+type UseFormArgs<T> = {
+	schema: Schema.Schema<T>;
+	onSubmit: (submitData: SubmitData<T>) => Help.MaybePromise<void>;
+	onReset?: () => void;
+	defaultValues?: Partial<T>;
+	mutation?: UseMutationResult<any, any, any, any>;
+	noValidate?: boolean;
+};
+
+type FormMethods = {
+	onSubmit: (e: React.SubmitEvent<HTMLFormElement>) => void;
+	onReset: () => void;
+	ref: React.RefObject<HTMLFormElement | null>;
+	noValidate?: boolean;
+};
+
+export type UseFormReturn<T> = {
+	methods: FormMethods;
 	defaultValues: Partial<T> | undefined;
 	errors: TFormErrors<T>;
 	setRootError: (rootError: string | Array<string>) => void;
 	reset: () => void;
 	isPending: boolean;
-	mutation?: UseMutationResult<R, Error, V, TOnMutateResult>;
 };
 
 const emptyErrors: TFormErrors<any> = { _root: [] };
 
-export function useForm<T, V = void, R = unknown, TOnMutateResult = unknown>(
-	args: UseFormArgs<T, V, R, TOnMutateResult>,
-): UseFormReturn<T, V, R, TOnMutateResult> & {
+export function useForm<T>(args: UseFormArgs<T>): UseFormReturn<T> & {
 	createFields(fields: Omit<FormFieldProps<T>, "form">[]): FormFieldProps<T>[];
 } {
 	const [isPending, startPending] = useTransition();
@@ -53,7 +56,7 @@ export function useForm<T, V = void, R = unknown, TOnMutateResult = unknown>(
 
 				for (const name of formData.keys()) {
 					const allValues = formData.getAll(name);
-					formDataObject[name] = allValues.length > 1 ? allValues : allValues[0] || "";
+					formDataObject[name] = allValues.length > 1 ? allValues : (allValues[0] ?? "");
 				}
 
 				if (import.meta.env.DEV) {
@@ -101,15 +104,17 @@ export function useForm<T, V = void, R = unknown, TOnMutateResult = unknown>(
 		}));
 	}, []);
 
-	const form: UseFormReturn<T, V, R, TOnMutateResult> = {
-		methods: { onSubmit, onReset, ref, noValidate: true },
-		errors,
-		defaultValues: args.defaultValues,
-		reset,
-		setRootError,
-		mutation: args.mutation,
-		isPending: args.mutation ? args.mutation.isPending : isPending,
-	};
+	const form: UseFormReturn<T> = useMemo(
+		() => ({
+			methods: { onSubmit, onReset, ref, noValidate: args.noValidate ?? false },
+			errors,
+			defaultValues: args.defaultValues,
+			reset,
+			setRootError,
+			isPending: args.mutation ? args.mutation.isPending : isPending,
+		}),
+		[isPending, reset, errors, onSubmit, onReset, setRootError, args],
+	);
 
 	function createFields(fields: Omit<FormFieldProps<T>, "form">[]): FormFieldProps<T>[] {
 		return fields.map((field) => ({ ...field, form }));

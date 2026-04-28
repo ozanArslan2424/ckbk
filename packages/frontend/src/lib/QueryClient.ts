@@ -10,16 +10,10 @@ export type BaseModel = {
 	response: unknown;
 };
 
-export type MutVars<M extends BaseModel> = Omit<M, "response">;
-
-export type MutRes<M extends BaseModel> = M["response"] extends void
-	? void
-	: NonNullable<M["response"]>;
-
 export type MutOpts<M extends BaseModel, TOnMutateResult = unknown> = Tanstack.UseMutationOptions<
-	MutRes<M>,
+	M["response"] extends void ? void : NonNullable<M["response"]>,
 	Error,
-	MutVars<M>,
+	Omit<M, "response">,
 	TOnMutateResult
 >;
 
@@ -27,21 +21,10 @@ export type MutArgs<M extends BaseModel, TOnMutateResult = any> = Partial<
 	Omit<MutOpts<M, TOnMutateResult>, "mutationFn">
 >;
 
-export type OnMutSuccess<M extends BaseModel> = (res: MutRes<M>, vars: MutVars<M>) => void;
-
-export type OnMutError<M extends BaseModel> = (err: Error, vars: MutVars<M>) => void;
-
 export type BaseOptMutData<M extends BaseModel> = {
 	succeed: (data: M["response"]) => void;
 	fail: () => void;
 };
-
-export type InfiniteQueryData<D> = {
-	pages: Array<D>;
-	pageParams: Array<number>;
-};
-
-export type QueryKey = Tanstack.QueryKey;
 
 export class QueryClient extends Tanstack.QueryClient {
 	makeQuery = Tanstack.queryOptions;
@@ -65,18 +48,18 @@ export class QueryClient extends Tanstack.QueryClient {
 		},
 	});
 
-	async invalidateAll(...queryKeys: QueryKey[]) {
+	async invalidateAll(...queryKeys: Tanstack.QueryKey[]) {
 		return Promise.all(queryKeys.map(async (queryKey) => this.invalidateQueries({ queryKey })));
 	}
 
-	readQueryData<QData, QKey extends QueryKey = QueryKey>(
+	readQueryData<QData, QKey extends Tanstack.QueryKey = Tanstack.QueryKey>(
 		queryKey: QKey,
 		defaultData: QData,
 	): QData {
 		return this.getQueryData<QData>(queryKey) ?? defaultData;
 	}
 
-	updateQueryData<QData, QKey extends QueryKey = QueryKey>(
+	updateQueryData<QData, QKey extends Tanstack.QueryKey = Tanstack.QueryKey>(
 		queryKey: QKey,
 		defaultPrev: QData,
 		cb: (prev: Tanstack.NoInfer<QData>) => QData,
@@ -92,17 +75,17 @@ export class QueryClient extends Tanstack.QueryClient {
 		};
 	}
 
-	updateInfiniteQueryData<QData, QKey extends QueryKey = QueryKey>(
+	updateInfiniteQueryData<QData, QKey extends Tanstack.QueryKey = Tanstack.QueryKey>(
 		queryKey: QKey,
 		defaultPrev: QData,
 		find: (page: QData) => boolean,
 		cb: (prev: Tanstack.NoInfer<QData>) => QData,
-	): () => InfiniteQueryData<QData> | undefined {
-		const snapshot = this.getQueryData<InfiniteQueryData<QData>>(queryKey);
-		this.setQueryData<InfiniteQueryData<QData>>(queryKey, (prevList) => {
+	): () => Tanstack.InfiniteData<QData> | undefined {
+		const snapshot = this.getQueryData<Tanstack.InfiniteData<QData>>(queryKey);
+		this.setQueryData<Tanstack.InfiniteData<QData>>(queryKey, (prevList) => {
 			prevList ??= { pages: [], pageParams: [1] };
 			let prev = prevList.pages.find((page) => find(page)) ?? prevList.pages[0];
-			if (!prev) prev = defaultPrev;
+			prev ??= defaultPrev;
 			const next = cb(prev);
 			return {
 				...prevList,
@@ -110,32 +93,23 @@ export class QueryClient extends Tanstack.QueryClient {
 			};
 		});
 		return () => {
-			this.setQueryData<InfiniteQueryData<QData>>(queryKey, snapshot);
+			this.setQueryData<Tanstack.InfiniteData<QData>>(queryKey, snapshot);
 			return snapshot;
 		};
 	}
 
 	constructor() {
-		function handleRetry(failCount: number, error: unknown) {
-			const RETRY_LIMIT = 3;
+		function handleRetry(failCount: number, err: unknown): boolean {
+			if (!isObjectWith(err, "status", "number")) return false;
 
-			if (isObjectWith<{ status: number }>(error, "status") && typeof error.status === "number") {
-				const isTimeout = [408, 504].includes(error.status);
-
-				if (isTimeout) {
-					return failCount < RETRY_LIMIT;
-				} else if (error.status > 400) {
-					return false;
-				} else {
-					return false;
-				}
-			}
+			const TIMEOUT_RETRY = 3;
+			if ([408, 504].includes(err.status)) return failCount < TIMEOUT_RETRY;
 
 			return false;
 		}
 
 		function handleMutationSettle(res: unknown, err: Error | null) {
-			if (isObjectWith<{ message: string }>(res, "message")) {
+			if (isObjectWith(res, "message", "string")) {
 				toast.success(res.message);
 			} else if (err) {
 				if (import.meta.env.NODE_ENV !== "production") {

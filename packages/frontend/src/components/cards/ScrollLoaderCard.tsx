@@ -1,19 +1,28 @@
+import type { UseInfiniteQueryResult } from "@tanstack/react-query";
 import { LoaderIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import { useInView } from "react-intersection-observer";
 
 import { useCommonLocale } from "@/hooks/useCommonLocale";
-import type { useInfiniteScrollQuery } from "@/hooks/useInfiniteScroll";
+import { cn } from "@/lib/utils";
 
-type ScrollLoaderCardProps = {
-	query: ReturnType<typeof useInfiniteScrollQuery>;
+type ScrollLoaderCardProps<T> = {
+	query: UseInfiniteQueryResult<T>;
 	customIcon?: ReactNode;
+	className?: string;
+	rootMargin?: string;
 };
 
-export function ScrollLoaderCard(props: ScrollLoaderCardProps) {
+export function ScrollLoaderCard<T>(props: ScrollLoaderCardProps<T>) {
 	const { txt } = useCommonLocale();
+	const scroller = useInView({
+		threshold: 0,
+		rootMargin: props.rootMargin ?? "100px",
+		onChange: (inView) => (inView ? props.query.fetchNextPage() : undefined),
+	});
 
 	return (
-		<div className="w-full" ref={props.query.scrollRef}>
+		<div className={cn("w-full", props.className)} ref={scroller.ref}>
 			{props.query.isFetchingNextPage ? (
 				<div className="flex w-full items-center justify-center py-10">
 					{props.customIcon ?? <LoaderIcon className="text-muted-foreground size-5 animate-spin" />}

@@ -1,3 +1,4 @@
+import type { useCookbookForm } from "@/app/Cookbook/useCookbookForm";
 import { useCardDeckContext } from "@/components/cards/CardDeck";
 import { Checkbox } from "@/components/form/Checkbox";
 import { FormCard } from "@/components/form/FormCard";
@@ -7,26 +8,10 @@ import { useCommonLocale } from "@/hooks/useCommonLocale";
 import { useLocale } from "@/hooks/useLocale";
 
 type RecipeFormProps = {
-	image: File | string | null;
-	onImageChange: (file: File | null) => void;
-	title: string;
-	onTitleChange: (v: string) => void;
-	description: string;
-	onDescriptionChange: (v: string) => void;
-	isPublic: boolean;
-	onIsPublicChange: (v: boolean) => void;
+	form: ReturnType<typeof useCookbookForm>;
 };
 
-export function RecipeFormPartOne({
-	image,
-	onImageChange,
-	title,
-	onTitleChange,
-	description,
-	onDescriptionChange,
-	isPublic,
-	onIsPublicChange,
-}: RecipeFormProps) {
+export function RecipeFormPartOne({ form }: RecipeFormProps) {
 	const { txt: txtCommon } = useCommonLocale();
 	const { txt } = useLocale("app", {
 		recipeDetails: ["form.details"],
@@ -45,32 +30,37 @@ export function RecipeFormPartOne({
 			title={txt.recipeDetails}
 			footer={
 				ctx ? (
-					<button type="button" disabled={title.length <= 5} onClick={ctx.onNext} className="w-max">
+					<button
+						type="button"
+						disabled={form.title.length <= 5}
+						onClick={ctx.onNext}
+						className="w-max"
+					>
 						{txtCommon.next}
 					</button>
 				) : null
 			}
 		>
 			<FormFieldPlain name="image" label={txt.recipeImageLabel}>
-				<ImageUpload image={image} onImageChange={onImageChange} />
+				<ImageUpload image={form.image} onImageChange={form.handleImageChange} />
 			</FormFieldPlain>
 			<FormFieldPlain name="title" label={txt.recipeTitleLabel} sublabel={txt.recipeTitleSublabel}>
 				<input
 					placeholder={txt.recipeTitlePlaceholder}
-					onChange={(e) => onTitleChange(e.target.value)}
-					value={title}
+					onChange={(e) => form.handleTitleChange(e.target.value)}
+					value={form.title}
 				/>
 			</FormFieldPlain>
 			<FormFieldPlain name="description" label={txt.recipeDescriptionLabel}>
 				<textarea
 					placeholder={txt.recipeDescriptionPlaceholer}
 					className="min-h-25 resize-y"
-					onChange={(e) => onDescriptionChange(e.target.value)}
-					value={description}
+					onChange={(e) => form.handleDescriptionChange(e.target.value)}
+					value={form.description}
 				/>
 			</FormFieldPlain>
 			<FormFieldPlain name="isPublic" label={txt.recipePublicLabel} labelPlacement="right">
-				<Checkbox onChange={onIsPublicChange} value={isPublic} />
+				<Checkbox onChange={form.handleIsPublicChange} value={form.isPublic} />
 			</FormFieldPlain>
 		</FormCard>
 	);

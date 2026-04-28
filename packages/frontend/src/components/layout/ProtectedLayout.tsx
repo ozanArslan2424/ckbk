@@ -1,9 +1,9 @@
 import { Outlet } from "react-router";
 
+import { useAuthGuard } from "@/app/Auth/useAuthGuard";
 import { PendingCard } from "@/components/cards/PendingCard";
 import { AppFooter } from "@/components/layout/AppFooter";
 import { AppHeader } from "@/components/layout/AppHeader";
-import { useAuthGuard } from "@/hooks/useAuthGuard";
 
 export function ProtectedLayout() {
 	const { isPending } = useAuthGuard();

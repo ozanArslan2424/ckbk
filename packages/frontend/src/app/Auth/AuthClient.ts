@@ -21,7 +21,7 @@ export class AuthClient {
 
 	queryMe(args: Args.AuthMeGet) {
 		return this.queryClient.makeQuery({
-			queryKey: [this.api.endpoints.authMeGet],
+			queryKey: [this.api.endpoints.authMeGet, args],
 			queryFn: async () => this.api.authMeGet(args),
 		});
 	}

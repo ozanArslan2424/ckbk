@@ -10,6 +10,6 @@ export class LocaleMiddleware extends C.MiddlewareAbstract {
 
 	override useOn: C.MiddlewareUseOn = "*";
 	override handler: C.MiddlewareHandler = (c) => {
-		this.service.setLanguage(c.headers);
+		c.data.locale = this.service.getLocale(c.headers);
 	};
 }

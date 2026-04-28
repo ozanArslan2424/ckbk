@@ -3,33 +3,30 @@ import { useReducer } from "react";
 import { toast } from "sonner";
 
 import { useAppContext } from "@/app/AppContext";
-import type { IngredientComplete } from "@/app/Ingredient/Types/IngredientComplete";
-import { useRecipeGetArgs } from "@/app/Recipe/Hooks/useRecipeGetArgs";
-import type { StepComplete } from "@/app/Step/Types/StepComplete";
+import type { IngredientDraft, IngredientPatch } from "@/app/Ingredient/IngredientComplete";
+import { isIngredientComplete } from "@/app/Ingredient/IngredientComplete";
+import { useRecipeGetArgs } from "@/app/Recipe/useRecipeGetArgs";
+import { isStepComplete, type StepDraft } from "@/app/Step/StepComplete";
 import { useLocale } from "@/hooks/useLocale";
 import { Entities } from "@/lib/CorpusApi";
 import { Help } from "@/lib/Help";
 
-export type CookBookEntryFormState = {
-	ingredients: IngredientComplete[];
+type State = {
+	ingredients: IngredientDraft[];
 	ingredientCount: number;
-	ingredientAddDisabled: boolean;
-	steps: StepComplete[];
+	steps: StepDraft[];
 	stepCount: number;
-	stepAddDisabled: boolean;
 	image: File | string | null;
 	title: string;
 	description: string;
 	isPublic: boolean;
 };
 
-const initialState: CookBookEntryFormState = {
+const initialState: State = {
 	ingredients: [],
 	ingredientCount: 1,
-	ingredientAddDisabled: false,
 	steps: [],
 	stepCount: 1,
-	stepAddDisabled: false,
 	image: null,
 	title: "",
 	description: "",
@@ -38,99 +35,115 @@ const initialState: CookBookEntryFormState = {
 
 type Action =
 	| {
-			type: "ADD_INGREDIENT";
-			payload: CookBookEntryFormState["ingredients"][number];
+			type: "PATCH_INGREDIENT";
+			payload: { index: number; patch: IngredientPatch };
 	  }
 	| { type: "WRITE_STEP"; payload: { index: number; body: string } }
 	| { type: "INCREASE_INGREDIENT_COUNT" }
 	| { type: "INCREASE_STEP_COUNT" }
 	| { type: "CHANGE_IMAGE"; payload: File }
 	| { type: "REMOVE_IMAGE" }
-	| { type: "CHANGE_TITLE"; payload: CookBookEntryFormState["title"] }
-	| { type: "CHANGE_DESCRIPTION"; payload: CookBookEntryFormState["description"] }
-	| { type: "CHANGE_IS_PUBLIC"; payload: CookBookEntryFormState["isPublic"] }
+	| { type: "CHANGE_TITLE"; payload: State["title"] }
+	| { type: "CHANGE_DESCRIPTION"; payload: State["description"] }
+	| { type: "CHANGE_IS_PUBLIC"; payload: State["isPublic"] }
 	| { type: "MOVE_STEP"; payload: { from: number; to: number } }
-	| { type: "SET"; payload: CookBookEntryFormState }
+	| { type: "SET"; payload: State }
 	| { type: "RESET" };
 
-function reducer(state: CookBookEntryFormState, action: Action): CookBookEntryFormState {
-	switch (action.type) {
-		case "ADD_INGREDIENT": {
-			const exists = state.ingredients.findIndex((i) => i.id === action.payload.id);
+function reducer(st: State, act: Action): State {
+	switch (act.type) {
+		case "PATCH_INGREDIENT": {
+			const existing = st.ingredients[act.payload.index];
+			if (existing) {
+				return {
+					...st,
+					ingredients: st.ingredients.map((i, idx) =>
+						idx === act.payload.index ? { ...i, ...act.payload.patch } : i,
+					),
+				};
+			}
 			return {
-				...state,
-				ingredientAddDisabled: false,
-				ingredients:
-					exists !== -1
-						? state.ingredients.map((i, idx) => (idx === exists ? action.payload : i))
-						: [...state.ingredients, action.payload],
+				...st,
+				ingredients: [...st.ingredients, { id: -st.ingredientCount, ...act.payload.patch }],
 			};
 		}
 
-		case "WRITE_STEP":
+		case "WRITE_STEP": {
+			const existing = st.steps[act.payload.index];
+			if (existing) {
+				return {
+					...st,
+					steps: st.steps.map((s, i) =>
+						i === act.payload.index ? { ...s, body: act.payload.body } : s,
+					),
+				};
+			}
 			return {
-				...state,
-				stepAddDisabled: false,
-				steps: state.steps[action.payload.index]
-					? state.steps.map((step, i) =>
-							i === action.payload.index ? { ...step, body: action.payload.body } : step,
-						)
-					: [
-							...state.steps,
-							{ id: -state.stepCount, body: action.payload.body, order: state.steps.length + 1 },
-						],
+				...st,
+				steps: [
+					...st.steps,
+					{
+						id: -st.stepCount,
+						body: act.payload.body,
+						order: st.steps.length + 1,
+					},
+				],
 			};
+		}
 
 		case "MOVE_STEP": {
-			const steps = [...state.steps];
-			[steps[action.payload.from], steps[action.payload.to]] = [
-				steps[action.payload.to],
-				steps[action.payload.from],
-			];
-			return { ...state, steps: steps.map((s, i) => ({ ...s, order: i + 1 })) };
+			const fromStep = st.steps[act.payload.from];
+			const toStep = st.steps[act.payload.to];
+			if (!fromStep || !toStep) return st;
+
+			const copy = [...st.steps];
+			copy[act.payload.from] = toStep;
+			copy[act.payload.to] = fromStep;
+			return {
+				...st,
+				steps: copy.map((s, i) => ({ ...s, order: i + 1 })),
+			};
 		}
 
 		case "INCREASE_INGREDIENT_COUNT":
 			return {
-				...state,
-				ingredientAddDisabled: true,
-				ingredientCount: state.ingredientCount + 1,
+				...st,
+				ingredientCount: st.ingredientCount + 1,
 			};
 
 		case "INCREASE_STEP_COUNT":
 			return {
-				...state,
-				stepAddDisabled: true,
-				stepCount: state.stepCount + 1,
+				...st,
+				stepCount: st.stepCount + 1,
 			};
 
 		case "CHANGE_IMAGE":
-			return { ...state, image: action.payload };
+			return { ...st, image: act.payload };
 
 		case "REMOVE_IMAGE":
-			return { ...state, image: null };
+			return { ...st, image: null };
 
 		case "CHANGE_TITLE":
-			return { ...state, title: action.payload };
+			return { ...st, title: act.payload };
 
 		case "CHANGE_DESCRIPTION":
-			return { ...state, description: action.payload };
+			return { ...st, description: act.payload };
 
 		case "CHANGE_IS_PUBLIC":
-			return { ...state, isPublic: action.payload };
+			return { ...st, isPublic: act.payload };
 
 		case "SET":
-			return action.payload;
+			return act.payload;
 
 		case "RESET":
 			return initialState;
 
 		default:
-			return state;
+			return st;
 	}
 }
 
-export function useCookBookForm(onSuccess?: () => void, onReset?: () => void) {
+export function useCookbookForm(onSuccess?: () => void, onReset?: () => void) {
 	const [state, dispatch] = useReducer(reducer, initialState);
 	const { recipeGetArgs } = useRecipeGetArgs();
 	const { cookbookClient, recipeClient, ingredientClient, stepClient } = useAppContext();
@@ -168,18 +181,33 @@ export function useCookBookForm(onSuccess?: () => void, onReset?: () => void) {
 		}),
 	);
 
+	// Derived: the add button locks until the last row is complete enough.
+	// If there are fewer rows than slots, the trailing slot is empty -> locked.
+	const lastIngredient = state.ingredients[state.ingredientCount - 1];
+	const ingredientAddDisabled =
+		state.ingredients.length < state.ingredientCount ||
+		!lastIngredient ||
+		!isIngredientComplete(lastIngredient);
+
+	const lastStep = state.steps[state.stepCount - 1];
+	const stepAddDisabled =
+		state.steps.length < state.stepCount || !lastStep || !isStepComplete(lastStep);
+
 	function handleCreate() {
+		const completeIngredients = state.ingredients.filter(isIngredientComplete);
+		const completeSteps = state.steps.filter(isStepComplete);
+
 		const formData = new FormData();
 		formData.set("title", state.title);
 		formData.set("description", state.description);
 		formData.set("isPublic", Help.toStringBoolean(state.isPublic));
 		if (state.image) formData.set("image", state.image);
 
-		for (const [i, { id: _, ...rest }] of state.ingredients.entries()) {
+		for (const [i, { id: _, ...rest }] of completeIngredients.entries()) {
 			formData.append(`ingredients[${i}]`, JSON.stringify(rest));
 		}
 
-		for (const [i, { id: _, ...rest }] of state.steps.entries()) {
+		for (const [i, { id: _, ...rest }] of completeSteps.entries()) {
 			formData.append(`steps[${i}]`, JSON.stringify(rest));
 		}
 
@@ -187,6 +215,9 @@ export function useCookBookForm(onSuccess?: () => void, onReset?: () => void) {
 	}
 
 	function handleUpdate(prev: Entities.Cookbook) {
+		const completeIngredients = state.ingredients.filter(isIngredientComplete);
+		const completeSteps = state.steps.filter(isStepComplete);
+
 		const formData = new FormData();
 
 		if (state.title !== prev.title) formData.set("title", state.title);
@@ -195,9 +226,9 @@ export function useCookBookForm(onSuccess?: () => void, onReset?: () => void) {
 			formData.set("isPublic", Help.toStringBoolean(state.isPublic));
 		if (state.image instanceof File) formData.set("image", state.image);
 
-		const currIngredientIds = new Set(state.ingredients.map((i) => i.id));
+		const currIngredientIds = new Set(completeIngredients.map((i) => i.id));
 
-		const changedIngredients = state.ingredients.filter((i) => {
+		const changedIngredients = completeIngredients.filter((i) => {
 			if (i.id < 0) return false;
 			const prev_ = prev.ingredients.find((p) => p.id === i.id);
 			if (!prev_) return false;
@@ -216,23 +247,23 @@ export function useCookBookForm(onSuccess?: () => void, onReset?: () => void) {
 			formData.append(`deletedIngredientIds[${i}]`, id.toString());
 		}
 
-		const newIngredients = [...state.ingredients.filter((i) => i.id < 0), ...changedIngredients];
+		const newIngredients = [...completeIngredients.filter((i) => i.id < 0), ...changedIngredients];
 		for (const [i, { id: _, ...rest }] of newIngredients.entries()) {
 			formData.append(`newIngredients[${i}]`, JSON.stringify(rest));
 		}
 
-		const currStepIds = new Set(state.steps.map((s) => s.id));
+		const currStepIds = new Set(completeSteps.map((s) => s.id));
 		const deletedStepIds = prev.steps.filter((s) => !currStepIds.has(s.id)).map((s) => s.id);
 		for (const [i, id] of deletedStepIds.entries()) {
 			formData.append(`deletedStepIds[${i}]`, id.toString());
 		}
 
-		const newSteps = state.steps.filter((s) => s.id < 0);
+		const newSteps = completeSteps.filter((s) => s.id < 0);
 		for (const [i, { id: _, ...rest }] of newSteps.entries()) {
 			formData.append(`newSteps[${i}]`, JSON.stringify(rest));
 		}
 
-		const updatedSteps = state.steps.filter((s) => {
+		const updatedSteps = completeSteps.filter((s) => {
 			if (s.id < 0) return false;
 			const prev_ = prev.steps.find((p) => p.id === s.id);
 			if (!prev_) return false;
@@ -262,15 +293,45 @@ export function useCookBookForm(onSuccess?: () => void, onReset?: () => void) {
 		onReset?.();
 	}
 
-	function isIngredientComplete(ing: Partial<IngredientComplete>): ing is IngredientComplete {
-		return (
-			ing.materialId !== undefined &&
-			ing.measurementId !== undefined &&
-			ing.quantity !== undefined &&
-			Number.isFinite(ing.quantity) &&
-			ing.quantity > 0
-		);
-	}
+	const handleTitleChange = (p: string) => dispatch({ type: "CHANGE_TITLE", payload: p });
 
-	return { ...state, dispatch, handleCreate, handleUpdate, handleReset, isIngredientComplete };
+	const handleImageChange = (p: File | null) =>
+		dispatch(p ? { type: "CHANGE_IMAGE", payload: p } : { type: "REMOVE_IMAGE" });
+
+	const handleDescriptionChange = (p: string) =>
+		dispatch({ type: "CHANGE_DESCRIPTION", payload: p });
+
+	const handleIsPublicChange = (p: boolean) => dispatch({ type: "CHANGE_IS_PUBLIC", payload: p });
+
+	const handleAddIngredient = () => dispatch({ type: "INCREASE_INGREDIENT_COUNT" });
+
+	const handlePatchIngredient = (index: number, patch: IngredientPatch) =>
+		dispatch({ type: "PATCH_INGREDIENT", payload: { index, patch } });
+
+	const handleAddStep = () => dispatch({ type: "INCREASE_STEP_COUNT" });
+
+	const handleWriteStep = (index: number, body: string) =>
+		dispatch({ type: "WRITE_STEP", payload: { index, body } });
+
+	const handleMoveStep = (from: number, to: number) =>
+		dispatch({ type: "MOVE_STEP", payload: { from, to } });
+
+	return {
+		...state,
+		ingredientAddDisabled,
+		stepAddDisabled,
+		dispatch,
+		handleCreate,
+		handleUpdate,
+		handleReset,
+		handleTitleChange,
+		handleImageChange,
+		handleDescriptionChange,
+		handleIsPublicChange,
+		handleAddIngredient,
+		handlePatchIngredient,
+		handleAddStep,
+		handleWriteStep,
+		handleMoveStep,
+	};
 }

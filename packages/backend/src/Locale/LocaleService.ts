@@ -10,51 +10,31 @@ import collections from "./locales";
 
 export class LocaleService {
 	constructor(
-		readonly languageHeader: string = "x-lang",
-		readonly fallbackLanguage: string = "en-US",
-	) {
-		this.storedLanguage = fallbackLanguage;
+		readonly localeHeader: string = "x-lang",
+		readonly fallback: string = "en-US",
+	) {}
+
+	getLocale(headers: C.Headers) {
+		return headers.get(this.localeHeader) ?? this.fallback;
 	}
 
-	storedLanguage: string;
-
-	setLanguage(headers: C.Headers) {
-		this.storedLanguage = headers.get(this.languageHeader) ?? this.fallbackLanguage;
-	}
-
-	getLanguage() {
-		return this.storedLanguage || this.fallbackLanguage;
-	}
-
-	makeTranslator(collectionKey: TranslatorCollectionKey): Translator {
+	getTranslator(locale: string, collectionKey: TranslatorCollectionKey): Translator {
 		return (key, variables = {}) => {
-			return this.translate(collectionKey, key, variables);
+			return this.translate(locale, collectionKey, key, variables);
 		};
 	}
 
 	translate(
+		locale: string,
 		collectionKey: TranslatorCollectionKey,
 		key: string,
 		variables: Record<string, string> = {},
 	): string {
-		const lang = this.getLanguage();
-		const collection = this.getCollection(collectionKey);
-		const template = this.getTemplate(collection, key, lang);
-		return this.replaceVariables(template, variables);
-	}
-
-	private replaceVariables(template: string, variables: Record<string, string> = {}) {
+		const collection = collections[collectionKey] as TranslatorCollection;
+		let template = collection[key]?.[locale] ?? key;
 		for (const [varKey, varVal] of Object.entries(variables)) {
 			template = template.replace(new RegExp(`{{${varKey}}}`, "g"), varVal);
 		}
 		return template;
-	}
-
-	private getTemplate(collection: TranslatorCollection, key: string, lang: string): string {
-		return collection[key]?.[lang] ?? key;
-	}
-
-	private getCollection(collectionKey: TranslatorCollectionKey): TranslatorCollection {
-		return collections[collectionKey];
 	}
 }

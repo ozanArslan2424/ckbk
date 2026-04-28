@@ -80,26 +80,29 @@ export class MailService {
 		});
 	}
 
-	async sendMail({
-		toName,
-		toEmail,
-		subject,
-		htmlTemplateName,
-		textTemplateName,
-		translator,
-		variables,
-	}: {
-		toEmail: string;
-		toName: string;
-		translator: TranslatorCollectionKey;
-		htmlTemplateName?: string;
-		textTemplateName: string;
-		subject: (t: Translator) => string;
-		variables: (t: Translator) => Record<string, string>;
-	}) {
+	async sendMail(
+		locale: string,
+		{
+			toName,
+			toEmail,
+			subject,
+			htmlTemplateName,
+			textTemplateName,
+			translator,
+			variables,
+		}: {
+			toEmail: string;
+			toName: string;
+			translator: TranslatorCollectionKey;
+			htmlTemplateName?: string;
+			textTemplateName: string;
+			subject: (t: Translator) => string;
+			variables: (t: Translator) => Record<string, string>;
+		},
+	) {
 		const verified = await this.verify();
 		if (!verified) return;
-		const t = this.localeService.makeTranslator(translator);
+		const t = this.localeService.getTranslator(locale, translator);
 
 		const info = await this.send({
 			toEmail,

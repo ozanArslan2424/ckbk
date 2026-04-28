@@ -1,5 +1,15 @@
 {
 	"subtitle": "Your very own cook book",
 	"welcomeBack": "Welcome back,",
-	"explore": "Explore recipes"
+	"explore": "Explore recipes",
+	"tagline": "Recipes worth keeping",
+	"login": "Sign in",
+	"register": "Get started",
+	"feature1Title": "Your kitchen, organized",
+	"feature1Body": "Save recipes to remember and share.",
+	"feature2Title": "Adjust as you go",
+	"feature2Body": "Scale servings up or down when you need to.",
+	"feature3Title": "Cook from the page",
+	"feature3Body": "Follow the steps without hunting through a wall of text.",
+	"footnote": "A demo project."
 }

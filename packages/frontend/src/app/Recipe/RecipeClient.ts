@@ -15,13 +15,13 @@ export class RecipeClient {
 		data: [],
 	};
 
-	list(recipeGetArgs: Args.RecipeGet) {
+	list(args: Args.RecipeGet) {
 		return this.queryClient.makeInfiniteQuery({
-			queryKey: [this.api.endpoints.recipeGet, recipeGetArgs],
+			queryKey: [this.api.endpoints.recipeGet, args],
 			queryFn: async ({ pageParam }) =>
 				this.api.recipeGet({
-					...recipeGetArgs,
-					search: { ...recipeGetArgs.search, page: pageParam },
+					...args,
+					search: { ...args.search, page: pageParam },
 				}),
 			initialPageParam: 1,
 			getNextPageParam: (res) =>
@@ -36,36 +36,36 @@ export class RecipeClient {
 		});
 	}
 
-	create(recipeGetArgs: Args.RecipeGet, args: MutArgs<Models.RecipePost>) {
+	create(args: Args.RecipeGet, opts: MutArgs<Models.RecipePost>) {
 		return this.queryClient.makeMutation<Models.RecipePost>({
 			mutationFn: this.api.recipePost,
-			...args,
+			...opts,
 			onSuccess: (res, ...rest) => {
-				this.addToList(recipeGetArgs, res);
-				args.onSuccess?.(res, ...rest);
+				this.addToList(args, res);
+				opts.onSuccess?.(res, ...rest);
 			},
 		});
 	}
 
-	update(recipeGetArgs: Args.RecipeGet, args: MutArgs<Models.RecipeIdPut>) {
+	update(args: Args.RecipeGet, opts: MutArgs<Models.RecipeIdPut>) {
 		return this.queryClient.makeMutation<Models.RecipeIdPut>({
 			mutationFn: this.api.recipeIdPut,
-			...args,
+			...opts,
 			onSuccess: (res, vars, ...rest) => {
-				this.updateInList(recipeGetArgs, vars.params.id, () => res);
-				args.onSuccess?.(res, vars, ...rest);
+				this.updateInList(args, vars.params.id, () => res);
+				opts.onSuccess?.(res, vars, ...rest);
 			},
 		});
 	}
 
-	like(recipeGetArgs: Args.RecipeGet, args: MutArgs<Models.RecipeLikePost>) {
+	like(args: Args.RecipeGet, opts: MutArgs<Models.RecipeLikePost>) {
 		return this.queryClient.makeMutation<Models.RecipeLikePost, () => void>({
 			mutationFn: async (vars) => this.api.recipeLikePost(vars),
-			...args,
+			...opts,
 			onMutate: (vars, ctx) => {
 				if (!vars.body?.id) return () => {};
-				args.onMutate?.(vars, ctx);
-				return this.updateInList(recipeGetArgs, vars.body.id, (prev) => {
+				opts.onMutate?.(vars, ctx);
+				return this.updateInList(args, vars.body.id, (prev) => {
 					const isLiked = vars.body?.isLiked ?? false;
 					const prevLikeCount = prev.likeCount ?? 0;
 					const likeCount = isLiked ? prevLikeCount + 1 : prevLikeCount - 1;
@@ -74,13 +74,13 @@ export class RecipeClient {
 			},
 			onError: (err, vars, revert, ctx) => {
 				revert?.();
-				args.onError?.(err, vars, revert, ctx);
+				opts.onError?.(err, vars, revert, ctx);
 			},
 		});
 	}
 
-	addToList(recipeGetArgs: Args.RecipeGet, recipe: Entities.Recipe) {
-		const queryKey = [this.api.endpoints.recipeGet, recipeGetArgs];
+	addToList(args: Args.RecipeGet, recipe: Entities.Recipe) {
+		const queryKey = [this.api.endpoints.recipeGet, args];
 		return this.queryClient.updateInfiniteQueryData(
 			queryKey,
 			this.listDefaultData,
@@ -97,11 +97,11 @@ export class RecipeClient {
 	}
 
 	updateInList(
-		recipeGetArgs: Args.RecipeGet,
+		args: Args.RecipeGet,
 		id: Entities.Recipe["id"],
 		updater: (prev: Entities.Recipe) => Entities.Recipe,
 	) {
-		const queryKey = [this.api.endpoints.recipeGet, recipeGetArgs];
+		const queryKey = [this.api.endpoints.recipeGet, args];
 		return this.queryClient.updateInfiniteQueryData(
 			queryKey,
 			this.listDefaultData,

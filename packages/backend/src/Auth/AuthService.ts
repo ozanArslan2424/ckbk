@@ -88,12 +88,12 @@ export class AuthService {
 				},
 			});
 
-			await tx.profile.create({ data: { userId: user.id, email, name } });
+			await tx.profile.create({ data: { userId: user.id, email, name, language: body.language } });
 			return otpCode;
 		});
 
 		const appName = X.Config.get("APP_NAME");
-		await this.mailService.sendMail({
+		await this.mailService.sendMail(body.language, {
 			toEmail: email,
 			toName: name,
 			translator: "auth",
@@ -114,7 +114,7 @@ export class AuthService {
 		});
 	}
 
-	async verify(body: AuthType["verify"]["body"]) {
+	async verify(body: AuthType["verify"]["body"], locale: string) {
 		const response = await this.db.$transaction(async (tx) => {
 			const email = body.email;
 			const otpCode = body.code;
@@ -140,7 +140,12 @@ export class AuthService {
 
 			let profileRaw = await tx.profile.findUnique({ where: { email } });
 			profileRaw ??= await tx.profile.create({
-				data: { userId: user.id, email, name: email.split("@")[0] ?? email },
+				data: {
+					userId: user.id,
+					email,
+					name: email.split("@")[0] ?? email,
+					language: locale,
+				},
 			});
 			const profile = new ProfileEntity({ ...profileRaw, emailVerified: true });
 

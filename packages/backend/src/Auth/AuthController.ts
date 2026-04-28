@@ -46,7 +46,7 @@ export class AuthController extends C.Controller {
 
 	verify = this.route(
 		{ method: "POST", path: "/verify" },
-		async (c) => this.authService.verify(c.body),
+		async (c) => this.authService.verify(c.body, c.data.locale),
 		AuthModel.verify,
 	);
 }

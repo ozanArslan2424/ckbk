@@ -6,13 +6,13 @@ import { routes } from "@/router";
 
 export function useAuthGuard() {
 	const navigate = useNavigate();
-	const { queryClient: query, authClient: auth, store } = useAppContext();
+	const { queryClient, authClient, store } = useAppContext();
 	const [isPending, setIsPending] = useState(true);
 
 	useEffect(() => {
 		async function init() {
 			try {
-				const res = await query.fetchQuery(auth.queryMe({}));
+				const res = await queryClient.fetchQuery(authClient.queryMe({}));
 				store.set("auth", res);
 			} catch {
 				await navigate(routes.login);
@@ -22,7 +22,7 @@ export function useAuthGuard() {
 		}
 
 		void init();
-	}, [query, auth, store, navigate]);
+	}, [queryClient, authClient, store, navigate]);
 
 	return { isPending };
 }

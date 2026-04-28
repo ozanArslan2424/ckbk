@@ -21,12 +21,13 @@ export class AuthModel {
 			name: "string > 1",
 			email: "string.email",
 			password: "string >= 8",
+			language: "'tr'|'en'",
 		}),
 		response: type({ email: "string.email" }),
 	};
 
 	static login = {
-		body: this.register.body.omit("name"),
+		body: this.register.body.pick("email", "password"),
 		response: this.authResponse,
 	};
 

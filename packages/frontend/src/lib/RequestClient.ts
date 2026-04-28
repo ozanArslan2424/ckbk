@@ -9,6 +9,13 @@ import qs from "qs";
 
 import type { RequestDescriptor } from "@/lib/CorpusApi";
 
+interface SendArgs<B> {
+	url: string;
+	method: string;
+	body?: B;
+	config?: AxiosRequestConfig;
+}
+
 interface RequestInterface {
 	get: <D>(url: string, config?: AxiosRequestConfig) => Promise<D>;
 	delete: <D>(url: string, config?: AxiosRequestConfig) => Promise<D>;
@@ -17,42 +24,40 @@ interface RequestInterface {
 	post: <D, B>(url: string, body?: B, config?: AxiosRequestConfig) => Promise<D>;
 	put: <D, B>(url: string, body?: B, config?: AxiosRequestConfig) => Promise<D>;
 	patch: <D, B>(url: string, body?: B, config?: AxiosRequestConfig) => Promise<D>;
-	send: <D, B>(args: {
-		url: string;
-		method: string;
-		body?: B;
-		config?: AxiosRequestConfig;
-	}) => Promise<D>;
+	send: <D, B>(args: SendArgs<B>) => Promise<D>;
 }
 
-type RequestConfig = {
+interface RequestConfig {
 	baseURL: string;
+	timeout?: number;
 	withCredentials?: boolean;
 	refreshIgnoredEndpoints: string[];
-	onRefreshToken: (axiosInstance: AxiosInstance) => Promise<string>;
+	onTokenRefresh: (axiosInstance: AxiosInstance) => Promise<string>;
 	onBeforeRequest?: (config: InternalAxiosRequestConfig) => void | Promise<void>;
 	getAccessToken: () => string | null;
 	setAccessToken: (value: string | null) => void;
-};
+}
 
 export class RequestClient implements RequestInterface {
-	private readonly instance: AxiosInstance;
+	public readonly instance: AxiosInstance;
 	private isRefreshing = false;
 	private failedQueue: ((token: string) => void)[] = [];
 
 	private readonly baseURL: RequestConfig["baseURL"];
+	private readonly timeout?: RequestConfig["timeout"];
 	private readonly withCredentials?: RequestConfig["withCredentials"];
 	private readonly refreshIgnoredEndpoints: RequestConfig["refreshIgnoredEndpoints"];
-	private readonly onRefreshToken: RequestConfig["onRefreshToken"];
+	private readonly onTokenRefresh: RequestConfig["onTokenRefresh"];
 	private readonly onBeforeRequest?: RequestConfig["onBeforeRequest"];
 	private readonly getAccessToken: RequestConfig["getAccessToken"];
 	private readonly setAccessToken: RequestConfig["setAccessToken"];
 
-	constructor(readonly config: RequestConfig) {
+	constructor(config: RequestConfig) {
 		this.baseURL = config.baseURL;
-		this.withCredentials = config.withCredentials;
+		this.timeout = config.timeout ?? 10000;
+		this.withCredentials = config.withCredentials ?? false;
 		this.refreshIgnoredEndpoints = config.refreshIgnoredEndpoints;
-		this.onRefreshToken = config.onRefreshToken;
+		this.onTokenRefresh = config.onTokenRefresh;
 		this.onBeforeRequest = config.onBeforeRequest;
 		this.getAccessToken = config.getAccessToken;
 		this.setAccessToken = config.setAccessToken;
@@ -65,7 +70,7 @@ export class RequestClient implements RequestInterface {
 	private createInstance() {
 		return axiosDefault.create({
 			baseURL: this.baseURL,
-			timeout: 10000,
+			timeout: this.timeout,
 			withCredentials: this.withCredentials,
 			paramsSerializer: (params) =>
 				qs.stringify(params, {
@@ -77,31 +82,17 @@ export class RequestClient implements RequestInterface {
 		});
 	}
 
-	private bearer(token: string) {
-		return `Bearer ${token}`;
-	}
-
 	private attachRequestInterceptor() {
 		this.instance.interceptors.request.use(
-			async (config: InternalAxiosRequestConfig) => {
+			async (c: InternalAxiosRequestConfig) => {
+				const config = c;
 				const token = this.getAccessToken();
-				if (token) {
-					config.headers.Authorization = this.bearer(token);
-				}
-
+				if (token) config.headers.Authorization = this.bearer(token);
 				await this.onBeforeRequest?.(config);
-
 				return config;
 			},
-			async (err) => Promise.reject(err),
+			(err) => Promise.reject(err),
 		);
-	}
-
-	private processQueue(token: string) {
-		for (const callback of this.failedQueue) {
-			callback(token);
-		}
-		this.failedQueue = [];
 	}
 
 	private attachResponseInterceptor() {
@@ -110,9 +101,7 @@ export class RequestClient implements RequestInterface {
 			async (err) => {
 				const config = err.config;
 
-				const isNotRefreshed = this.refreshIgnoredEndpoints.some((v) => {
-					return config.url?.includes(v);
-				});
+				const isNotRefreshed = this.refreshIgnoredEndpoints.some((v) => config.url?.includes(v));
 				const isDifferentError = err.response?.status !== 401;
 				const isRetryError = config._retry;
 
@@ -135,7 +124,7 @@ export class RequestClient implements RequestInterface {
 				try {
 					this.isRefreshing = true;
 					this.setAccessToken(null);
-					const newToken = await this.onRefreshToken(this.instance);
+					const newToken = await this.onTokenRefresh(this.instance);
 					this.setAccessToken(newToken);
 					this.instance.defaults.headers.common.Authorization = this.bearer(newToken);
 					config.headers.Authorization = this.bearer(newToken);
@@ -149,6 +138,15 @@ export class RequestClient implements RequestInterface {
 				}
 			},
 		);
+	}
+
+	private bearer(token: string) {
+		return `Bearer ${token}`;
+	}
+
+	private processQueue(token: string) {
+		this.failedQueue.forEach((cb) => cb(token));
+		this.failedQueue = [];
 	}
 
 	private async resolve<T>(promise: Promise<AxiosResponse<T>>) {

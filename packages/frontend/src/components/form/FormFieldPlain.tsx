@@ -1,35 +1,31 @@
-import { cloneElement, type ReactElement } from "react";
+import { cloneElement } from "react";
 
+import type { FormFieldProps } from "@/components/form/FormField";
+import type { CloneNode } from "@/components/form/types";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
-export type FormFieldPlainProps = {
-	id?: string;
+type FormFieldPlainNodeProps = {
+	id: string;
+	name: string;
+	defaultValue?: string | undefined;
+};
+
+type FormFieldPlainProps = Omit<FormFieldProps<any>, "form" | "name" | "children"> & {
 	name: string;
 	error?: string;
-	label?: string;
-	tooltip?: string;
-	children: ReactElement<
-		{ id: string; name: string; defaultValue?: string | undefined },
-		React.FunctionComponent
-	>;
-	className?: string;
-	sublabel?: string;
-	labelClassName?: string;
-	labelPlacement?: "top" | "left" | "right" | "bottom";
+	defaultValue?: string | undefined;
+	children: CloneNode<FormFieldPlainNodeProps>;
 };
 
 export function FormFieldPlain(props: FormFieldPlainProps) {
 	const id = props.id ?? props.name;
 	const error = props.error;
 
-	const node = cloneElement<{
-		id: string;
-		name: string;
-		className?: string;
-	}>(props.children, {
+	const node = cloneElement<FormFieldPlainNodeProps>(props.children, {
 		id,
 		name: props.name,
+		defaultValue: props.defaultValue,
 	});
 
 	const renderNode = () =>

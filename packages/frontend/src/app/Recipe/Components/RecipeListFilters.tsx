@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import { useRecipeGetArgs } from "@/app/Recipe/Hooks/useRecipeGetArgs";
+import { useRecipeGetArgs } from "@/app/Recipe/useRecipeGetArgs";
 import { FilterSearch } from "@/components/FilterSearch";
 import { FilterSelect } from "@/components/FilterSelect";
 import { useCommonLocale } from "@/hooks/useCommonLocale";

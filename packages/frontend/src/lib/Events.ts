@@ -1,13 +1,13 @@
 import React from "react";
 
 export namespace Events {
-	export type Factory<E, ArgsT extends any[]> = (...args: ArgsT) => (e: E) => void;
+	export type Factory<E, Args extends any[]> = (...args: Args) => (e: E) => void;
 
-	function createFactory<EventT, ArgsT extends any[]>(
-		cb: (e: EventT, ...args: ArgsT) => void,
-	): Factory<EventT, ArgsT> {
-		return (...args: ArgsT) =>
-			(e: EventT) => {
+	export function createFactory<E, Args extends any[]>(
+		cb: (e: E, ...args: Args) => void,
+	): Factory<E, Args> {
+		return (...args: Args) =>
+			(e: E) => {
 				cb(e, ...args);
 			};
 	}
@@ -58,5 +58,14 @@ export namespace Events {
 		cb: (e: BlurChangeEvent<E>, ...args: T) => void,
 	) {
 		return createFactory<BlurChangeEvent<E>, T>(cb);
+	}
+
+	export type DragEvent<E = HTMLElement> = React.DragEvent<E>;
+	export type DragFactory<T extends any[] = any[], E = HTMLElement> = Factory<DragEvent<E>, T>;
+
+	export function drag<T extends any[] = any[], E = HTMLInputElement>(
+		cb: (e: DragEvent<E>, ...args: T) => void,
+	) {
+		return createFactory<DragEvent<E>, T>(cb);
 	}
 }

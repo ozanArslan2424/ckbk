@@ -1,8 +1,6 @@
-import { useMutation } from "@tanstack/react-query";
 import { HeartIcon, PencilIcon } from "lucide-react";
 
 import { useAppContext } from "@/app/AppContext";
-import { useRecipeGetArgs } from "@/app/Recipe/Hooks/useRecipeGetArgs";
 import { useDate } from "@/hooks/useDate";
 import { useLocale } from "@/hooks/useLocale";
 import type { Entities } from "@/lib/CorpusApi";
@@ -11,13 +9,13 @@ import { cn } from "@/lib/utils";
 
 type RecipeCardProps = {
 	recipe: Entities.Recipe;
+	onClickLikeFactory: Events.Factory<Events.ClickEvent, [Entities.Recipe]>;
 	onClickViewFactory: Events.Factory<Events.ClickEvent<HTMLDivElement>, [Entities.Recipe]>;
 	onClickUpdateFactory: Events.Factory<Events.ClickEvent, [Entities.Recipe]>;
 };
 
 export function RecipeCard(props: RecipeCardProps) {
-	const { recipeGetArgs } = useRecipeGetArgs();
-	const { recipeClient, store } = useAppContext();
+	const { store } = useAppContext();
 	const { timestamp } = useDate();
 	const { txt } = useLocale("app", {
 		yourRecipe: ["yourRecipe"],
@@ -25,25 +23,20 @@ export function RecipeCard(props: RecipeCardProps) {
 		updatedAt: ["updatedAt", { date: timestamp(props.recipe.updatedAt).short }],
 	});
 
-	const likeCount = props.recipe.likeCount ?? 0;
-	const isLiked = props.recipe.isLiked ?? false;
-	const isOwner = store.get("auth")?.id === props.recipe.profileId;
+	const recipe = {
+		...props.recipe,
+		likeCount: props.recipe.likeCount ?? 0,
+		isLiked: props.recipe.isLiked ?? false,
+		isOwner: store.get("auth")?.id === props.recipe.profileId,
+	};
 
-	const likeMut = useMutation(recipeClient.like(recipeGetArgs, {}));
-
-	const onClickLikeFactory = Events.click<[Entities.Recipe]>((e, recipe) => {
-		e.preventDefault();
-		e.stopPropagation();
-		likeMut.mutate({ body: { id: recipe.id, isLiked: !props.recipe.isLiked } });
-	});
-
-	const handleClickLike = onClickLikeFactory(props.recipe);
-	const handleClickUpdate = props.onClickUpdateFactory(props.recipe);
-	const handleClickView = props.onClickViewFactory(props.recipe);
+	const handleClickLike = props.onClickLikeFactory(recipe);
+	const handleClickUpdate = props.onClickUpdateFactory(recipe);
+	const handleClickView = props.onClickViewFactory(recipe);
 
 	return (
-		<div className="relative">
-			{isOwner && (
+		<div className="card group hover:border-primary relative cursor-pointer transition-all duration-300">
+			{recipe.isOwner && (
 				<div className="absolute top-2 left-2 z-20 flex items-center gap-2">
 					<div className="bg-accent text-accent-foreground flex items-center justify-center rounded-md px-2.5 py-1.5 text-xs font-semibold tracking-tight">
 						{txt.yourRecipe}
@@ -52,7 +45,7 @@ export function RecipeCard(props: RecipeCardProps) {
 			)}
 
 			<div className="absolute top-2 right-2 z-20 flex items-center gap-2">
-				{isOwner && (
+				{recipe.isOwner && (
 					<button type="button" onClick={handleClickUpdate} className="secondary sm">
 						<span className="text-xs font-semibold">{txt.update}</span>
 						<PencilIcon className="size-3!" />
@@ -60,26 +53,25 @@ export function RecipeCard(props: RecipeCardProps) {
 				)}
 
 				<button type="button" onClick={handleClickLike} className="sm secondary">
-					{likeCount > 0 && <span className="text-xs font-semibold tabular-nums">{likeCount}</span>}
+					{recipe.likeCount > 0 && (
+						<span className="text-xs font-semibold tabular-nums">{recipe.likeCount}</span>
+					)}
 
 					<HeartIcon
 						className={cn(
 							"size-4! transition-colors",
-							isLiked ? "fill-current" : "stroke-current opacity-70 group-hover:opacity-100",
+							recipe.isLiked ? "fill-current" : "stroke-current opacity-70 group-hover:opacity-100",
 						)}
 					/>
 				</button>
 			</div>
 
-			<div
-				onClick={handleClickView}
-				className="card group hover:border-primary cursor-pointer transition-all duration-300"
-			>
+			<div onClick={handleClickView}>
 				<div className="relative h-48 overflow-hidden">
-					{props.recipe.image ? (
+					{recipe.image ? (
 						<img
-							src={props.recipe.image}
-							alt={props.recipe.title}
+							src={recipe.image}
+							alt={recipe.title}
 							className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 						/>
 					) : (
@@ -101,8 +93,8 @@ export function RecipeCard(props: RecipeCardProps) {
 					)}
 				</div>
 				<article>
-					<h2 className="mb-1 truncate">{props.recipe.title}</h2>
-					<p className="line-clamp-2 min-h-10 text-sm opacity-80">{props.recipe.description}</p>
+					<h2 className="mb-1 truncate">{recipe.title}</h2>
+					<p className="line-clamp-2 min-h-10 text-sm opacity-80">{recipe.description}</p>
 				</article>
 				<footer className="flex items-center justify-between">
 					<span className="text-muted-foreground font-mono text-xs">{txt.updatedAt}</span>

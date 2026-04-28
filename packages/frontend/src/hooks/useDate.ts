@@ -1,25 +1,8 @@
 import dayjs from "dayjs";
-import advancedFormat from "dayjs/plugin/advancedFormat";
-import "dayjs/locale/tr";
-import "dayjs/locale/en";
-import isBetween from "dayjs/plugin/isBetween";
-import relativeTime from "dayjs/plugin/relativeTime";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
-import { useTranslation } from "react-i18next";
 
 type DInput = dayjs.ConfigType;
 
 export function useDate() {
-	const { i18n } = useTranslation();
-
-	dayjs.extend(advancedFormat);
-	dayjs.extend(utc);
-	dayjs.extend(timezone);
-	dayjs.extend(isBetween);
-	dayjs.extend(relativeTime);
-	dayjs.locale(i18n.language);
-
 	const timestamp = (date?: DInput) => ({
 		now: dayjs(new Date()),
 		iso: dayjs(date).toISOString(),

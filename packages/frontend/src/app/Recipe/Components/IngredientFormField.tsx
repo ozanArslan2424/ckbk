@@ -1,25 +1,22 @@
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import { useState, useRef, useId } from "react";
+import { useId } from "react";
 
 import { useAppContext } from "@/app/AppContext";
-import type { IngredientComplete } from "@/app/Ingredient/Types/IngredientComplete";
+import type { IngredientPatch, IngredientDraft } from "@/app/Ingredient/IngredientComplete";
 import { Combobox } from "@/components/form/Combobox";
 import { useLocale } from "@/hooks/useLocale";
-import type { Entities } from "@/lib/CorpusApi";
 import { Events } from "@/lib/Events";
 import { TXT } from "@/lib/TXT";
 
 type IngredientFormFieldProps = {
-	ingredientCount: number;
-	ingredient: IngredientComplete | undefined;
-	usedIngredients: IngredientComplete[];
-	onComplete: (ingredient: IngredientComplete) => void;
+	ingredient: IngredientDraft | undefined;
+	usedIngredients: IngredientDraft[];
+	onChange: (patch: IngredientPatch) => void;
 };
 
 export function IngredientFormField(props: IngredientFormFieldProps) {
+	const { materialClient, measurementClient } = useAppContext();
 	const uid = useId();
-
-	const submittedRef = useRef(false);
 
 	const { txt } = useLocale("app", {
 		materialLabel: ["form.material.label"],
@@ -28,10 +25,6 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 		measurementLabel: ["form.measurement.label"],
 		measurementPlaceholder: ["form.measurement.placeholder"],
 	});
-
-	const { materialClient, measurementClient } = useAppContext();
-
-	const [ingredient, setIngredient] = useState<Partial<IngredientComplete>>(props.ingredient ?? {});
 
 	const materialOptions = useSuspenseQuery({
 		...materialClient.list({}),
@@ -46,7 +39,7 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 			{},
 			{
 				onSuccess: (res) => {
-					updateIngredient({ materialId: res.id });
+					props.onChange({ materialId: res.id });
 				},
 			},
 		),
@@ -65,47 +58,16 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 			{},
 			{
 				onSuccess: (res) => {
-					updateIngredient({ measurementId: res.id });
+					props.onChange({ measurementId: res.id });
 				},
 			},
 		),
 	);
 
-	const trySubmit = (next: Partial<Entities.Ingredient>) => {
-		if (
-			submittedRef.current ||
-			!next.materialId ||
-			!next.measurementId ||
-			next.quantity === undefined ||
-			next.quantity <= 0 ||
-			!Number.isFinite(next.quantity)
-		) {
-			return;
-		}
-
-		submittedRef.current = true;
-
-		props.onComplete({
-			id: props.ingredient?.id ?? -props.ingredientCount,
-			materialId: next.materialId,
-			measurementId: next.measurementId,
-			quantity: next.quantity,
-		});
-	};
-
-	const updateIngredient = (partial: Partial<Entities.Ingredient>) => {
-		submittedRef.current = false;
-		setIngredient((prev) => {
-			const next = { ...prev, ...partial };
-			trySubmit(next);
-			return next;
-		});
-	};
-
 	const handleChangeQuantity = Events.blurChange((e) => {
 		const value = parseFloat(e.target.value);
 		if (TXT.isDefined(e.target.value) && Number.isFinite(value) && value > 0) {
-			updateIngredient({ quantity: value });
+			props.onChange({ quantity: value });
 		}
 	})();
 
@@ -114,7 +76,7 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 	};
 
 	const handleChangeMaterial = (value: string | null) => {
-		if (value) updateIngredient({ materialId: parseInt(value) });
+		if (value) props.onChange({ materialId: parseInt(value) });
 	};
 
 	const handleCreateMeasurement = (title: string) => {
@@ -122,17 +84,15 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 	};
 
 	const handleChangeMeasurement = (value: string | null) => {
-		if (value) updateIngredient({ measurementId: parseInt(value) });
+		if (value) props.onChange({ measurementId: parseInt(value) });
 	};
 
 	return (
 		<div className="grid grid-cols-12">
 			<div className="col-span-5">
-				<label htmlFor={`${uid}-ma`} className="text-muted-foreground text-xs font-semibold">
-					{txt.materialLabel}
-				</label>
+				<label className="text-muted-foreground text-xs font-semibold">{txt.materialLabel}</label>
 				<Combobox
-					value={ingredient.materialId?.toString()}
+					value={props.ingredient?.materialId?.toString()}
 					className="rounded-r-none"
 					id={`${uid}-ma`}
 					name={`${uid}-ma`}
@@ -143,9 +103,7 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 				/>
 			</div>
 			<div className="col-span-3">
-				<label htmlFor={`${uid}-q`} className="text-muted-foreground text-xs font-semibold">
-					{txt.quantityLabel}
-				</label>
+				<label className="text-muted-foreground text-xs font-semibold">{txt.quantityLabel}</label>
 				<input
 					className="rounded-none"
 					id={`${uid}-q`}
@@ -153,17 +111,17 @@ export function IngredientFormField(props: IngredientFormFieldProps) {
 					type="number"
 					step="0.25"
 					min="0"
-					value={ingredient.quantity}
+					value={props.ingredient?.quantity ?? ""}
 					onChange={handleChangeQuantity}
 					onBlur={handleChangeQuantity}
 				/>
 			</div>
 			<div className="col-span-4">
-				<label htmlFor={`${uid}-me`} className="text-muted-foreground text-xs font-semibold">
+				<label className="text-muted-foreground text-xs font-semibold">
 					{txt.measurementLabel}
 				</label>
 				<Combobox
-					value={ingredient.measurementId?.toString()}
+					value={props.ingredient?.measurementId?.toString()}
 					className="rounded-l-none"
 					id={`${uid}-me`}
 					name={`${uid}-me`}

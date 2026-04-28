@@ -19,33 +19,33 @@ export class MaterialClient {
 		});
 	}
 
-	list(materialGetArgs: Args.MaterialGet) {
+	list(args: Args.MaterialGet) {
 		return this.queryClient.makeQuery({
-			queryKey: [this.api.endpoints.materialGet, materialGetArgs],
-			queryFn: async () => this.api.materialGet(materialGetArgs),
+			queryKey: [this.api.endpoints.materialGet, args],
+			queryFn: async () => this.api.materialGet(args),
 		});
 	}
 
-	create(materialGetArgs: Args.MaterialGet, materialPostMutArgs: MutArgs<Models.MaterialPost>) {
-		const queryKey = [this.api.endpoints.materialGet, materialGetArgs];
-		const defaultData = this.listDefaultData;
+	create(args: Args.MaterialGet, opts: MutArgs<Models.MaterialPost>) {
+		const q = this.list(args);
+
 		return this.queryClient.makeOptimisticMutation<Models.MaterialPost>({
 			mutationFn: this.api.materialPost,
-			...materialPostMutArgs,
+			...opts,
 			onMutate: (vars) => {
-				const snapshot = this.queryClient.readQueryData(queryKey, defaultData);
+				const snapshot = this.queryClient.readQueryData(q.queryKey, this.listDefaultData);
 				const placeholders = snapshot.filter(({ id }) => id < 0);
 				const minId = placeholders.reduce((min, { id }) => Math.min(min, id), 0);
 				const id = minId - 1;
 				const updated = [this.createPlaceholder({ ...vars.body, id }), ...snapshot];
-				this.queryClient.setQueryData(queryKey, updated);
+				this.queryClient.setQueryData(q.queryKey, updated);
 				return {
 					succeed: (data) =>
-						this.queryClient.updateQueryData(queryKey, defaultData, (prev) =>
+						this.queryClient.updateQueryData(q.queryKey, this.listDefaultData, (prev) =>
 							prev.map((mat) => (mat.id === id ? data : mat)),
 						),
 					fail: () =>
-						this.queryClient.updateQueryData(queryKey, defaultData, (prev) =>
+						this.queryClient.updateQueryData(q.queryKey, this.listDefaultData, (prev) =>
 							prev.filter((mat) => mat.id !== id),
 						),
 				};

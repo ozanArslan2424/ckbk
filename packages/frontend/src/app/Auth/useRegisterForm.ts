@@ -10,7 +10,11 @@ import { routes } from "@/router";
 
 export function useRegisterForm() {
 	const { authClient } = useAppContext();
-	const { t } = useLocale("auth");
+	const { txt, changeLanguage, language } = useLocale("auth", {
+		nameErr: ["register.name.error"],
+		emailErr: ["register.email.error"],
+		passwordErr: ["register.password.error"],
+	});
 	const nav = useNavigate();
 	const mutation = useMutation(
 		authClient.register({
@@ -25,19 +29,21 @@ export function useRegisterForm() {
 
 	const form = useForm({
 		schema: type({
-			name: type("string >= 1").configure({
-				message: t("register.name.error"),
-			}),
-			email: type("string.email").configure({
-				message: t("register.email.error"),
-			}),
-			password: type("string >= 8").configure({
-				message: t("register.password.error"),
-			}),
+			name: type("string >= 1").configure({ message: txt.nameErr }),
+			email: type("string.email").configure({ message: txt.emailErr }),
+			password: type("string >= 8").configure({ message: txt.passwordErr }),
+			language: "'tr'|'en'",
 		}),
 		onSubmit: ({ values }) => mutation.mutate({ body: values }),
 		mutation,
+		defaultValues: {
+			language: language as "tr" | "en",
+		},
 	});
 
-	return form;
+	function handleLanguageChange(lang: "tr" | "en") {
+		changeLanguage(lang);
+	}
+
+	return { ...form, handleLanguageChange };
 }

@@ -20,36 +20,33 @@ export class StepClient {
 		});
 	}
 
-	listByRecipeId(stepByRecipeIdGetArgs: Args.StepByRecipeIdGet) {
+	listByRecipeId(args: Args.StepByRecipeIdGet) {
 		return this.queryClient.makeQuery({
-			queryKey: [
-				this.api.endpoints.stepByRecipeIdGet(stepByRecipeIdGetArgs.params),
-				stepByRecipeIdGetArgs,
-			],
-			queryFn: async () => this.api.stepByRecipeIdGet(stepByRecipeIdGetArgs),
+			queryKey: [this.api.endpoints.stepByRecipeIdGet(args.params), args],
+			queryFn: async () => this.api.stepByRecipeIdGet(args),
 		});
 	}
 
-	create(stepByRecipeIdGetArgs: Args.StepByRecipeIdGet, stepPostMutArgs: MutArgs<Models.StepPost>) {
-		const queryKey = [this.api.endpoints.stepByRecipeIdGet(stepByRecipeIdGetArgs.params)];
-		const defaultData = this.listDefaultData;
+	create(args: Args.StepByRecipeIdGet, opts: MutArgs<Models.StepPost>) {
+		const q = this.listByRecipeId(args);
+
 		return this.queryClient.makeOptimisticMutation<Models.StepPost>({
 			mutationFn: this.api.stepPost,
-			...stepPostMutArgs,
+			...opts,
 			onMutate: (vars) => {
-				const snapshot = this.queryClient.readQueryData(queryKey, defaultData);
+				const snapshot = this.queryClient.readQueryData(q.queryKey, this.listDefaultData);
 				const placeholders = snapshot.filter(({ id }) => id < 0);
 				const minId = placeholders.reduce((min, { id }) => Math.min(min, id), 0);
 				const id = minId - 1;
 				const updated = [this.createPlaceholder({ ...vars.body, id }), ...snapshot];
-				this.queryClient.setQueryData(queryKey, updated);
+				this.queryClient.setQueryData(q.queryKey, updated);
 				return {
 					succeed: (data) =>
-						this.queryClient.updateQueryData(queryKey, defaultData, (prev) =>
+						this.queryClient.updateQueryData(q.queryKey, this.listDefaultData, (prev) =>
 							prev.map((mat) => (mat.id === id ? data : mat)),
 						),
 					fail: () =>
-						this.queryClient.updateQueryData(queryKey, defaultData, (prev) =>
+						this.queryClient.updateQueryData(q.queryKey, this.listDefaultData, (prev) =>
 							prev.filter((mat) => mat.id !== id),
 						),
 				};
@@ -57,35 +54,29 @@ export class StepClient {
 		});
 	}
 
-	clearList(stepByRecipeIdGetArgs: Args.StepByRecipeIdGet) {
-		const queryKey = [
-			this.api.endpoints.stepByRecipeIdGet(stepByRecipeIdGetArgs.params),
-			stepByRecipeIdGetArgs,
-		];
-		return this.queryClient.updateQueryData(queryKey, this.listDefaultData, () => []);
+	clearList(args: Args.StepByRecipeIdGet) {
+		const q = this.listByRecipeId(args);
+
+		return this.queryClient.updateQueryData(q.queryKey, this.listDefaultData, () => []);
 	}
 
-	addToList(stepByRecipeIdGetArgs: Args.StepByRecipeIdGet, step: Entities.Step) {
-		const queryKey = [
-			this.api.endpoints.stepByRecipeIdGet(stepByRecipeIdGetArgs.params),
-			stepByRecipeIdGetArgs,
-		];
-		return this.queryClient.updateQueryData(queryKey, this.listDefaultData, (prev) => [
+	addToList(args: Args.StepByRecipeIdGet, step: Entities.Step) {
+		const q = this.listByRecipeId(args);
+
+		return this.queryClient.updateQueryData(q.queryKey, this.listDefaultData, (prev) => [
 			...prev,
 			step,
 		]);
 	}
 
 	updateInList(
-		stepByRecipeIdGetArgs: Args.StepByRecipeIdGet,
+		args: Args.StepByRecipeIdGet,
 		id: Entities.Step["id"],
 		updater: (prev: Entities.Step) => Entities.Step,
 	) {
-		const queryKey = [
-			this.api.endpoints.stepByRecipeIdGet(stepByRecipeIdGetArgs.params),
-			stepByRecipeIdGetArgs,
-		];
-		return this.queryClient.updateQueryData(queryKey, this.listDefaultData, (prev) =>
+		const q = this.listByRecipeId(args);
+
+		return this.queryClient.updateQueryData(q.queryKey, this.listDefaultData, (prev) =>
 			prev.map((mat) => (mat.id === id ? updater(mat) : mat)),
 		);
 	}

@@ -23,7 +23,7 @@ export namespace Schema {
 					? "_root"
 					: issue.path
 							.map((segment) =>
-								isObjectWith<{ key: string }>(segment, "key")
+								isObjectWith(segment, "key", "string")
 									? String(segment.key)
 									: String(segment as string),
 							)

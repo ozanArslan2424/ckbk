@@ -23,42 +23,33 @@ export class IngredientClient {
 		});
 	}
 
-	listByRecipeId(ingredientByRecipeIdGetArgs: Args.IngredientByRecipeIdGet) {
+	listByRecipeId(args: Args.IngredientByRecipeIdGet) {
 		return this.queryClient.makeQuery({
-			queryKey: [
-				this.api.endpoints.ingredientByRecipeIdGet(ingredientByRecipeIdGetArgs.params),
-				ingredientByRecipeIdGetArgs,
-			],
-			queryFn: () => this.api.ingredientByRecipeIdGet(ingredientByRecipeIdGetArgs),
+			queryKey: [this.api.endpoints.ingredientByRecipeIdGet(args.params), args],
+			queryFn: () => this.api.ingredientByRecipeIdGet(args),
 		});
 	}
 
-	create(
-		ingredientByRecipeIdGetArgs: Args.IngredientByRecipeIdGet,
-		ingredientPostMutArgs: MutArgs<Models.IngredientPost>,
-	) {
-		const queryKey = [
-			this.api.endpoints.ingredientByRecipeIdGet(ingredientByRecipeIdGetArgs.params),
-			ingredientByRecipeIdGetArgs,
-		];
-		const defaultData = this.listDefaultData;
+	create(args: Args.IngredientByRecipeIdGet, opts: MutArgs<Models.IngredientPost>) {
+		const q = this.listByRecipeId(args);
+
 		return this.queryClient.makeOptimisticMutation<Models.IngredientPost>({
 			mutationFn: this.api.ingredientPost,
-			...ingredientPostMutArgs,
+			...opts,
 			onMutate: (vars) => {
-				const snapshot = this.queryClient.readQueryData(queryKey, defaultData);
+				const snapshot = this.queryClient.readQueryData(q.queryKey, this.listDefaultData);
 				const placeholders = snapshot.filter(({ id }) => id < 0);
 				const minId = placeholders.reduce((min, { id }) => Math.min(min, id), 0);
 				const id = minId - 1;
 				const updated = [this.createPlaceholder({ ...vars.body, id }), ...snapshot];
-				this.queryClient.setQueryData(queryKey, updated);
+				this.queryClient.setQueryData(q.queryKey, updated);
 				return {
 					succeed: (data) =>
-						this.queryClient.updateQueryData(queryKey, defaultData, (prev) =>
+						this.queryClient.updateQueryData(q.queryKey, this.listDefaultData, (prev) =>
 							prev.map((mat) => (mat.id === id ? data : mat)),
 						),
 					fail: () =>
-						this.queryClient.updateQueryData(queryKey, defaultData, (prev) =>
+						this.queryClient.updateQueryData(q.queryKey, this.listDefaultData, (prev) =>
 							prev.filter((mat) => mat.id !== id),
 						),
 				};
@@ -66,38 +57,29 @@ export class IngredientClient {
 		});
 	}
 
-	clearList(ingredientByRecipeIdGetArgs: Args.IngredientByRecipeIdGet) {
-		const queryKey = [
-			this.api.endpoints.ingredientByRecipeIdGet(ingredientByRecipeIdGetArgs.params),
-			ingredientByRecipeIdGetArgs,
-		];
-		return this.queryClient.updateQueryData(queryKey, this.listDefaultData, () => []);
+	clearList(args: Args.IngredientByRecipeIdGet) {
+		const q = this.listByRecipeId(args);
+
+		return this.queryClient.updateQueryData(q.queryKey, this.listDefaultData, () => []);
 	}
 
-	addToList(
-		ingredientByRecipeIdGetArgs: Args.IngredientByRecipeIdGet,
-		ingredient: Entities.Ingredient,
-	) {
-		const queryKey = [
-			this.api.endpoints.ingredientByRecipeIdGet(ingredientByRecipeIdGetArgs.params),
-			ingredientByRecipeIdGetArgs,
-		];
-		return this.queryClient.updateQueryData(queryKey, this.listDefaultData, (prev) => [
+	addToList(args: Args.IngredientByRecipeIdGet, ingredient: Entities.Ingredient) {
+		const q = this.listByRecipeId(args);
+
+		return this.queryClient.updateQueryData(q.queryKey, this.listDefaultData, (prev) => [
 			...prev,
 			ingredient,
 		]);
 	}
 
 	updateInList(
-		ingredientByRecipeIdGetArgs: Args.IngredientByRecipeIdGet,
+		args: Args.IngredientByRecipeIdGet,
 		id: Entities.Ingredient["id"],
 		updater: (prev: Entities.Ingredient) => Entities.Ingredient,
 	) {
-		const queryKey = [
-			this.api.endpoints.ingredientByRecipeIdGet(ingredientByRecipeIdGetArgs.params),
-			ingredientByRecipeIdGetArgs,
-		];
-		return this.queryClient.updateQueryData(queryKey, this.listDefaultData, (prev) =>
+		const q = this.listByRecipeId(args);
+
+		return this.queryClient.updateQueryData(q.queryKey, this.listDefaultData, (prev) =>
 			prev.map((mat) => (mat.id === id ? updater(mat) : mat)),
 		);
 	}

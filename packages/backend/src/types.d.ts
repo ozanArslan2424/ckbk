@@ -10,6 +10,7 @@ declare module "@ozanarslan/corpus" {
 		DATABASE_URL: string;
 		JWT_REFRESH_SECRET: string;
 		JWT_ACCESS_SECRET: string;
+		SEED_PWD: string;
 		SMTP_FROM: string;
 		SMTP_HOST: string;
 		SMTP_PORT: string;
@@ -18,6 +19,7 @@ declare module "@ozanarslan/corpus" {
 		LOG_LEVEL: string;
 	}
 	interface ContextDataInterface {
+		locale: string;
 		profile?: AuthType["me"]["response"];
 	}
 }

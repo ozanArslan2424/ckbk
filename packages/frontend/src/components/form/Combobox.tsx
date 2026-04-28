@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 
+import type { OptionType } from "@/components/form/types";
 import { useCommonLocale } from "@/hooks/useCommonLocale";
 import { cn } from "@/lib/utils";
 
-export type ComboboxOption = { value: string; label: string };
-
-type ComboboxProps<O extends ComboboxOption> = {
+type ComboboxProps<O extends OptionType> = {
 	id?: string;
 	name?: string;
 	placeholder?: string;
@@ -21,7 +20,7 @@ type ComboboxProps<O extends ComboboxOption> = {
 	disabled?: boolean;
 };
 
-export function Combobox<O extends ComboboxOption>({
+export function Combobox<O extends OptionType>({
 	id,
 	name,
 	placeholder,

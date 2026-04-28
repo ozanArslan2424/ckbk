@@ -1,34 +1,10 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+import { Help } from "@/lib/Help";
+
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
-}
-
-export function isObjectWith<T extends Record<string, unknown>>(
-	item: unknown,
-	key: keyof T | string,
-): item is T {
-	return !!item && typeof item === "object" && key in item;
-}
-
-export function isObjectWithPath<T extends Record<string, unknown>>(
-	item: unknown,
-	...path: string[]
-): item is T {
-	if (!item || typeof item !== "object") return false;
-
-	let current = item as Record<string, unknown>;
-
-	for (const key of path) {
-		if (!(key in current)) return false;
-		if (typeof current[key] !== "object" || current[key] === null) {
-			return false;
-		}
-		current = current[key] as Record<string, unknown>;
-	}
-
-	return true;
 }
 
 export function repeat(length: number = 4) {
@@ -40,7 +16,9 @@ export function prefixId(id: number | string, prefix?: string): string {
 		return `${prefix}_${id}`;
 	}
 
-	return id.toString().split("_")[1];
+	const noPrefix = id.toString().split("_")[1];
+	Help.assert(noPrefix);
+	return noPrefix;
 }
 
 export function isValidIndex(
@@ -74,24 +52,45 @@ export function getNextIndex(
 	return input;
 }
 
-type ResponseError = { response: { data: { message: string } } };
-type MessageError = { message: string };
+type TypeMap = {
+	string: string;
+	number: number;
+	boolean: boolean;
+	// oxlint-disable-next-line typescript/no-restricted-types
+	object: object;
+	function: (...args: never[]) => unknown;
+	undefined: undefined;
+	bigint: bigint;
+	symbol: symbol;
+	unknown: unknown;
+};
+
+export function isObjectWith<K extends string, T extends keyof TypeMap = "unknown">(
+	item: unknown,
+	key: K,
+	keyType?: Exclude<T, "unknown">,
+): item is Record<K, TypeMap[T]> {
+	if (!item || typeof item !== "object" || !(key in item)) return false;
+	if (keyType && typeof (item as Record<K, unknown>)[key] !== keyType) return false;
+	return true;
+}
 
 export function getErrorMessage(err: unknown): string {
-	if (typeof err === "string") {
-		return err;
-	} else if (isObjectWithPath<ResponseError>(err, "response", "data")) {
-		const data = err.response.data;
-		if (typeof data === "string") {
-			return data;
-		} else if (isObjectWith<MessageError>(data, "message")) {
-			return data.message;
-		} else {
-			return "Unknown error";
-		}
-	} else if (isObjectWith<MessageError>(err, "message")) {
-		return err.message;
-	} else {
-		return "Unknown error";
+	if (typeof err === "string") return err;
+
+	const paths: string[][] = [
+		// regular error
+		["message"],
+		// axios-like error - specific
+		["response", "data", "message"],
+		// axios-like error - ambiguous
+		["response", "data"],
+	];
+
+	for (const path of paths) {
+		const value = path.reduce((acc, key) => (isObjectWith(acc, key) ? acc[key] : undefined), err);
+		if (typeof value === "string") return value;
 	}
+
+	return "unknown";
 }

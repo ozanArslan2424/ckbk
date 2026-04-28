@@ -1,10 +1,10 @@
 import type { UseFormReturn } from "@/hooks/useForm";
 
-type FormRootErrorProps<F> = {
-	form: UseFormReturn<F, any, any, any>;
+type FormRootErrorProps<T> = {
+	form: UseFormReturn<T>;
 };
 
-export function FormRootError<F>(props: FormRootErrorProps<F>) {
+export function FormRootError<T>(props: FormRootErrorProps<T>) {
 	const errors = props.form.errors._root;
 	const errorMessage = errors?.join(", ");
 

@@ -1,8 +1,11 @@
 import type { Entities } from "@/lib/CorpusApi";
 
 declare global {
-	export interface StoreSchema {
+	interface StoreSchema {
 		accessToken: string | null;
 		auth: Entities.Profile | null;
+		locale: string;
 	}
 }
+
+export {};

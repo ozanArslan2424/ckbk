@@ -8,9 +8,9 @@ export class ErrorService {
 	private readonly logger = new Logger(this.constructor.name);
 	constructor(private readonly localeService: LocaleService) {}
 
-	onError(err: Error): C.Res {
+	onError(locale: string, err: Error): C.Res {
 		const { status, key } = this.getStatusAndKey(err);
-		const message = this.localeService.translate("error", key);
+		const message = this.localeService.translate(locale, "error", key);
 		if (status !== C.Status.UNAUTHORIZED) {
 			this.logger.error(err.message);
 		}

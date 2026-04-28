@@ -4,15 +4,17 @@ import { Link } from "react-router";
 import { useRegisterForm } from "@/app/Auth/useRegisterForm";
 import { FormField } from "@/components/form/FormField";
 import { FormRootError } from "@/components/form/FormRootError";
+import { RadioGrid } from "@/components/form/RadioGrid";
 import { useLocale } from "@/hooks/useLocale";
 import { routes } from "@/router";
 
 export function RegisterPage() {
-	const { txt } = useLocale("auth", {
+	const { t, txt } = useLocale("auth", {
 		title: ["register.title"],
 		emailLabel: ["register.email.label"],
 		nameLabel: ["register.name.label"],
 		passwordLabel: ["register.password.label"],
+		languageLabel: ["register.language.label"],
 		submitLabel: ["register.submit"],
 		backToLoginLabel: ["register.haveAccount"],
 	});
@@ -21,20 +23,29 @@ export function RegisterPage() {
 	const fields = form.createFields([
 		{
 			name: "name",
-			children: <input autoComplete="name" type="text" placeholder={txt.nameLabel} required />,
+			label: txt.nameLabel,
+			children: <input autoComplete="name" type="text" required />,
 		},
 		{
 			name: "email",
-			children: <input autoComplete="email" type="email" placeholder={txt.emailLabel} required />,
+			label: txt.emailLabel,
+			children: <input autoComplete="email" type="email" required />,
 		},
 		{
 			name: "password",
+			label: txt.passwordLabel,
+			children: <input autoComplete="new-password" type="password" required />,
+		},
+		{
+			name: "language",
+			label: txt.languageLabel,
 			children: (
-				<input
-					autoComplete="new-password"
-					type="password"
-					placeholder={txt.passwordLabel}
-					required
+				<RadioGrid
+					onChange={form.handleLanguageChange}
+					options={(["tr", "en"] as const).map((l) => ({
+						value: l,
+						label: t(`register.language.options.${l}`),
+					}))}
 				/>
 			),
 		},
@@ -42,10 +53,6 @@ export function RegisterPage() {
 
 	return (
 		<>
-			<header className="flex flex-col items-center gap-1">
-				<h1 className="text-center text-2xl font-bold">{txt.title}</h1>
-			</header>
-
 			<form className="flex flex-col gap-4" {...form.methods}>
 				<FormRootError form={form} />
 

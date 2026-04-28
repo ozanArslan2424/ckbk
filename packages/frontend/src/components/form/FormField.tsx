@@ -1,25 +1,25 @@
-import { cloneElement, type ReactElement } from "react";
+import { cloneElement } from "react";
 
+import type { CloneNode } from "@/components/form/types";
 import { Tooltip } from "@/components/ui/tooltip";
 import type { UseFormReturn } from "@/hooks/useForm";
 import { cn } from "@/lib/utils";
 
-type NodeName<F> = keyof F extends string ? keyof F : never;
+type FormFieldNodeName<F> = keyof F extends string ? keyof F : never;
 
-type NodeProps<F> = {
+type FormFieldNodeProps<F> = {
 	id: string;
-	name: NodeName<F>;
-	defaultValue?: string | NonNullable<Partial<F>[NodeName<F>]>;
-	className?: string;
+	name: FormFieldNodeName<F>;
+	defaultValue?: string | NonNullable<Partial<F>[FormFieldNodeName<F>]>;
 };
 
-export type FormFieldProps<F> = {
+export type FormFieldProps<T> = {
 	id?: string;
-	name: NodeName<F>;
+	name: FormFieldNodeName<T>;
 	label?: string;
 	tooltip?: string;
-	form: UseFormReturn<F, any, any, any>;
-	children: ReactElement<NodeProps<F>, React.FunctionComponent>;
+	form: UseFormReturn<T>;
+	children: CloneNode<FormFieldNodeProps<T>>;
 	className?: string;
 	sublabel?: string;
 	labelClassName?: string;
@@ -30,7 +30,7 @@ export function FormField<F>(props: FormFieldProps<F>) {
 	const id = props.id ?? props.name;
 	const error = props.form.errors[props.name as keyof typeof props.form.errors];
 
-	const node = cloneElement<NodeProps<F>>(props.children, {
+	const node = cloneElement<FormFieldNodeProps<F>>(props.children, {
 		id,
 		name: props.name,
 		defaultValue: props.form.defaultValues?.[props.name] ?? "",

@@ -1,4 +1,6 @@
-import type { IngredientComplete } from "@/app/Ingredient/Types/IngredientComplete";
+import { PlusIcon } from "lucide-react";
+
+import type { useCookbookForm } from "@/app/Cookbook/useCookbookForm";
 import { IngredientFormField } from "@/app/Recipe/Components/IngredientFormField";
 import { useCardDeckContext } from "@/components/cards/CardDeck";
 import { FormCard } from "@/components/form/FormCard";
@@ -8,14 +10,10 @@ import { useLocale } from "@/hooks/useLocale";
 import { repeat } from "@/lib/utils";
 
 type IngredientFormProps = {
-	addDisabled: boolean;
-	ingredients: IngredientComplete[];
-	ingredientCount: number;
-	onAddIngredient: () => void;
-	onCompleteIngredient: (ingredient: IngredientComplete) => void;
+	form: ReturnType<typeof useCookbookForm>;
 };
 
-export function RecipeFormPartTwo(props: IngredientFormProps) {
+export function RecipeFormPartTwo({ form }: IngredientFormProps) {
 	const { txt: txtCommon } = useCommonLocale();
 	const { txt } = useLocale("app", {
 		addIngredient: ["form.ingredient.add"],
@@ -29,7 +27,7 @@ export function RecipeFormPartTwo(props: IngredientFormProps) {
 			title={txt.ingredients}
 			cornerSlot={
 				<span className="bg-secondary text-secondary-foreground rounded-full px-2 py-0.5 text-xs font-medium">
-					{props.ingredientCount}
+					{form.ingredientCount}
 				</span>
 			}
 			footer={
@@ -42,7 +40,7 @@ export function RecipeFormPartTwo(props: IngredientFormProps) {
 						<Tooltip tip={txt.minIngredientTip}>
 							<button
 								type="button"
-								disabled={props.ingredients.length < 1}
+								disabled={form.ingredients.length < 1 || form.ingredientAddDisabled}
 								onClick={ctx.onNext}
 								className="w-max"
 							>
@@ -53,33 +51,22 @@ export function RecipeFormPartTwo(props: IngredientFormProps) {
 				) : null
 			}
 		>
-			{repeat(props.ingredientCount).map((i) => (
+			{repeat(form.ingredientCount).map((i) => (
 				<IngredientFormField
 					key={i}
-					ingredientCount={props.ingredientCount}
-					usedIngredients={props.ingredients}
-					ingredient={props.ingredients[i]}
-					onComplete={props.onCompleteIngredient}
+					ingredient={form.ingredients[i]}
+					usedIngredients={form.ingredients.filter((_, idx) => idx !== i)}
+					onChange={(patch) => form.handlePatchIngredient(i, patch)}
 				/>
 			))}
 
 			<button
 				type="button"
 				className="secondary"
-				onClick={props.onAddIngredient}
-				disabled={props.addDisabled}
+				onClick={form.handleAddIngredient}
+				disabled={form.ingredientAddDisabled}
 			>
-				<svg
-					className="size-4"
-					width="16"
-					height="16"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					strokeWidth="1.5"
-				>
-					<path d="M12 5v14M5 12h14" />
-				</svg>
+				<PlusIcon />
 				{txt.addIngredient}
 			</button>
 		</FormCard>

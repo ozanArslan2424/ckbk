@@ -41,10 +41,6 @@ export function LoginPage() {
 
 	return (
 		<>
-			<header className="flex flex-col items-center gap-1">
-				<h1 className="text-center text-2xl font-bold">{txt.title}</h1>
-			</header>
-
 			<form className="flex flex-col gap-4" {...form.methods}>
 				<FormRootError form={form} />
 

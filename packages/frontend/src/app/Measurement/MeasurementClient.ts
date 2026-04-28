@@ -19,36 +19,33 @@ export class MeasurementClient {
 		});
 	}
 
-	list(measurementGetArgs: Args.MeasurementGet) {
+	list(args: Args.MeasurementGet) {
 		return this.queryClient.makeQuery({
-			queryKey: [this.api.endpoints.measurementGet, measurementGetArgs],
-			queryFn: async () => this.api.measurementGet(measurementGetArgs),
+			queryKey: [this.api.endpoints.measurementGet, args],
+			queryFn: async () => this.api.measurementGet(args),
 		});
 	}
 
-	create(
-		measurementGetArgs: Args.MeasurementGet,
-		measurementPostMutArgs: MutArgs<Models.MeasurementPost>,
-	) {
-		const queryKey = [this.api.endpoints.measurementGet, measurementGetArgs];
-		const defaultData = this.listDefaultData;
+	create(args: Args.MeasurementGet, opts: MutArgs<Models.MeasurementPost>) {
+		const q = this.list(args);
+
 		return this.queryClient.makeOptimisticMutation<Models.MeasurementPost>({
 			mutationFn: this.api.measurementPost,
-			...measurementPostMutArgs,
+			...opts,
 			onMutate: (vars) => {
-				const snapshot = this.queryClient.readQueryData(queryKey, defaultData);
+				const snapshot = this.queryClient.readQueryData(q.queryKey, this.listDefaultData);
 				const placeholders = snapshot.filter(({ id }) => id < 0);
 				const minId = placeholders.reduce((min, { id }) => Math.min(min, id), 0);
 				const id = minId - 1;
 				const updated = [this.createPlaceholder({ ...vars.body, id }), ...snapshot];
-				this.queryClient.setQueryData(queryKey, updated);
+				this.queryClient.setQueryData(q.queryKey, updated);
 				return {
 					succeed: (data) =>
-						this.queryClient.updateQueryData(queryKey, defaultData, (prev) =>
+						this.queryClient.updateQueryData(q.queryKey, this.listDefaultData, (prev) =>
 							prev.map((mat) => (mat.id === id ? data : mat)),
 						),
 					fail: () =>
-						this.queryClient.updateQueryData(queryKey, defaultData, (prev) =>
+						this.queryClient.updateQueryData(q.queryKey, this.listDefaultData, (prev) =>
 							prev.filter((mat) => mat.id !== id),
 						),
 				};

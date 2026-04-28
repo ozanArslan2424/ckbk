@@ -10,7 +10,10 @@ import { routes } from "@/router";
 
 export function useLoginForm() {
 	const { authClient } = useAppContext();
-	const { t } = useLocale("auth");
+	const { txt } = useLocale("auth", {
+		emailError: ["login.email.error"],
+		passwordError: ["login.password.error"],
+	});
 	const nav = useNavigate();
 	const mutation = useMutation(
 		authClient.login({
@@ -25,21 +28,14 @@ export function useLoginForm() {
 
 	const form = useForm({
 		schema: type({
-			email: type("string.email").configure({
-				message: t("login.email.error"),
-			}),
+			email: type("string.email").configure({ message: txt.emailError }),
 			password: type("string >= 8").configure({
-				message: t("login.password.error"),
+				message: txt.passwordError,
 			}),
 		}),
 		onSubmit: ({ values }) => mutation.mutate({ body: values }),
 		mutation,
-		defaultValues: import.meta.env.DEV
-			? {
-					email: "ozan@cookbook.app",
-					password: "123456789",
-				}
-			: {},
+		defaultValues: import.meta.env.DEV ? { email: "ozan@cookbook.app", password: "123456789" } : {},
 	});
 
 	return form;

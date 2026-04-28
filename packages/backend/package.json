@@ -17,17 +17,17 @@
 		"api:gen": "corpus api"
 	},
 	"dependencies": {
-		"@ozanarslan/corpus": "^0.5.9",
+		"@ozanarslan/corpus": "^0.5.10",
 		"@prisma/adapter-libsql": "^7.8.0",
 		"@prisma/client": "^7.8.0",
 		"arktype": "^2.2.0",
 		"jsonwebtoken": "^9.0.3",
 		"log4js": "^6.9.1",
-		"nodemailer": "^8.0.6",
+		"nodemailer": "^8.0.7",
 		"typescript": "^6.0.3"
 	},
 	"devDependencies": {
-		"@ozanarslan/corpus-cli": "^0.5.9",
+		"@ozanarslan/corpus-cli": "^0.5.10",
 		"@types/bun": "^1.3.13",
 		"@types/jsonwebtoken": "^9.0.10",
 		"@types/nodemailer": "^8.0.0",
