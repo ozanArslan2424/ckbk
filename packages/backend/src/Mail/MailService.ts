@@ -66,14 +66,14 @@ export class MailService {
 		html,
 	}: {
 		toEmail: string;
-		toName: string;
+		toName?: string;
 		subject: string;
 		text: string;
 		html?: string;
 	}): Promise<unknown> {
 		return this.transporter.sendMail({
 			from: `"${X.Config.get("APP_NAME")}" <${X.Config.get("SMTP_USER")}>`,
-			to: `"${toName || ""}" <${toEmail}>`,
+			to: `"${toName ?? ""}" <${toEmail}>`,
 			subject,
 			text,
 			html,
@@ -92,7 +92,7 @@ export class MailService {
 			variables,
 		}: {
 			toEmail: string;
-			toName: string;
+			toName?: string;
 			translator: TranslatorCollectionKey;
 			htmlTemplateName?: string;
 			textTemplateName: string;

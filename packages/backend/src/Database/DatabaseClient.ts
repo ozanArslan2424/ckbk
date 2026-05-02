@@ -5,20 +5,20 @@ import { PrismaClient } from "prisma/generated/client";
 import { Logger } from "@/Logger/Logger";
 
 export class DatabaseClient extends PrismaClient {
-	private readonly logger = new Logger("Database");
+	private readonly logger = new Logger(this.constructor.name);
 
 	constructor() {
 		const url = X.Config.get("DATABASE_URL");
 		super({ adapter: new PrismaLibSql({ url }) });
 	}
 
-	async connect(): Promise<void> {
+	override async $connect(): Promise<void> {
 		const maxAttempts = 3;
 		const baseDelay = 1000; // 1 second
 
 		for (let attempt = 1; attempt <= maxAttempts; attempt++) {
 			try {
-				await this.$connect();
+				await super.$connect();
 				this.logger.log("✅ DB Client Connected");
 				return;
 			} catch (err) {
@@ -42,8 +42,8 @@ export class DatabaseClient extends PrismaClient {
 		}
 	}
 
-	async disconnect(): Promise<void> {
-		await this.$disconnect();
+	override async $disconnect(): Promise<void> {
+		await super.$disconnect();
 		this.logger.log("❌ DB Client Disconnected");
 	}
 

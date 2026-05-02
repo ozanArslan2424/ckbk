@@ -8,6 +8,7 @@ import type {
 import qs from "qs";
 
 import type { RequestDescriptor } from "@/lib/CorpusApi";
+import type { SimpleStore } from "@/lib/SimpleStore";
 
 interface SendArgs<B> {
 	url: string;
@@ -27,15 +28,14 @@ interface RequestInterface {
 	send: <D, B>(args: SendArgs<B>) => Promise<D>;
 }
 
-interface RequestConfig {
+interface Options {
 	baseURL: string;
 	timeout?: number;
 	withCredentials?: boolean;
 	refreshIgnoredEndpoints: string[];
 	onTokenRefresh: (axiosInstance: AxiosInstance) => Promise<string>;
 	onBeforeRequest?: (config: InternalAxiosRequestConfig) => void | Promise<void>;
-	getAccessToken: () => string | null;
-	setAccessToken: (value: string | null) => void;
+	accessTokenStore: SimpleStore<string>;
 }
 
 export class RequestClient implements RequestInterface {
@@ -43,24 +43,22 @@ export class RequestClient implements RequestInterface {
 	private isRefreshing = false;
 	private failedQueue: ((token: string) => void)[] = [];
 
-	private readonly baseURL: RequestConfig["baseURL"];
-	private readonly timeout?: RequestConfig["timeout"];
-	private readonly withCredentials?: RequestConfig["withCredentials"];
-	private readonly refreshIgnoredEndpoints: RequestConfig["refreshIgnoredEndpoints"];
-	private readonly onTokenRefresh: RequestConfig["onTokenRefresh"];
-	private readonly onBeforeRequest?: RequestConfig["onBeforeRequest"];
-	private readonly getAccessToken: RequestConfig["getAccessToken"];
-	private readonly setAccessToken: RequestConfig["setAccessToken"];
+	private readonly baseURL: Options["baseURL"];
+	private readonly timeout?: Options["timeout"];
+	private readonly withCredentials?: Options["withCredentials"];
+	private readonly refreshIgnoredEndpoints: Options["refreshIgnoredEndpoints"];
+	private readonly onTokenRefresh: Options["onTokenRefresh"];
+	private readonly onBeforeRequest?: Options["onBeforeRequest"];
+	private readonly accessTokenStore: Options["accessTokenStore"];
 
-	constructor(config: RequestConfig) {
-		this.baseURL = config.baseURL;
-		this.timeout = config.timeout ?? 10000;
-		this.withCredentials = config.withCredentials ?? false;
-		this.refreshIgnoredEndpoints = config.refreshIgnoredEndpoints;
-		this.onTokenRefresh = config.onTokenRefresh;
-		this.onBeforeRequest = config.onBeforeRequest;
-		this.getAccessToken = config.getAccessToken;
-		this.setAccessToken = config.setAccessToken;
+	constructor(options: Options) {
+		this.baseURL = options.baseURL;
+		this.timeout = options.timeout ?? 10000;
+		this.withCredentials = options.withCredentials ?? false;
+		this.refreshIgnoredEndpoints = options.refreshIgnoredEndpoints;
+		this.onTokenRefresh = options.onTokenRefresh;
+		this.onBeforeRequest = options.onBeforeRequest;
+		this.accessTokenStore = options.accessTokenStore;
 
 		this.instance = this.createInstance();
 		this.attachRequestInterceptor();
@@ -86,7 +84,7 @@ export class RequestClient implements RequestInterface {
 		this.instance.interceptors.request.use(
 			async (c: InternalAxiosRequestConfig) => {
 				const config = c;
-				const token = this.getAccessToken();
+				const token = this.accessTokenStore.get();
 				if (token) config.headers.Authorization = this.bearer(token);
 				await this.onBeforeRequest?.(config);
 				return config;
@@ -123,12 +121,14 @@ export class RequestClient implements RequestInterface {
 
 				try {
 					this.isRefreshing = true;
-					this.setAccessToken(null);
-					const newToken = await this.onTokenRefresh(this.instance);
-					this.setAccessToken(newToken);
-					this.instance.defaults.headers.common.Authorization = this.bearer(newToken);
-					config.headers.Authorization = this.bearer(newToken);
-					this.processQueue(newToken);
+					this.accessTokenStore.set(null);
+					const newAccessToken = await this.onTokenRefresh(this.instance);
+
+					this.accessTokenStore.set(newAccessToken);
+					this.instance.defaults.headers.common.Authorization = this.bearer(newAccessToken);
+					config.headers.Authorization = this.bearer(newAccessToken);
+
+					this.processQueue(newAccessToken);
 					return await this.instance(config);
 				} catch (refreshErr) {
 					this.failedQueue = [];

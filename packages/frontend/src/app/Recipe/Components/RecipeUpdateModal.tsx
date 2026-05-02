@@ -5,10 +5,10 @@ import { RecipeFormPartOne } from "@/app/Recipe/Components/RecipeFormPartOne";
 import { RecipeFormPartThree } from "@/app/Recipe/Components/RecipeFormPartThree";
 import { RecipeFormPartTwo } from "@/app/Recipe/Components/RecipeFormPartTwo";
 import { Modal } from "@/components/modals/Modal";
-import { useLocale } from "@/hooks/useLocale";
 import type { ModalState } from "@/hooks/useModal";
 import type { Entities } from "@/lib/CorpusApi";
 import { Events } from "@/lib/Events";
+import { useLocale } from "@/locale/useLocale";
 
 type Props = {
 	modal: ModalState<Entities.Cookbook>;

@@ -5,10 +5,10 @@ import { RecipeCard } from "@/app/Recipe/Components/RecipeCard";
 import { RecipeCardSkeleton } from "@/app/Recipe/Components/RecipeCardSkeleton";
 import { ErrorCard } from "@/components/cards/ErrorCard";
 import { ScrollLoaderCard } from "@/components/cards/ScrollLoaderCard";
-import { useCommonLocale } from "@/hooks/useCommonLocale";
 import type { Entities, Models } from "@/lib/CorpusApi";
 import type { Events } from "@/lib/Events";
 import { repeat } from "@/lib/utils";
+import { useCommonLocale } from "@/locale/useCommonLocale";
 
 type Props = {
 	query: UseInfiniteQueryResult<InfiniteData<Models.RecipeGet["response"]>>;

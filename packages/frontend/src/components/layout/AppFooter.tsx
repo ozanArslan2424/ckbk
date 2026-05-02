@@ -1,5 +1,5 @@
-import { useCommonLocale } from "@/hooks/useCommonLocale";
 import { CONFIG } from "@/lib/CONFIG";
+import { useCommonLocale } from "@/locale/useCommonLocale";
 
 export function AppFooter() {
 	const { txt } = useCommonLocale();

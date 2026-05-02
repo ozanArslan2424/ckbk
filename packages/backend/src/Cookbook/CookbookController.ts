@@ -1,19 +1,14 @@
-import { C, type ContextDataInterface } from "@ozanarslan/corpus";
+import { C } from "@ozanarslan/corpus";
 
 import { CookbookModel } from "@/Cookbook/CookbookModel";
 import type { CookbookService } from "@/Cookbook/CookbookService";
+import { ProfileService } from "@/Profile/ProfileService";
 
 export class CookbookController extends C.Controller {
 	constructor(private readonly service: CookbookService) {
 		super();
 	}
 	override prefix?: string | undefined = "/cookbook";
-
-	guard(profile?: ContextDataInterface["profile"]): asserts profile {
-		if (!profile) {
-			throw new C.Exception("Unauthorized", C.Status.UNAUTHORIZED);
-		}
-	}
 
 	get = this.route(
 		{ method: "GET", path: "/:id" },
@@ -24,7 +19,7 @@ export class CookbookController extends C.Controller {
 	create = this.route(
 		{ method: "POST", path: "/" },
 		(c) => {
-			this.guard(c.data.profile);
+			ProfileService.assertProfile(c.data.profile);
 			return this.service.create(c.body, c.data.profile);
 		},
 		CookbookModel.create,
@@ -33,7 +28,7 @@ export class CookbookController extends C.Controller {
 	update = this.route(
 		{ method: "PUT", path: "/:id" },
 		(c) => {
-			this.guard(c.data.profile);
+			ProfileService.assertProfile(c.data.profile);
 			return this.service.update(c.params, c.body, c.data.profile);
 		},
 		CookbookModel.update,

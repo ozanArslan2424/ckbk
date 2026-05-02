@@ -3,8 +3,8 @@ import { LoaderIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { useInView } from "react-intersection-observer";
 
-import { useCommonLocale } from "@/hooks/useCommonLocale";
 import { cn } from "@/lib/utils";
+import { useCommonLocale } from "@/locale/useCommonLocale";
 
 type ScrollLoaderCardProps<T> = {
 	query: UseInfiniteQueryResult<T>;

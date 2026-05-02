@@ -1,18 +1,16 @@
 import type { Prisma } from "prisma/generated/browser";
 
-import { CookbookEntity } from "@/Cookbook/CookbookEntity";
 import type { CookbookType } from "@/Cookbook/CookbookModel";
+import { CookbookEntity } from "@/Cookbook/entities/CookbookEntity";
 import type { DatabaseClient } from "@/Database/DatabaseClient";
-import type { ProfileEntity } from "@/Profile/ProfileEntity";
+import type { ProfileEntity } from "@/Profile/entities/ProfileEntity";
+import { RecipeException } from "@/Recipe/RecipeException";
 
 export class CookbookService {
 	constructor(private readonly db: DatabaseClient) {}
 
-	async get(
-		params: CookbookType["get"]["params"],
-		profile?: ProfileEntity,
-	): Promise<CookbookType["get"]["response"]> {
-		const recipe = await this.db.recipe.findUniqueOrThrow({
+	async get(params: CookbookType["get"]["params"], profile?: ProfileEntity) {
+		const recipe = await this.db.recipe.findUnique({
 			where: { id: params.id },
 			include: {
 				likes: { select: { profileId: true } },
@@ -22,6 +20,10 @@ export class CookbookService {
 				steps: true,
 			},
 		});
+
+		if (!recipe) {
+			throw RecipeException.notFound;
+		}
 
 		return new CookbookEntity({
 			...recipe,
@@ -35,15 +37,15 @@ export class CookbookService {
 		});
 	}
 
-	async create(
-		body: CookbookType["create"]["body"],
-		profile: ProfileEntity,
-	): Promise<CookbookType["create"]["response"]> {
+	async create(body: CookbookType["create"]["body"], profile: ProfileEntity) {
+		const language = profile.language;
 		let image: string | undefined;
+
 		if (body.image) {
 			const base64 = Buffer.from(await body.image.arrayBuffer()).toString("base64");
 			image = `data:${body.image.type};base64,${base64}`;
 		}
+
 		const result = await this.db.$transaction(async (tx) => {
 			const recipe = await tx.recipe.create({
 				data: {
@@ -52,14 +54,15 @@ export class CookbookService {
 					profileId: profile.id,
 					isPublic: body.isPublic,
 					image,
+					language,
 				},
 			});
 			await Promise.all([
 				tx.ingredient.createMany({
-					data: body.ingredients.map((it) => ({ ...it, recipeId: recipe.id })),
+					data: body.ingredients.map((it) => ({ ...it, recipeId: recipe.id, language })),
 				}),
 				tx.step.createMany({
-					data: body.steps.map((it) => ({ ...it, recipeId: recipe.id })),
+					data: body.steps.map((it) => ({ ...it, recipeId: recipe.id, language })),
 				}),
 			]);
 			return tx.recipe.findUniqueOrThrow({
@@ -88,7 +91,8 @@ export class CookbookService {
 		params: CookbookType["update"]["params"],
 		body: CookbookType["update"]["body"],
 		profile: ProfileEntity,
-	): Promise<CookbookType["update"]["response"]> {
+	) {
+		const language = profile.language;
 		const data: Prisma.RecipeUpdateArgs["data"] = {};
 
 		if (body.title) data.title = body.title;
@@ -109,7 +113,7 @@ export class CookbookService {
 			data.ingredients ??= {};
 			data.ingredients.connectOrCreate = body.newIngredients.map((it) => ({
 				where: { recipeId_materialId: { recipeId: params.id, materialId: it.materialId } },
-				create: it,
+				create: { ...it, language },
 			}));
 		}
 
@@ -123,7 +127,7 @@ export class CookbookService {
 
 		if (body.newSteps?.length) {
 			data.steps ??= {};
-			data.steps.create = body.newSteps.map((it) => it);
+			data.steps.create = body.newSteps.map((it) => ({ ...it, language }));
 		}
 
 		const recipe = await this.db.recipe.update({

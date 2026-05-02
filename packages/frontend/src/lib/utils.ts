@@ -79,12 +79,12 @@ export function getErrorMessage(err: unknown): string {
 	if (typeof err === "string") return err;
 
 	const paths: string[][] = [
-		// regular error
-		["message"],
 		// axios-like error - specific
 		["response", "data", "message"],
 		// axios-like error - ambiguous
 		["response", "data"],
+		// regular error
+		["message"],
 	];
 
 	for (const path of paths) {

@@ -22,17 +22,17 @@ export class ErrorService {
 		let key: string = err.message;
 
 		if (err instanceof Prisma.PrismaClientKnownRequestError) {
-			key = this.getPrismaErrorKey(err.code);
-			status = this.getPrismaErrorStatus(err.code);
+			key = `prisma.${err.code}`;
+			status = this.prismaStatus[err.code] ?? C.Status.BAD_REQUEST;
 		} else if (err instanceof Prisma.PrismaClientInitializationError) {
-			key = this.getPrismaErrorKey("connection");
+			key = "prisma.connection";
 		} else if (err instanceof Prisma.PrismaClientUnknownRequestError) {
-			key = this.getPrismaErrorKey("unknown");
+			key = "prisma.unknown";
 		} else if (err instanceof Prisma.PrismaClientValidationError) {
-			key = this.getPrismaErrorKey("validation");
+			key = "prisma.validation";
 			status = C.Status.BAD_REQUEST;
 		} else if (err instanceof Prisma.PrismaClientRustPanicError) {
-			key = this.getPrismaErrorKey("rustPanic");
+			key = "prisma.rustPanic";
 		} else if (err instanceof C.Exception) {
 			key = err.message;
 			status = err.status;
@@ -53,12 +53,4 @@ export class ErrorService {
 		P2014: C.Status.BAD_REQUEST,
 		P2025: C.Status.NOT_FOUND,
 	};
-
-	private getPrismaErrorStatus(code: string) {
-		return this.prismaStatus[code] ?? C.Status.BAD_REQUEST;
-	}
-
-	private getPrismaErrorKey(code: string) {
-		return `prisma.${code}`;
-	}
 }

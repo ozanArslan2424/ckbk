@@ -1,5 +1,7 @@
 import { createBrowserRouter } from "react-router";
 
+import { CreateProfilePage } from "@/pages/CreateProfilePage";
+
 import { AppLayout } from "./components/layout/AppLayout";
 import { AuthLayout } from "./components/layout/AuthLayout";
 import { ErrorBoundary } from "./components/layout/ErrorBoundary";
@@ -17,6 +19,7 @@ export const routes = {
 	login: "/login",
 	register: "/register",
 	verify: "/verify",
+	createProfile: "/create-profile",
 };
 
 export const router = createBrowserRouter([
@@ -38,6 +41,7 @@ export const router = createBrowserRouter([
 					{ path: routes.login, Component: LoginPage },
 					{ path: routes.register, Component: RegisterPage },
 					{ path: routes.verify, Component: VerifyPage },
+					{ path: routes.createProfile, Component: CreateProfilePage },
 				],
 			},
 			// Fallback route for 404 pages

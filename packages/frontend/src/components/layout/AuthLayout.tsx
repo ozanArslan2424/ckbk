@@ -1,10 +1,10 @@
-import { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router";
 
-import { useAppContext } from "@/app/AppContext";
+import { useAuthGuard } from "@/app/Auth/useAuthGuard";
+import { PendingCard } from "@/components/cards/PendingCard";
 import { AppHeader } from "@/components/layout/AppHeader";
-import { useLocale } from "@/hooks/useLocale";
 import { CONFIG } from "@/lib/CONFIG";
+import { useLocale } from "@/locale/useLocale";
 import { routes } from "@/router";
 
 export function AuthLayout() {
@@ -14,20 +14,21 @@ export function AuthLayout() {
 	const { txt } = useLocale("auth", {
 		tosLabel: ["tos.label"],
 	});
+
 	const nav = useNavigate();
-	const { queryClient, authClient, store } = useAppContext();
+	const { isPending } = useAuthGuard({
+		onSuccess() {
+			void nav(routes.dashboard);
+		},
+	});
 
-	useEffect(() => {
-		async function init() {
-			try {
-				const res = await queryClient.fetchQuery(authClient.queryMe({}));
-				store.set("auth", res);
-				await nav(routes.dashboard);
-			} catch {}
-		}
-
-		void init();
-	}, [queryClient, authClient, store, nav]);
+	if (isPending) {
+		return (
+			<div className="flex min-h-screen items-center justify-center">
+				<PendingCard />
+			</div>
+		);
+	}
 
 	return (
 		<>

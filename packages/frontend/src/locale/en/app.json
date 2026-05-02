@@ -1,7 +1,9 @@
 {
 	"create": "Create new recipe",
 	"update": "Update",
+	"noChanges": "No changes made",
 	"yourRecipe": "Your Recipe",
+	"privateRecipe": "Private",
 	"updatedAt": "Updated {{date}}",
 	"recipe": "Recipe",
 	"steps": "Steps",
@@ -85,5 +87,11 @@
 		"all": "All",
 		"me": "Yours",
 		"others": "Not Yours"
+	},
+
+	"isLikedFilter": {
+		"label": "Like Status",
+		"true": "Show all",
+		"false": "Only likes"
 	}
 }

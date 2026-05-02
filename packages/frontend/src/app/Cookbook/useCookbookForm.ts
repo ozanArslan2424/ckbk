@@ -7,9 +7,9 @@ import type { IngredientDraft, IngredientPatch } from "@/app/Ingredient/Ingredie
 import { isIngredientComplete } from "@/app/Ingredient/IngredientComplete";
 import { useRecipeGetArgs } from "@/app/Recipe/useRecipeGetArgs";
 import { isStepComplete, type StepDraft } from "@/app/Step/StepComplete";
-import { useLocale } from "@/hooks/useLocale";
 import { Entities } from "@/lib/CorpusApi";
 import { Help } from "@/lib/Help";
+import { useLocale } from "@/locale/useLocale";
 
 type State = {
 	ingredients: IngredientDraft[];
@@ -146,8 +146,10 @@ function reducer(st: State, act: Action): State {
 export function useCookbookForm(onSuccess?: () => void, onReset?: () => void) {
 	const [state, dispatch] = useReducer(reducer, initialState);
 	const { recipeGetArgs } = useRecipeGetArgs();
-	const { cookbookClient, recipeClient, ingredientClient, stepClient } = useAppContext();
+	const { cookbookClient, recipeClient, ingredientClient, stepClient, profileClient } =
+		useAppContext();
 	const { txt } = useLocale("app", {
+		noChanges: ["noChanges"],
 		createSuccess: ["success.create"],
 		updateSuccess: ["success.update"],
 	});
@@ -159,6 +161,7 @@ export function useCookbookForm(onSuccess?: () => void, onReset?: () => void) {
 				onSuccess?.();
 				dispatch({ type: "RESET" });
 				recipeClient.addToList(recipeGetArgs, res); // extra keys shouldn't be an issue
+				profileClient.addContribution();
 				const otherArgs = { params: { id: res.id } };
 				res.ingredients.forEach((it) => ingredientClient.addToList(otherArgs, it));
 				res.steps.forEach((it) => stepClient.addToList(otherArgs, it));
@@ -230,12 +233,12 @@ export function useCookbookForm(onSuccess?: () => void, onReset?: () => void) {
 
 		const changedIngredients = completeIngredients.filter((i) => {
 			if (i.id < 0) return false;
-			const prev_ = prev.ingredients.find((p) => p.id === i.id);
-			if (!prev_) return false;
+			const p = prev.ingredients.find((p) => p.id === i.id);
+			if (!p) return false;
 			return (
-				prev_.materialId !== i.materialId ||
-				prev_.measurementId !== i.measurementId ||
-				prev_.quantity !== i.quantity
+				p.materialId !== i.materialId ||
+				p.measurementId !== i.measurementId ||
+				p.quantity !== i.quantity
 			);
 		});
 
@@ -248,8 +251,15 @@ export function useCookbookForm(onSuccess?: () => void, onReset?: () => void) {
 		}
 
 		const newIngredients = [...completeIngredients.filter((i) => i.id < 0), ...changedIngredients];
-		for (const [i, { id: _, ...rest }] of newIngredients.entries()) {
-			formData.append(`newIngredients[${i}]`, JSON.stringify(rest));
+		for (const [i, ingredient] of newIngredients.entries()) {
+			formData.append(
+				`newIngredients[${i}]`,
+				JSON.stringify({
+					materialId: ingredient.materialId,
+					measurementId: ingredient.measurementId,
+					quantity: ingredient.quantity,
+				}),
+			);
 		}
 
 		const currStepIds = new Set(completeSteps.map((s) => s.id));
@@ -283,7 +293,10 @@ export function useCookbookForm(onSuccess?: () => void, onReset?: () => void) {
 			newIngredients.length === 0 &&
 			newSteps.length === 0;
 
-		if (hasNoChanges) return;
+		if (hasNoChanges) {
+			toast(txt.noChanges);
+			return;
+		}
 
 		updateMut.mutate({ params: { id: prev.id }, formData });
 	}

@@ -1,4 +1,11 @@
 {
 	"yourRecipes": "Your Recipes",
-	"recentRecipes": "Recent Recipes"
+	"recentRecipes": "Recent Recipes",
+	"stats": {
+		"joined": "Joined on {{date}}",
+		"contributions": "Contributions",
+		"likes": "Likes",
+		"lastActive": "Last active {{date}}",
+		"lastRecipe": "Last recipe on {{date}}"
+	}
 }

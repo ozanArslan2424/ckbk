@@ -20,7 +20,6 @@ export function useLocale<T extends LocaleText>(ns?: NS, localeText?: T) {
 		return new Proxy(target, {
 			get(_, prop: string) {
 				const params = localeText[prop];
-				// oxlint-disable-next-line typescript/no-unnecessary-condition
 				return params ? t(...params) : undefined;
 			},
 			has(_, prop) {

@@ -1,9 +1,8 @@
-import { C } from "@ozanarslan/corpus";
-
 import type { DatabaseClient } from "@/Database/DatabaseClient";
-import { IngredientEntity } from "@/Ingredient/IngredientEntity";
+import { IngredientEntity } from "@/Ingredient/entities/IngredientEntity";
+import { IngredientException } from "@/Ingredient/IngredientException";
 import type { IngredientType } from "@/Ingredient/IngredientModel";
-import type { ProfileEntity } from "@/Profile/ProfileEntity";
+import type { ProfileEntity } from "@/Profile/entities/ProfileEntity";
 
 export class IngredientService {
 	constructor(private readonly db: DatabaseClient) {}
@@ -16,11 +15,11 @@ export class IngredientService {
 			where: { id: body.recipeId, profileId: profile.id },
 		});
 		if (!recipe) {
-			throw new C.Exception("Cannot add ingredients to someone else's recipe.", C.Status.FORBIDDEN);
+			throw IngredientException.differentOwner;
 		}
 
 		const ingredient = await this.db.ingredient.create({
-			data: body,
+			data: { ...body, language: profile.language },
 			include: { material: { select: { title: true } }, measurement: { select: { title: true } } },
 		});
 
@@ -40,7 +39,7 @@ export class IngredientService {
 			where: { id: body.recipeId, profileId: profile.id },
 		});
 		if (!recipe) {
-			throw new C.Exception("Cannot add ingredients to someone else's recipe.", C.Status.FORBIDDEN);
+			throw IngredientException.differentOwner;
 		}
 
 		const ingredient = await this.db.ingredient.update({

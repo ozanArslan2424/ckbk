@@ -1,3 +1,4 @@
+import { ThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router";
@@ -13,9 +14,16 @@ function App() {
 	return (
 		<NuqsAdapter>
 			<AppContextProvider>
-				<ColorRegister />
-				<Toaster richColors position="top-right" />
-				<RouterProvider router={router} />
+				<ThemeProvider
+					attribute="class"
+					defaultTheme="system"
+					enableSystem
+					disableTransitionOnChange
+				>
+					<ColorRegister />
+					<Toaster richColors position="top-center" />
+					<RouterProvider router={router} />
+				</ThemeProvider>
 			</AppContextProvider>
 		</NuqsAdapter>
 	);

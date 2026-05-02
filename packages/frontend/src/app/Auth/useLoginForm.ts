@@ -4,15 +4,14 @@ import { useNavigate } from "react-router";
 
 import { useAppContext } from "@/app/AppContext";
 import { useForm } from "@/hooks/useForm";
-import { useLocale } from "@/hooks/useLocale";
-import { getErrorMessage } from "@/lib/utils";
+import { useLocale } from "@/locale/useLocale";
 import { routes } from "@/router";
 
 export function useLoginForm() {
 	const { authClient } = useAppContext();
 	const { txt } = useLocale("auth", {
-		emailError: ["login.email.error"],
-		passwordError: ["login.password.error"],
+		emailErr: ["login.email.error"],
+		passwordErr: ["login.password.error"],
 	});
 	const nav = useNavigate();
 	const mutation = useMutation(
@@ -21,16 +20,16 @@ export function useLoginForm() {
 				await nav(routes.dashboard);
 			},
 			onError(err) {
-				form.setRootError(getErrorMessage(err));
+				form.setRootError(err);
 			},
 		}),
 	);
 
 	const form = useForm({
 		schema: type({
-			email: type("string.email").configure({ message: txt.emailError }),
+			email: type("string.email").configure({ message: txt.emailErr }),
 			password: type("string >= 8").configure({
-				message: txt.passwordError,
+				message: txt.passwordErr,
 			}),
 		}),
 		onSubmit: ({ values }) => mutation.mutate({ body: values }),

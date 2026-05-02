@@ -4,10 +4,10 @@ import type { useCookbookForm } from "@/app/Cookbook/useCookbookForm";
 import { useCardDeckContext } from "@/components/cards/CardDeck";
 import { FormCard } from "@/components/form/FormCard";
 import { Tooltip } from "@/components/ui/tooltip";
-import { useCommonLocale } from "@/hooks/useCommonLocale";
 import { useDragDrop } from "@/hooks/useDragDrop";
-import { useLocale } from "@/hooks/useLocale";
 import { cn, repeat } from "@/lib/utils";
+import { useCommonLocale } from "@/locale/useCommonLocale";
+import { useLocale } from "@/locale/useLocale";
 
 type StepFormProps = {
 	form: ReturnType<typeof useCookbookForm>;

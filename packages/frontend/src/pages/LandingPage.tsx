@@ -3,8 +3,8 @@ import { Link } from "react-router";
 
 import { useAppContext } from "@/app/AppContext";
 import { PageContent } from "@/components/layout/PageContent";
-import { useLocale } from "@/hooks/useLocale";
 import { CONFIG } from "@/lib/CONFIG";
+import { useLocale } from "@/locale/useLocale";
 import { routes } from "@/router";
 
 export function LandingPage() {
@@ -24,8 +24,8 @@ export function LandingPage() {
 		footnote: ["footnote"],
 	});
 
-	const { authClient } = useAppContext();
-	const meQuery = useQuery(authClient.queryMe({}));
+	const { profileClient } = useAppContext();
+	const meQuery = useQuery(profileClient.get({}));
 	const me = meQuery.data;
 
 	return (

@@ -21,7 +21,7 @@ export type LocaleOpt = keyof typeof locales;
 
 export type NS = keyof (typeof locales)["en"];
 
-export const LANG_OPTIONS = ["en", "tr"] satisfies LocaleOpt[];
+export const LOCALE_OPTIONS = ["en", "tr"] satisfies LocaleOpt[];
 
 let initialized = false;
 

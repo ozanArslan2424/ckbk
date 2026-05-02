@@ -2,7 +2,7 @@
 
 @layer base {
 	.card {
-		@apply bg-card text-card-foreground flex flex-col overflow-hidden rounded-lg border shadow-xs;
+		@apply bg-card text-card-foreground border-border/50 flex flex-col overflow-hidden rounded-lg border shadow-xs;
 
 		h1:not(.unset) {
 			@apply text-2xl font-black;

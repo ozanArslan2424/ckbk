@@ -1,5 +1,14 @@
 import "@ozanarslan/corpus";
-import type { AuthType } from "@/Auth/AuthModel";
+import jwt from "jsonwebtoken";
+
+import type { ProfileEntity } from "@/Profile/entities/ProfileEntity";
+
+declare module "jsonwebtoken" {
+	interface JwtPayload {
+		userId: string;
+		email: string;
+	}
+}
 
 declare module "@ozanarslan/corpus" {
 	interface Env {
@@ -18,15 +27,10 @@ declare module "@ozanarslan/corpus" {
 		SMTP_PASS: string;
 		LOG_LEVEL: string;
 	}
-	interface ContextDataInterface {
+	export interface ContextDataInterface {
 		locale: string;
-		profile?: AuthType["me"]["response"];
-	}
-}
-
-declare module "jsonwebtoken" {
-	interface JwtPayload {
-		userId: string;
+		profile?: ProfileEntity;
+		jwtPayload?: jwt.JwtPayload;
 	}
 }
 

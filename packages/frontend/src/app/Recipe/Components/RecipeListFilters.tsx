@@ -3,22 +3,24 @@ import { useMemo } from "react";
 import { useRecipeGetArgs } from "@/app/Recipe/useRecipeGetArgs";
 import { FilterSearch } from "@/components/FilterSearch";
 import { FilterSelect } from "@/components/FilterSelect";
-import { useCommonLocale } from "@/hooks/useCommonLocale";
-import { useLocale } from "@/hooks/useLocale";
+import { FilterToggle } from "@/components/FilterToggle";
 import type { Args } from "@/lib/CorpusApi";
+import { useCommonLocale } from "@/locale/useCommonLocale";
+import { useLocale } from "@/locale/useLocale";
 
 type Props = {
 	onChangeSortBy: (value: Args.RecipeGet["search"]["sortBy"] | null) => void;
 	onChangeSortOrder: (value: Args.RecipeGet["search"]["sortOrder"] | null) => void;
 	onChangeSearch: (value: string) => void;
 	onChangeOwner: (value: Args.RecipeGet["search"]["owner"] | null) => void;
+	onChangeIsLiked: (value: Args.RecipeGet["search"]["isLiked"]) => void;
 };
 
 export function RecipeListFilters(props: Props) {
 	const { txt: txtCommon } = useCommonLocale();
 	const { t, txt } = useLocale("app", {
 		ownerFilterLabel: ["ownerFilter.label"],
-		ownerFilterInnerText: ["ownerFilter.innerText"],
+		isLikedFilterLabel: ["isLikedFilter.label"],
 	});
 	const { recipeGetArgs } = useRecipeGetArgs();
 
@@ -68,6 +70,13 @@ export function RecipeListFilters(props: Props) {
 				value={recipeGetArgs.search.owner}
 				onChange={props.onChangeOwner}
 				options={OWNER_OPTIONS}
+			/>
+
+			<FilterToggle
+				label={txt.isLikedFilterLabel}
+				innerText={t(`isLikedFilter.${recipeGetArgs.search.isLiked}`)}
+				value={recipeGetArgs.search.isLiked}
+				onChange={props.onChangeIsLiked}
 			/>
 		</div>
 	);

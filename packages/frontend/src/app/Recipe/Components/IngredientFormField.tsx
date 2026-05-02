@@ -4,9 +4,9 @@ import { useId } from "react";
 import { useAppContext } from "@/app/AppContext";
 import type { IngredientPatch, IngredientDraft } from "@/app/Ingredient/IngredientComplete";
 import { Combobox } from "@/components/form/Combobox";
-import { useLocale } from "@/hooks/useLocale";
 import { Events } from "@/lib/Events";
 import { TXT } from "@/lib/TXT";
+import { useLocale } from "@/locale/useLocale";
 
 type IngredientFormFieldProps = {
 	ingredient: IngredientDraft | undefined;

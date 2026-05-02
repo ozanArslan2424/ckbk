@@ -1,6 +1,8 @@
-import collections from "@/Locale/locales";
+import { getCollections } from "@/Locale/getCollections";
 
-export type TranslatorCollectionKey = keyof typeof collections;
+export type TranslatorCollections = ReturnType<typeof getCollections>;
+
+export type TranslatorCollectionKey = keyof TranslatorCollections;
 
 export type TranslatorCollection = Record<string, Record<string, string>>;
 

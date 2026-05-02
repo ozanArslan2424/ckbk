@@ -1,4 +1,4 @@
-import { useLocale } from "@/hooks/useLocale";
+import { useLocale } from "@/locale/useLocale";
 
 export function useCommonLocale() {
 	return useLocale("common", {

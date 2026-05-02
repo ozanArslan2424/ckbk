@@ -4,6 +4,7 @@ import {
 	parseAsArrayOf,
 	parseAsStringEnum,
 	parseAsInteger,
+	parseAsBoolean,
 } from "nuqs";
 import { useMemo } from "react";
 
@@ -24,6 +25,7 @@ export function useRecipeGetArgs(): UseRecipeGetArgsReturn {
 		sortBy: parseAsStringEnum(["title", "createdAt", "likes", "steps"]).withDefault("createdAt"),
 		sortOrder: parseAsStringEnum(["asc", "desc"]).withDefault("desc"),
 		search: parseAsString.withDefault(""),
+		isLiked: parseAsBoolean.withDefault(false),
 	});
 
 	const recipeGetArgs = useMemo(

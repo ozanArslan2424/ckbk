@@ -139,6 +139,20 @@ namespace Entities {
 			Object.assign(this, values);
 		}
 	} as unknown as new (values: Measurement) => Measurement;
+	export type Stats = {
+		contributionCount: number;
+		image: string | null;
+		joined: string;
+		lastActive: string;
+		lastContribution: string | null;
+		likeCount: number;
+		name: string;
+	};
+	export const Stats = class {
+		constructor(values: Stats) {
+			Object.assign(this, values);
+		}
+	} as unknown as new (values: Stats) => Stats;
 }
 
 namespace Models {
@@ -151,32 +165,16 @@ namespace Models {
 		search?: Record<string, unknown>;
 		response: void;
 	}>;
-	export type AuthMeGet = Prettify<{
+	export type SeedPasswordGet = Prettify<{
 		search?: Record<string, unknown>;
-		response: {
-			createdAt: string;
-			email: string;
-			id: number;
-			image: string | null;
-			name: string;
-			updatedAt: string;
-			emailVerified?: boolean;
-		};
+		params: { password: _Prim };
+		response: void;
 	}>;
 	export type AuthLoginPost = Prettify<
 		{
 			search?: Record<string, unknown>;
 			response: {
 				accessToken: string;
-				profile: {
-					createdAt: string;
-					email: string;
-					id: number;
-					image: string | null;
-					name: string;
-					updatedAt: string;
-					emailVerified?: boolean;
-				};
 				refreshToken: string;
 			};
 		} & (
@@ -203,7 +201,6 @@ namespace Models {
 			| {
 					body: {
 						email: string;
-						name: string;
 						password: string;
 					};
 					formData?: never;
@@ -256,15 +253,6 @@ namespace Models {
 			search?: Record<string, unknown>;
 			response: {
 				accessToken: string;
-				profile: {
-					createdAt: string;
-					email: string;
-					id: number;
-					image: string | null;
-					name: string;
-					updatedAt: string;
-					emailVerified?: boolean;
-				};
 				refreshToken: string;
 			};
 		} & (
@@ -281,6 +269,59 @@ namespace Models {
 			  }
 		)
 	>;
+	export type ProfileGet = Prettify<{
+		search?: Record<string, unknown>;
+		response: {
+			createdAt: string;
+			email: string;
+			id: number;
+			image: string | null;
+			name: string;
+			updatedAt: string;
+			emailVerified?: boolean;
+		};
+	}>;
+	export type ProfilePost = Prettify<
+		{
+			search?: Record<string, unknown>;
+			response: {
+				createdAt: string;
+				email: string;
+				id: number;
+				image: string | null;
+				name: string;
+				updatedAt: string;
+				emailVerified?: boolean;
+			};
+		} & (
+			| {
+					body: {
+						language: "en" | "tr";
+						name: string;
+					};
+					formData?: never;
+			  }
+			| {
+					body?: never;
+					formData: FormData;
+			  }
+		)
+	>;
+	export type ProfileStatsIdGet = Prettify<{
+		search?: Record<string, unknown>;
+		params: {
+			id: number;
+		};
+		response: {
+			contributionCount: number;
+			image: string | null;
+			joined: string;
+			lastActive: string;
+			lastContribution: string | null;
+			likeCount: number;
+			name: string;
+		};
+	}>;
 	export type IngredientPost = Prettify<
 		{
 			search?: Record<string, unknown>;
@@ -481,25 +522,10 @@ namespace Models {
 		} & (
 			| {
 					body: {
-						deletedIngredientIds?: number[];
 						description?: string;
 						image?: unknown;
 						isPublic?: boolean;
-						newIngredients?: {
-							materialId: number;
-							measurementId: number;
-							quantity: number;
-						}[];
-						newSteps?: {
-							body: string;
-							order: number;
-						}[];
 						title?: string;
-						updatedSteps?: {
-							body: string;
-							id: number;
-							order: number;
-						}[];
 					};
 					formData?: never;
 			  }
@@ -511,6 +537,7 @@ namespace Models {
 	>;
 	export type RecipeGet = Prettify<{
 		search: {
+			isLiked?: boolean;
 			limit?: number;
 			materialIds?: number[];
 			owner?: "all" | "me" | "others";
@@ -814,12 +841,15 @@ namespace Models {
 namespace Args {
 	export type _Get = ExtractArgs<Models._Get>;
 	export type HealthGet = ExtractArgs<Models.HealthGet>;
-	export type AuthMeGet = ExtractArgs<Models.AuthMeGet>;
+	export type SeedPasswordGet = ExtractArgs<Models.SeedPasswordGet>;
 	export type AuthLoginPost = ExtractArgs<Models.AuthLoginPost>;
 	export type AuthRegisterPost = ExtractArgs<Models.AuthRegisterPost>;
 	export type AuthLogoutPost = ExtractArgs<Models.AuthLogoutPost>;
 	export type AuthRefreshPost = ExtractArgs<Models.AuthRefreshPost>;
 	export type AuthVerifyPost = ExtractArgs<Models.AuthVerifyPost>;
+	export type ProfileGet = ExtractArgs<Models.ProfileGet>;
+	export type ProfilePost = ExtractArgs<Models.ProfilePost>;
+	export type ProfileStatsIdGet = ExtractArgs<Models.ProfileStatsIdGet>;
 	export type IngredientPost = ExtractArgs<Models.IngredientPost>;
 	export type IngredientIdPut = ExtractArgs<Models.IngredientIdPut>;
 	export type IngredientByRecipeIdGet = ExtractArgs<Models.IngredientByRecipeIdGet>;
@@ -882,12 +912,16 @@ class CorpusApi {
 	public readonly endpoints = {
 		_Get: (p: Args._Get["params"]) => `/${String(p["*"])}`,
 		healthGet: "/api/health",
-		authMeGet: "/api/auth/me",
+		seedPasswordGet: (p: Args.SeedPasswordGet["params"]) => `/api/seed/${String(p.password)}`,
 		authLoginPost: "/api/auth/login",
 		authRegisterPost: "/api/auth/register",
 		authLogoutPost: "/api/auth/logout",
 		authRefreshPost: "/api/auth/refresh",
 		authVerifyPost: "/api/auth/verify",
+		profileGet: "/api/profile",
+		profilePost: "/api/profile",
+		profileStatsIdGet: (p: Args.ProfileStatsIdGet["params"]) =>
+			`/api/profile/stats/${String(p.id)}`,
 		ingredientPost: "/api/ingredient",
 		ingredientIdPut: (p: Args.IngredientIdPut["params"]) => `/api/ingredient/${String(p.id)}`,
 		ingredientByRecipeIdGet: (p: Args.IngredientByRecipeIdGet["params"]) =>
@@ -928,13 +962,13 @@ class CorpusApi {
 		return this.fetchFn<Models.HealthGet["response"]>(req);
 	};
 
-	public authMeGet = (args: Args.AuthMeGet) => {
+	public seedPasswordGet = (args: Args.SeedPasswordGet) => {
 		const req = {
-			endpoint: "/api/auth/me",
+			endpoint: `/api/seed/${String(args.params.password)}`,
 			method: "GET",
 			search: args.search,
 		};
-		return this.fetchFn<Models.AuthMeGet["response"]>(req);
+		return this.fetchFn<Models.SeedPasswordGet["response"]>(req);
 	};
 
 	public authLoginPost = (args: Args.AuthLoginPost) => {
@@ -985,6 +1019,34 @@ class CorpusApi {
 			body: args.body ?? args.formData,
 		};
 		return this.fetchFn<Models.AuthVerifyPost["response"]>(req);
+	};
+
+	public profileGet = (args: Args.ProfileGet) => {
+		const req = {
+			endpoint: "/api/profile",
+			method: "GET",
+			search: args.search,
+		};
+		return this.fetchFn<Models.ProfileGet["response"]>(req);
+	};
+
+	public profilePost = (args: Args.ProfilePost) => {
+		const req = {
+			endpoint: "/api/profile",
+			method: "POST",
+			search: args.search,
+			body: args.body ?? args.formData,
+		};
+		return this.fetchFn<Models.ProfilePost["response"]>(req);
+	};
+
+	public profileStatsIdGet = (args: Args.ProfileStatsIdGet) => {
+		const req = {
+			endpoint: `/api/profile/stats/${String(args.params.id)}`,
+			method: "GET",
+			search: args.search,
+		};
+		return this.fetchFn<Models.ProfileStatsIdGet["response"]>(req);
 	};
 
 	public ingredientPost = (args: Args.IngredientPost) => {

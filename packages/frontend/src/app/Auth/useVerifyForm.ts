@@ -4,8 +4,7 @@ import { useNavigate, useSearchParams } from "react-router";
 
 import { useAppContext } from "@/app/AppContext";
 import { useForm } from "@/hooks/useForm";
-import { useLocale } from "@/hooks/useLocale";
-import { getErrorMessage } from "@/lib/utils";
+import { useLocale } from "@/locale/useLocale";
 import { routes } from "@/router";
 
 export function useVerifyForm() {
@@ -16,10 +15,10 @@ export function useVerifyForm() {
 	const mutation = useMutation(
 		authClient.verify({
 			async onSuccess() {
-				await nav(routes.dashboard);
+				await nav(routes.createProfile);
 			},
 			onError(err) {
-				form.setRootError(getErrorMessage(err));
+				form.setRootError(err);
 			},
 		}),
 	);

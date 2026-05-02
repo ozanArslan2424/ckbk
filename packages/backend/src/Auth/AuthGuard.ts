@@ -1,10 +1,11 @@
 import { C } from "@ozanarslan/corpus";
 
-import type { AuthService } from "@/Auth/AuthService";
+import { AuthException } from "@/Auth/AuthException";
+import type { ProfileService } from "@/Profile/ProfileService";
 
 export class AuthGuard extends C.MiddlewareAbstract {
 	constructor(
-		private readonly service: AuthService,
+		private readonly service: ProfileService,
 		override readonly useOn: C.MiddlewareUseOn,
 	) {
 		super();
@@ -12,6 +13,7 @@ export class AuthGuard extends C.MiddlewareAbstract {
 	}
 
 	override handler: C.MiddlewareHandler = async (c) => {
-		c.data.profile = await this.service.getProfile(c.headers);
+		if (!c.data.jwtPayload) throw AuthException.unauthorized;
+		c.data.profile ??= await this.service.get(c.data.jwtPayload.userId);
 	};
 }

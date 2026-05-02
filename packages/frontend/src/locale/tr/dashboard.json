@@ -1,4 +1,11 @@
 {
-	"yourRecipes": "Sizin Tarifleriniz",
-	"recentRecipes": "Son Tarifler"
+	"yourRecipes": "Tarifleriniz",
+	"recentRecipes": "Son Tarifler",
+	"stats": {
+		"joined": "{{date}} tarihinde katıldı.",
+		"contributions": "Tarif",
+		"likes": "Beğeni",
+		"lastActive": "Son giriş: {{date}}",
+		"lastRecipe": "Son tarif: {{date}}"
+	}
 }

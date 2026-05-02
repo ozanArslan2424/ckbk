@@ -1,29 +1,28 @@
-import type { CorpusApi, Args, Models } from "@/lib/CorpusApi";
+import type { CorpusApi, Models } from "@/lib/CorpusApi";
 import type { MutArgs, QueryClient } from "@/lib/QueryClient";
-import type { Store } from "@/lib/Store";
+import type { SimpleStore } from "@/lib/SimpleStore";
 import { routes } from "@/router";
 
 export class AuthClient {
 	constructor(
 		private readonly api: CorpusApi,
 		private readonly queryClient: QueryClient,
-		private readonly store: Store,
+		private readonly accessTokenStore: SimpleStore<string>,
+		private readonly refreshTokenStore: SimpleStore<string>,
 	) {}
 
 	private setAuthenticatedData(accessToken: string | null, refreshToken: string | null) {
-		this.store.set("accessToken", accessToken);
-		if (refreshToken) {
-			sessionStorage.setItem("refreshToken", refreshToken);
-		} else {
-			sessionStorage.removeItem("refreshToken");
-		}
+		this.accessTokenStore.set(accessToken);
+		this.refreshTokenStore.set(refreshToken);
 	}
 
-	queryMe(args: Args.AuthMeGet) {
-		return this.queryClient.makeQuery({
-			queryKey: [this.api.endpoints.authMeGet, args],
-			queryFn: async () => this.api.authMeGet(args),
-		});
+	async ensureAccessToken() {
+		const accessToken = this.accessTokenStore.get();
+		const refreshToken = this.refreshTokenStore.get();
+		if (!accessToken && refreshToken) {
+			const res = await this.api.authRefreshPost({ body: { refreshToken } });
+			this.setAuthenticatedData(res.accessToken, res.refreshToken);
+		}
 	}
 
 	login(opts?: MutArgs<Models.AuthLoginPost>) {

@@ -1,7 +1,9 @@
 {
 	"create": "Yeni tarif oluştur",
 	"update": "Güncelle",
+	"noChanges": "Bir değişiklik yapılmadı",
 	"yourRecipe": "Sizin tarifiniz",
+	"privateRecipe": "Gizli",
 	"updatedAt": "{{date}} tarihinde güncellendi",
 	"recipe": "Tarif",
 	"steps": "Adımlar",
@@ -85,5 +87,11 @@
 		"all": "Hepsi",
 		"me": "Sizin",
 		"others": "Sizin değil"
+	},
+
+	"isLikedFilter": {
+		"label": "Beğeni Durumu",
+		"true": "Hepsini göster",
+		"false": "Yalnızca beğeniler"
 	}
 }

@@ -1,11 +1,11 @@
-import { HeartIcon, PencilIcon } from "lucide-react";
+import { HeartIcon, LockIcon, PencilIcon } from "lucide-react";
 
 import { useAppContext } from "@/app/AppContext";
 import { useDate } from "@/hooks/useDate";
-import { useLocale } from "@/hooks/useLocale";
 import type { Entities } from "@/lib/CorpusApi";
 import { Events } from "@/lib/Events";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/locale/useLocale";
 
 type RecipeCardProps = {
 	recipe: Entities.Recipe;
@@ -19,17 +19,16 @@ export function RecipeCard(props: RecipeCardProps) {
 	const { timestamp } = useDate();
 	const { txt } = useLocale("app", {
 		yourRecipe: ["yourRecipe"],
+		private: ["privateRecipe"],
 		update: ["update"],
-		updatedAt: ["updatedAt", { date: timestamp(props.recipe.updatedAt).short }],
+		updatedAt: ["updatedAt", { date: timestamp(props.recipe.updatedAt).shortDate }],
 	});
-
 	const recipe = {
 		...props.recipe,
 		likeCount: props.recipe.likeCount ?? 0,
 		isLiked: props.recipe.isLiked ?? false,
 		isOwner: store.get("auth")?.id === props.recipe.profileId,
 	};
-
 	const handleClickLike = props.onClickLikeFactory(recipe);
 	const handleClickUpdate = props.onClickUpdateFactory(recipe);
 	const handleClickView = props.onClickViewFactory(recipe);
@@ -41,9 +40,14 @@ export function RecipeCard(props: RecipeCardProps) {
 					<div className="bg-accent text-accent-foreground flex items-center justify-center rounded-md px-2.5 py-1.5 text-xs font-semibold tracking-tight">
 						{txt.yourRecipe}
 					</div>
+					{!recipe.isPublic && (
+						<div className="bg-secondary text-secondary-foreground flex items-center justify-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-semibold tracking-tight">
+							<LockIcon className="size-3" />
+							{txt.private}
+						</div>
+					)}
 				</div>
 			)}
-
 			<div className="absolute top-2 right-2 z-20 flex items-center gap-2">
 				{recipe.isOwner && (
 					<button type="button" onClick={handleClickUpdate} className="secondary sm">
@@ -51,12 +55,10 @@ export function RecipeCard(props: RecipeCardProps) {
 						<PencilIcon className="size-3!" />
 					</button>
 				)}
-
 				<button type="button" onClick={handleClickLike} className="sm secondary">
 					{recipe.likeCount > 0 && (
 						<span className="text-xs font-semibold tabular-nums">{recipe.likeCount}</span>
 					)}
-
 					<HeartIcon
 						className={cn(
 							"size-4! transition-colors",
@@ -65,7 +67,6 @@ export function RecipeCard(props: RecipeCardProps) {
 					/>
 				</button>
 			</div>
-
 			<div onClick={handleClickView}>
 				<div className="relative h-48 overflow-hidden">
 					{recipe.image ? (

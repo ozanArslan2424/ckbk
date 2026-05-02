@@ -1,18 +1,19 @@
 import type { DatabaseClient } from "@/Database/DatabaseClient";
 import type { MeasurementType } from "@/Measurement/MeasurementModel";
+import type { ProfileEntity } from "@/Profile/entities/ProfileEntity";
 
 export class MeasurementService {
 	constructor(private readonly db: DatabaseClient) {}
 
-	async create(
-		body: MeasurementType["create"]["body"],
-	): Promise<MeasurementType["create"]["response"]> {
+	async create(body: MeasurementType["create"]["body"], profile: ProfileEntity) {
 		return this.db.measurement.create({
-			data: { title: body.title, description: body.description },
+			data: { title: body.title, description: body.description, language: profile.language },
 		});
 	}
 
-	async list(): Promise<MeasurementType["list"]["response"]> {
-		return this.db.measurement.findMany();
+	async list(profile: ProfileEntity) {
+		return this.db.measurement.findMany({
+			where: { language: profile.language },
+		});
 	}
 }

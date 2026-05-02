@@ -2,36 +2,25 @@ import { X } from "@ozanarslan/corpus";
 import { type } from "arktype";
 
 import { BasePaginatedSchema } from "@/Base/BasePaginatedSchema";
-import { IngredientEntity } from "@/Ingredient/IngredientEntity";
-import { RecipeEntity } from "@/Recipe/RecipeEntity";
-import { StepEntity } from "@/Step/StepEntity";
+import { RecipeEntity } from "@/Recipe/entities/RecipeEntity";
 
 export type RecipeType = X.InferModel<typeof RecipeModel>;
 
 export class RecipeModel {
-	static create = {
+	static readonly create = {
 		body: RecipeEntity.schema.pick("title", "description", "isPublic").and({
 			"image?": "File",
 		}),
 		response: RecipeEntity.schema,
 	};
 
-	static update = {
+	static readonly update = {
 		params: type({ id: "number" }),
-		body: this.create.body
-			.and({
-				deletedIngredientIds: "number[]",
-				newIngredients: IngredientEntity.schema
-					.pick("materialId", "measurementId", "quantity")
-					.array(),
-				updatedSteps: StepEntity.schema.pick("id", "order", "body").array(),
-				newSteps: StepEntity.schema.pick("order", "body").array(),
-			})
-			.partial(),
+		body: this.create.body.partial(),
 		response: RecipeEntity.schema,
 	};
 
-	static list = {
+	static readonly list = {
 		search: type({
 			"search?": "string",
 			"page?": "number",
@@ -40,13 +29,14 @@ export class RecipeModel {
 			"sortOrder?": type("'asc'|'desc'"),
 			"sortBy?": type("'createdAt'|'title'|'likes'|'steps'"),
 			"materialIds?": "number[]",
+			"isLiked?": "boolean",
 		}),
 		response: BasePaginatedSchema.and({
 			data: RecipeEntity.schema.array(),
 		}),
 	};
 
-	static listPopular = {
+	static readonly listPopular = {
 		search: type({
 			"page?": "number",
 			"limit?": "number",
@@ -54,7 +44,7 @@ export class RecipeModel {
 		response: RecipeEntity.schema.array(),
 	};
 
-	static like = {
+	static readonly like = {
 		body: RecipeEntity.schema.pick("id").and({ isLiked: "boolean" }),
 		response: RecipeEntity.schema.pick("id"),
 	};

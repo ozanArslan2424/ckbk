@@ -12,7 +12,7 @@ export class UserEntity extends C.Entity({
 		password: "string",
 	}),
 }) {
-	static safeSchema = this.schema.omit("password");
+	static readonly safeSchema = this.schema.omit("password");
 
 	toSafe(entity: UserEntity) {
 		const { password: _, ...safe } = entity;

@@ -10,22 +10,16 @@ export class AuthController extends C.Controller {
 
 	override prefix?: string | undefined = "/auth";
 
-	me = this.route(
-		{ method: "GET", path: "/me" },
-		async (c) => this.authService.getProfile(c.headers),
-		AuthModel.me,
-	);
-
 	login = this.route(
 		{ method: "POST", path: "/login" },
-		async (c) => this.authService.login(c.body),
+		(c) => this.authService.login(c.body),
 		AuthModel.login,
 	);
 
 	register = this.route(
 		{ method: "POST", path: "/register" },
 		async (c) => {
-			await this.authService.register(c.body);
+			await this.authService.register(c.body, c.data.locale);
 			c.res.status = C.Status.CREATED;
 			return { email: c.body.email };
 		},
@@ -34,19 +28,19 @@ export class AuthController extends C.Controller {
 
 	logout = this.route(
 		{ method: "POST", path: "/logout" },
-		async (c) => this.authService.logout(c.body),
+		(c) => this.authService.logout(c.body),
 		AuthModel.logout,
 	);
 
 	refresh = this.route(
 		{ method: "POST", path: "/refresh" },
-		async (c) => this.authService.refresh(c.body),
+		(c) => this.authService.refresh(c.body),
 		AuthModel.refresh,
 	);
 
 	verify = this.route(
 		{ method: "POST", path: "/verify" },
-		async (c) => this.authService.verify(c.body, c.data.locale),
+		(c) => this.authService.verify(c.body),
 		AuthModel.verify,
 	);
 }

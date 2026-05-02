@@ -24,7 +24,7 @@ export function PersonAvatar<
 	return (
 		<div
 			className={cn(
-				"bg-card text-card-foreground inline-flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md text-sm font-bold capitalize no-underline select-none",
+				"bg-secondary text-secondary-foreground inline-flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md text-sm font-bold capitalize no-underline select-none",
 				className,
 			)}
 		>

@@ -1,8 +1,8 @@
 import { C } from "@ozanarslan/corpus";
 import { type } from "arktype";
 
-export class ProfileSummaryEntity extends C.Entity({
-	name: "ProfileSummary",
+export class StatsEntity extends C.Entity({
+	name: "Stats",
 	schema: type({
 		name: "string",
 		image: "string | null",

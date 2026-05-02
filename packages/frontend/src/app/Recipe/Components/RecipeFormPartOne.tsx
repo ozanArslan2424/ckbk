@@ -4,8 +4,8 @@ import { Checkbox } from "@/components/form/Checkbox";
 import { FormCard } from "@/components/form/FormCard";
 import { FormFieldPlain } from "@/components/form/FormFieldPlain";
 import { ImageUpload } from "@/components/form/ImageUpload";
-import { useCommonLocale } from "@/hooks/useCommonLocale";
-import { useLocale } from "@/hooks/useLocale";
+import { useCommonLocale } from "@/locale/useCommonLocale";
+import { useLocale } from "@/locale/useLocale";
 
 type RecipeFormProps = {
 	form: ReturnType<typeof useCookbookForm>;

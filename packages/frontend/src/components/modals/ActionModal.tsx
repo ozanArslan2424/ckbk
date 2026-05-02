@@ -5,8 +5,8 @@ import {
 	CommandItem,
 	CommandList,
 } from "@/components/ui/command";
-import { useCommonLocale } from "@/hooks/useCommonLocale";
 import type { ModalState } from "@/hooks/useModal";
+import { useCommonLocale } from "@/locale/useCommonLocale";
 
 export type Action = {
 	key: string;

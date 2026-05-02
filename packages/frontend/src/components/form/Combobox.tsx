@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 
 import type { OptionType } from "@/components/form/types";
-import { useCommonLocale } from "@/hooks/useCommonLocale";
 import { cn } from "@/lib/utils";
+import { useCommonLocale } from "@/locale/useCommonLocale";
 
 type ComboboxProps<O extends OptionType> = {
 	id?: string;

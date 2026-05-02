@@ -65,7 +65,9 @@ export function DatePicker({
 							type="button"
 							className={cn("outlined w-full justify-between font-normal", className)}
 						>
-							{dateValue ? timestamp(dateValue).shortDate : (placeholder ?? ". . / . . / . . . .")}
+							{dateValue
+								? timestamp(dateValue).numericalDate
+								: (placeholder ?? ". . / . . / . . . .")}
 							<ChevronDownIcon className={cn("transition-all", open ? "rotate-180" : "rotate-0")} />
 						</button>
 					)

@@ -4,14 +4,12 @@ import { useNavigate } from "react-router";
 
 import { useAppContext } from "@/app/AppContext";
 import { useForm } from "@/hooks/useForm";
-import { useLocale } from "@/hooks/useLocale";
-import { getErrorMessage } from "@/lib/utils";
+import { useLocale } from "@/locale/useLocale";
 import { routes } from "@/router";
 
 export function useRegisterForm() {
 	const { authClient } = useAppContext();
-	const { txt, changeLanguage, language } = useLocale("auth", {
-		nameErr: ["register.name.error"],
+	const { txt } = useLocale("auth", {
 		emailErr: ["register.email.error"],
 		passwordErr: ["register.password.error"],
 	});
@@ -22,28 +20,19 @@ export function useRegisterForm() {
 				await nav(`${routes.verify}?email=${res.email}`);
 			},
 			onError(err) {
-				form.setRootError(getErrorMessage(err));
+				form.setRootError(err);
 			},
 		}),
 	);
 
 	const form = useForm({
 		schema: type({
-			name: type("string >= 1").configure({ message: txt.nameErr }),
 			email: type("string.email").configure({ message: txt.emailErr }),
 			password: type("string >= 8").configure({ message: txt.passwordErr }),
-			language: "'tr'|'en'",
 		}),
 		onSubmit: ({ values }) => mutation.mutate({ body: values }),
 		mutation,
-		defaultValues: {
-			language: language as "tr" | "en",
-		},
 	});
 
-	function handleLanguageChange(lang: "tr" | "en") {
-		changeLanguage(lang);
-	}
-
-	return { ...form, handleLanguageChange };
+	return { ...form };
 }

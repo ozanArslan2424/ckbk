@@ -1,22 +1,20 @@
-import { C } from "@ozanarslan/corpus";
-
+import { getCollections } from "@/Locale/getCollections";
 import type {
 	TranslatorCollectionKey,
 	Translator,
 	TranslatorCollection,
+	TranslatorCollections,
 } from "@/Locale/LocaleTypes";
-
-import collections from "./locales";
 
 export class LocaleService {
 	constructor(
 		readonly localeHeader: string = "x-lang",
 		readonly fallback: string = "en-US",
-	) {}
-
-	getLocale(headers: C.Headers) {
-		return headers.get(this.localeHeader) ?? this.fallback;
+	) {
+		this.collections = getCollections();
 	}
+
+	private readonly collections: TranslatorCollections;
 
 	getTranslator(locale: string, collectionKey: TranslatorCollectionKey): Translator {
 		return (key, variables = {}) => {
@@ -30,7 +28,7 @@ export class LocaleService {
 		key: string,
 		variables: Record<string, string> = {},
 	): string {
-		const collection = collections[collectionKey] as TranslatorCollection;
+		const collection = this.collections[collectionKey] as TranslatorCollection;
 		let template = collection[key]?.[locale] ?? key;
 		for (const [varKey, varVal] of Object.entries(variables)) {
 			template = template.replace(new RegExp(`{{${varKey}}}`, "g"), varVal);

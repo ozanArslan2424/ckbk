@@ -1,28 +1,35 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
 
 import { useAppContext } from "@/app/AppContext";
-import { routes } from "@/router";
 
-export function useAuthGuard() {
-	const navigate = useNavigate();
-	const { queryClient, authClient, store } = useAppContext();
+export function useAuthGuard({
+	onSuccess,
+	onError,
+}: {
+	onSuccess?: () => void;
+	onError?: () => void;
+}) {
+	const { queryClient, profileClient, store, authClient } = useAppContext();
 	const [isPending, setIsPending] = useState(true);
 
 	useEffect(() => {
 		async function init() {
 			try {
-				const res = await queryClient.fetchQuery(authClient.queryMe({}));
+				await authClient.ensureAccessToken();
+				const res = await queryClient.fetchQuery(profileClient.get({}));
+				console.log(res);
 				store.set("auth", res);
+				onSuccess?.();
 			} catch {
-				await navigate(routes.login);
+				onError?.();
 			} finally {
 				setIsPending(false);
 			}
 		}
 
 		void init();
-	}, [queryClient, authClient, store, navigate]);
+		// oxlint-disable-next-line eslint-plugin-react-hooks/exhaustive-deps
+	}, []);
 
 	return { isPending };
 }

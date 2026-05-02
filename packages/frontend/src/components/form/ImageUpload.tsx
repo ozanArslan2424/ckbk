@@ -1,7 +1,7 @@
 import { ImagePlusIcon } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 
-import { useCommonLocale } from "@/hooks/useCommonLocale";
+import { useCommonLocale } from "@/locale/useCommonLocale";
 
 type ImageUploadProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "value"> & {
 	image?: string | File | null;

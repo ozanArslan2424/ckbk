@@ -8,12 +8,17 @@
 		"fm": "oxfmt --write",
 		"lint": "oxlint --fix",
 		"dev": "concurrently 'bun run --cwd=./packages/frontend dev' 'bun run --cwd=./packages/backend dev'",
-		"api:gen": "bun --cwd=./packages/backend api:gen"
+		"api:gen": "bun --cwd=./packages/backend api:gen",
+		"db:mig": "bun --cwd=./packages/backend db:mig",
+		"db:push": "bun --cwd=./packages/backend db:push",
+		"db:gen": "bun --cwd=./packages/backend db:gen",
+		"db:studio": "bun --cwd=./packages/backend db:studio",
+		"db:reset": "bun --cwd=./packages/backend db:reset"
 	},
 	"devDependencies": {
 		"@types/bun": "latest",
-		"oxfmt": "^0.46.0",
-		"oxlint": "^1.61.0"
+		"oxfmt": "^0.47.0",
+		"oxlint": "^1.62.0"
 	},
 	"peerDependencies": {
 		"typescript": "^5"

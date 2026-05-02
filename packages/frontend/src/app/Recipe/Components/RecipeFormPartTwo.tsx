@@ -5,9 +5,9 @@ import { IngredientFormField } from "@/app/Recipe/Components/IngredientFormField
 import { useCardDeckContext } from "@/components/cards/CardDeck";
 import { FormCard } from "@/components/form/FormCard";
 import { Tooltip } from "@/components/ui/tooltip";
-import { useCommonLocale } from "@/hooks/useCommonLocale";
-import { useLocale } from "@/hooks/useLocale";
 import { repeat } from "@/lib/utils";
+import { useCommonLocale } from "@/locale/useCommonLocale";
+import { useLocale } from "@/locale/useLocale";
 
 type IngredientFormProps = {
 	form: ReturnType<typeof useCookbookForm>;

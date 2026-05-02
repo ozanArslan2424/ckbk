@@ -1,5 +1,6 @@
 import { C } from "@ozanarslan/corpus";
 
+import { ProfileService } from "@/Profile/ProfileService";
 import { RecipeModel } from "@/Recipe/RecipeModel";
 import type { RecipeService } from "@/Recipe/RecipeService";
 
@@ -9,9 +10,7 @@ export class RecipeController extends C.Controller {
 	}
 	override prefix?: string | undefined = "/recipe";
 	override beforeEach?: C.MiddlewareHandler | undefined = (c) => {
-		if (!c.data.profile) {
-			throw new C.Exception("Unauthorized", C.Status.UNAUTHORIZED);
-		}
+		ProfileService.assertProfile(c.data.profile);
 	};
 
 	create = this.route(

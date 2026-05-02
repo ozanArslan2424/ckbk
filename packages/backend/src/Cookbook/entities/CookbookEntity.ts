@@ -1,8 +1,8 @@
 import { C } from "@ozanarslan/corpus";
 
-import { IngredientEntity } from "@/Ingredient/IngredientEntity";
-import { RecipeEntity } from "@/Recipe/RecipeEntity";
-import { StepEntity } from "@/Step/StepEntity";
+import { IngredientEntity } from "@/Ingredient/entities/IngredientEntity";
+import { RecipeEntity } from "@/Recipe/entities/RecipeEntity";
+import { StepEntity } from "@/Step/entities/StepEntity";
 
 export class CookbookEntity extends C.Entity({
 	name: "Cookbook",

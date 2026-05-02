@@ -1,10 +1,10 @@
 import { useAppContext } from "@/app/AppContext";
 import { Modal } from "@/components/modals/Modal";
 import { useDate } from "@/hooks/useDate";
-import { useLocale } from "@/hooks/useLocale";
 import type { ModalState } from "@/hooks/useModal";
 import type { Entities } from "@/lib/CorpusApi";
 import type { Events } from "@/lib/Events";
+import { useLocale } from "@/locale/useLocale";
 
 type RecipeDetailsModalProps = {
 	modal: ModalState<Entities.Cookbook>;

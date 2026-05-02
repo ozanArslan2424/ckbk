@@ -2,6 +2,7 @@ model Recipe {
     id        Int      @id @default(autoincrement())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+    language  String
 
     title       String
     description String
@@ -31,6 +32,7 @@ model Step {
     id        Int      @id @default(autoincrement())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+    language  String
 
     order Int
     body  String
@@ -45,6 +47,7 @@ model Ingredient {
     id        Int      @id @default(autoincrement())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+    language  String
 
     quantity    Float
     recipe      Recipe?     @relation(fields: [recipeId], references: [id])
@@ -63,6 +66,7 @@ model Material {
     id        Int      @id @default(autoincrement())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+    language  String
 
     title       String
     description String?
@@ -76,6 +80,7 @@ model Measurement {
     id        Int      @id @default(autoincrement())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+    language  String
 
     title       String
     description String?

@@ -2,17 +2,14 @@ import type { Prisma } from "prisma/generated/browser";
 
 import { PaginatedData } from "@/Base/PaginatedData";
 import type { DatabaseClient } from "@/Database/DatabaseClient";
-import type { ProfileEntity } from "@/Profile/ProfileEntity";
-import { RecipeEntity } from "@/Recipe/RecipeEntity";
+import type { ProfileEntity } from "@/Profile/entities/ProfileEntity";
+import { RecipeEntity } from "@/Recipe/entities/RecipeEntity";
 import type { RecipeType } from "@/Recipe/RecipeModel";
 
 export class RecipeService {
 	constructor(private readonly db: DatabaseClient) {}
 
-	async create(
-		body: RecipeType["create"]["body"],
-		profile: ProfileEntity,
-	): Promise<RecipeType["create"]["response"]> {
+	async create(body: RecipeType["create"]["body"], profile: ProfileEntity) {
 		let image;
 
 		if (body.image) {
@@ -27,6 +24,7 @@ export class RecipeService {
 				profileId: profile.id,
 				isPublic: body.isPublic,
 				image,
+				language: profile.language,
 			},
 		});
 
@@ -37,7 +35,7 @@ export class RecipeService {
 		params: RecipeType["update"]["params"],
 		body: RecipeType["update"]["body"],
 		profile: ProfileEntity,
-	): Promise<RecipeType["update"]["response"]> {
+	) {
 		const data: Prisma.RecipeUpdateArgs["data"] = {};
 
 		if (body.title) data.title = body.title;
@@ -47,32 +45,6 @@ export class RecipeService {
 		if (body.image) {
 			const base64 = Buffer.from(await body.image.arrayBuffer()).toString("base64");
 			data.image = `data:${body.image.type};base64,${base64}`;
-		}
-
-		if (body.deletedIngredientIds?.length) {
-			data.ingredients ??= {};
-			data.ingredients.deleteMany = this.db.whereIn("id", body.deletedIngredientIds);
-		}
-
-		if (body.newIngredients?.length) {
-			data.ingredients ??= {};
-			data.ingredients.connectOrCreate = body.newIngredients.map((it) => ({
-				where: { recipeId_materialId: { recipeId: params.id, materialId: it.materialId } },
-				create: it,
-			}));
-		}
-
-		if (body.updatedSteps?.length) {
-			data.steps ??= {};
-			data.steps.updateMany = body.updatedSteps.map((step) => ({
-				where: { id: step.id },
-				data: { body: step.body, order: step.order },
-			}));
-		}
-
-		if (body.newSteps?.length) {
-			data.steps ??= {};
-			data.steps.create = body.newSteps.map((it) => it);
 		}
 
 		const recipe = await this.db.recipe.update({
@@ -88,16 +60,13 @@ export class RecipeService {
 		});
 	}
 
-	async list(
-		search: RecipeType["list"]["search"],
-		profile: ProfileEntity,
-	): Promise<RecipeType["list"]["response"]> {
+	async list(search: RecipeType["list"]["search"], profile: ProfileEntity) {
 		const page = search.page ?? 1;
 		const limit = search.limit ?? 10;
 
 		const [recipes, count] = await this.db.$transaction(async (tx) => {
 			const { skip, take } = this.db.convertToSkipTake(search.page ?? 1, search.limit ?? 10);
-			const where = this.buildListWhere(search, profile.id);
+			const where = this.buildListWhere(search, profile);
 			const orderBy = this.buildListOrderBy(search);
 
 			const recipesPromise = tx.recipe.findMany({
@@ -123,10 +92,7 @@ export class RecipeService {
 		);
 	}
 
-	async listPopular(
-		search: RecipeType["listPopular"]["search"],
-		profile: ProfileEntity,
-	): Promise<RecipeType["listPopular"]["response"]> {
+	async listPopular(search: RecipeType["listPopular"]["search"], profile: ProfileEntity) {
 		const { skip, take } = this.db.convertToSkipTake(search.page ?? 1, search.limit ?? 10);
 		const lastMonth = new Date();
 		lastMonth.setMonth(lastMonth.getMonth() - 1);
@@ -147,10 +113,7 @@ export class RecipeService {
 		}));
 	}
 
-	async like(
-		body: RecipeType["like"]["body"],
-		profile: ProfileEntity,
-	): Promise<RecipeType["like"]["response"]> {
+	async like(body: RecipeType["like"]["body"], profile: ProfileEntity) {
 		const likesWhere = { recipeId_profileId: { recipeId: body.id, profileId: profile.id } };
 
 		if (body.isLiked) {
@@ -169,15 +132,17 @@ export class RecipeService {
 		return { id: body.id };
 	}
 
-	private buildListWhere(filters: RecipeType["list"]["search"], profileId: ProfileEntity["id"]) {
-		const where: Prisma.RecipeFindManyArgs["where"] = {};
+	private buildListWhere(filters: RecipeType["list"]["search"], profile: ProfileEntity) {
+		const where: Prisma.RecipeFindManyArgs["where"] = {
+			language: profile.language,
+		};
 
 		if (filters.owner === "me") {
-			where.profileId = profileId;
+			where.profileId = profile.id;
 		} else if (filters.owner === "others") {
-			where.profileId = { not: profileId };
+			where.profileId = { not: profile.id };
 		} else {
-			this.db.whereAnd(where, { OR: [{ profileId: profileId }, { isPublic: true }] });
+			this.db.whereAnd(where, { OR: [{ profileId: profile.id }, { isPublic: true }] });
 		}
 
 		if (filters.materialIds && filters.materialIds.length > 0) {
@@ -194,6 +159,10 @@ export class RecipeService {
 					{ description: { contains: filters.search } },
 				],
 			});
+		}
+
+		if (filters.isLiked) {
+			this.db.whereAnd(where, { likes: { some: { profileId: profile.id } } });
 		}
 
 		return where;

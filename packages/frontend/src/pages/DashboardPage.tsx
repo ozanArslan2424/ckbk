@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 
 import { useAppContext } from "@/app/AppContext";
-import { Sidebar } from "@/app/Components/Sidebar";
+import { Sidebar } from "@/app/Profile/Components/Sidebar";
 import { RecipeCreateModal } from "@/app/Recipe/Components/RecipeCreateModal";
 import { RecipeDetailsModal } from "@/app/Recipe/Components/RecipeDetailsModal";
 import { RecipeGrid } from "@/app/Recipe/Components/RecipeGrid";
@@ -9,20 +9,26 @@ import { RecipeListFilters } from "@/app/Recipe/Components/RecipeListFilters";
 import { RecipeUpdateModal } from "@/app/Recipe/Components/RecipeUpdateModal";
 import { useRecipeGetArgs } from "@/app/Recipe/useRecipeGetArgs";
 import { PageContent } from "@/components/layout/PageContent";
-import { useLocale } from "@/hooks/useLocale";
 import { useModal } from "@/hooks/useModal";
 import type { Args, Entities } from "@/lib/CorpusApi";
 import { Events } from "@/lib/Events";
+import { useLocale } from "@/locale/useLocale";
 
 export function DashboardPage() {
-	const { queryClient, cookbookClient, recipeClient } = useAppContext();
+	const { queryClient, cookbookClient, recipeClient, profileClient } = useAppContext();
 	const { recipeGetArgs, updateSearchParams } = useRecipeGetArgs();
 	const { txt } = useLocale("dashboard", {
 		title: recipeGetArgs.search.owner === "me" ? ["yourRecipes"] : ["recentRecipes"],
 	});
 
 	const query = useInfiniteQuery(recipeClient.list(recipeGetArgs));
-	const likeMut = useMutation(recipeClient.like(recipeGetArgs, {}));
+	const likeMut = useMutation(
+		recipeClient.like(recipeGetArgs, {
+			onMutate: (vars) => {
+				profileClient.updateLikeCount(vars.body?.isLiked ? "increase" : "decrease");
+			},
+		}),
+	);
 
 	const createModal = useModal();
 	const detailsModal = useModal<Entities.Cookbook>();
@@ -48,6 +54,9 @@ export function DashboardPage() {
 		updateSearchParams({ owner: value });
 	};
 
+	const handleChangeIsLiked = (value: Args.RecipeGet["search"]["isLiked"]) => {
+		updateSearchParams({ isLiked: value });
+	};
 	const onClickViewFactory = Events.click<[Entities.Recipe], HTMLDivElement>(async (_, recipe) => {
 		const params = { id: recipe.id };
 		const entry = await queryClient.ensureQueryData(cookbookClient.get({ params }));
@@ -84,6 +93,7 @@ export function DashboardPage() {
 						onChangeSortOrder={handleChangeSortOrder}
 						onChangeSearch={handleChangeSearch}
 						onChangeOwner={handleChangeOwner}
+						onChangeIsLiked={handleChangeIsLiked}
 					/>
 
 					<div className="h-1" />

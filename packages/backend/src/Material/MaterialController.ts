@@ -2,6 +2,7 @@ import { C } from "@ozanarslan/corpus";
 
 import { MaterialModel } from "@/Material/MaterialModel";
 import type { MaterialService } from "@/Material/MaterialService";
+import { ProfileService } from "@/Profile/ProfileService";
 
 export class MaterialController extends C.Controller {
 	constructor(private readonly service: MaterialService) {
@@ -9,16 +10,21 @@ export class MaterialController extends C.Controller {
 	}
 
 	override prefix?: string | undefined = "/material";
+	override beforeEach?: C.MiddlewareHandler = (c) => {
+		ProfileService.assertProfile(c.data.profile);
+	};
 
 	create = this.route(
 		{ method: "POST", path: "/" },
-		async (c) => this.service.create(c.body),
+		async (c) => {
+			return await this.service.create(c.body, c.data.profile!);
+		},
 		MaterialModel.create,
 	);
 
 	list = this.route(
 		{ method: "GET", path: "/" },
-		async () => this.service.list(),
+		async (c) => this.service.list(c.data.profile!),
 		MaterialModel.list,
 	);
 }

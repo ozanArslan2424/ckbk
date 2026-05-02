@@ -4,6 +4,7 @@ import { useCallback, useMemo, useRef, useState, useTransition } from "react";
 import type { FormFieldProps } from "@/components/form/FormField";
 import type { Help } from "@/lib/Help";
 import { Schema } from "@/lib/Schema";
+import { getErrorMessage } from "@/lib/utils";
 
 type TFormErrors<T> = Record<keyof T | "_root", string[] | undefined>;
 
@@ -33,7 +34,7 @@ export type UseFormReturn<T> = {
 	methods: FormMethods;
 	defaultValues: Partial<T> | undefined;
 	errors: TFormErrors<T>;
-	setRootError: (rootError: string | Array<string>) => void;
+	setRootError: (rootError: Error | string | Array<string>) => void;
 	reset: () => void;
 	isPending: boolean;
 };
@@ -97,10 +98,10 @@ export function useForm<T>(args: UseFormArgs<T>): UseFormReturn<T> & {
 		setErrors(emptyErrors);
 	}, []);
 
-	const setRootError = useCallback((rootError: string | Array<string>) => {
+	const setRootError = useCallback((err: Error | string | Array<string>) => {
 		setErrors((prev) => ({
 			...prev,
-			_root: Array.isArray(rootError) ? rootError : [rootError],
+			_root: err instanceof Error ? [getErrorMessage(err)] : Array.isArray(err) ? err : [err],
 		}));
 	}, []);
 

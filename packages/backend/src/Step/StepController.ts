@@ -1,5 +1,6 @@
-import { C, type ContextDataInterface } from "@ozanarslan/corpus";
+import { C } from "@ozanarslan/corpus";
 
+import { ProfileService } from "@/Profile/ProfileService";
 import { StepModel } from "@/Step/StepModel";
 import type { StepService } from "@/Step/StepService";
 
@@ -10,16 +11,10 @@ export class StepController extends C.Controller {
 
 	override prefix?: string | undefined = "/step";
 
-	private guard(profile: ContextDataInterface["profile"]): asserts profile {
-		if (!profile) {
-			throw new C.Exception("Unauthorized", C.Status.UNAUTHORIZED);
-		}
-	}
-
 	create = this.route(
 		{ method: "POST", path: "/" },
 		async (c) => {
-			this.guard(c.data.profile);
+			ProfileService.assertProfile(c.data.profile);
 			return this.service.create(c.body, c.data.profile);
 		},
 		StepModel.create,
@@ -28,7 +23,7 @@ export class StepController extends C.Controller {
 	update = this.route(
 		{ method: "PUT", path: "/:id" },
 		async (c) => {
-			this.guard(c.data.profile);
+			ProfileService.assertProfile(c.data.profile);
 			return this.service.update(c.params, c.body, c.data.profile);
 		},
 		StepModel.update,
@@ -37,7 +32,7 @@ export class StepController extends C.Controller {
 	listByRecipe = this.route(
 		"/by-recipe/:id",
 		async (c) => {
-			this.guard(c.data.profile);
+			ProfileService.assertProfile(c.data.profile);
 			return this.service.listByRecipe(c.params.id);
 		},
 		StepModel.listByRecipe,

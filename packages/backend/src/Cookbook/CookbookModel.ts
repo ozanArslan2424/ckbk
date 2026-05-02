@@ -1,36 +1,40 @@
 import type { X } from "@ozanarslan/corpus";
 import { type } from "arktype";
 
-import { CookbookEntity } from "@/Cookbook/CookbookEntity";
+import { CookbookEntity } from "@/Cookbook/entities/CookbookEntity";
 
 export type CookbookType = X.InferModel<typeof CookbookModel>;
 
 export class CookbookModel {
-	static get = {
+	static readonly get = {
 		params: type({ id: "number" }),
 		response: CookbookEntity.schema,
 	};
 
-	static create = {
+	private static readonly ingredientCreate = type({
+		quantity: "number",
+		materialId: "number",
+		measurementId: "number",
+	});
+
+	private static readonly stepCreate = type({
+		order: "number",
+		body: "string",
+	});
+
+	static readonly create = {
 		body: type({
 			title: "string > 5",
 			description: "string",
 			isPublic: "boolean",
 			"image?": "File",
-			ingredients: type({
-				quantity: "number",
-				materialId: "number",
-				measurementId: "number",
-			}).array(),
-			steps: type({
-				order: "number",
-				body: "string",
-			}).array(),
+			ingredients: this.ingredientCreate.array(),
+			steps: this.stepCreate.array(),
 		}),
 		response: CookbookEntity.schema,
 	};
 
-	static update = {
+	static readonly update = {
 		params: type({ id: "number" }),
 		body: type({
 			"title?": "string > 5",
@@ -38,20 +42,9 @@ export class CookbookModel {
 			"isPublic?": "boolean",
 			"image?": "File",
 			"deletedIngredientIds?": "number[]",
-			"newIngredients?": type({
-				quantity: "number",
-				materialId: "number",
-				measurementId: "number",
-			}).array(),
-			"updatedSteps?": type({
-				id: "number",
-				order: "number",
-				body: "string",
-			}).array(),
-			"newSteps?": type({
-				order: "number",
-				body: "string",
-			}).array(),
+			"newIngredients?": this.ingredientCreate.array(),
+			"updatedSteps?": this.stepCreate.and({ id: "number" }).array(),
+			"newSteps?": this.stepCreate.array(),
 		}),
 		response: CookbookEntity.schema,
 	};

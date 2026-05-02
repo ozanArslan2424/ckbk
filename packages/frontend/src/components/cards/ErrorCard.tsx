@@ -1,7 +1,7 @@
 import { AlertTriangleIcon } from "lucide-react";
 import { Link } from "react-router";
 
-import { useCommonLocale } from "@/hooks/useCommonLocale";
+import { useCommonLocale } from "@/locale/useCommonLocale";
 import { routes } from "@/router";
 
 export function ErrorCard({ error }: { error: Error | null | string }) {

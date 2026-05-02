@@ -1,23 +1,23 @@
 import { X } from "@ozanarslan/corpus";
 import { type } from "arktype";
 
-import { StepEntity } from "@/Step/StepEntity";
+import { StepEntity } from "@/Step/entities/StepEntity";
 
 export type StepType = X.InferModel<typeof StepModel>;
 
 export class StepModel {
-	static create = {
+	static readonly create = {
 		body: StepEntity.schema.pick("body", "order", "recipeId"),
 		response: StepEntity.schema,
 	};
 
-	static update = {
+	static readonly update = {
 		params: type({ id: "number" }),
-		body: this.create.body.partial(),
+		body: StepEntity.schema.pick("body", "order").partial().and(StepEntity.schema.pick("recipeId")),
 		response: StepEntity.schema,
 	};
 
-	static listByRecipe = {
+	static readonly listByRecipe = {
 		params: type({ id: "number" }),
 		response: StepEntity.schema.array(),
 	};

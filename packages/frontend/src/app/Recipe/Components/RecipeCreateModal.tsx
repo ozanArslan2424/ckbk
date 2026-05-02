@@ -1,8 +1,8 @@
 import { useCookbookForm } from "@/app/Cookbook/useCookbookForm";
 import { CardDeck } from "@/components/cards/CardDeck";
 import { Modal } from "@/components/modals/Modal";
-import { useLocale } from "@/hooks/useLocale";
 import type { ModalState } from "@/hooks/useModal";
+import { useLocale } from "@/locale/useLocale";
 
 import { RecipeFormPartOne } from "./RecipeFormPartOne";
 import { RecipeFormPartThree } from "./RecipeFormPartThree";

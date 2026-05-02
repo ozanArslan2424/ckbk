@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Loader2Icon, SunIcon, MoonIcon, GlobeIcon } from "lucide-react";
+import { useEffect } from "react";
 import { Link } from "react-router";
 
 import { useAppContext } from "@/app/AppContext";
@@ -10,21 +11,27 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useCommonLocale } from "@/hooks/useCommonLocale";
-import { useLocale } from "@/hooks/useLocale";
 import { useTheme } from "@/hooks/useTheme";
 import { CONFIG } from "@/lib/CONFIG";
 import { Events } from "@/lib/Events";
-import { LANG_OPTIONS } from "@/locale/Locale";
+import { LOCALE_OPTIONS } from "@/locale/Locale";
+import { useCommonLocale } from "@/locale/useCommonLocale";
+import { useLocale } from "@/locale/useLocale";
 import { routes } from "@/router";
 
 export function AppHeader() {
-	const { authClient } = useAppContext();
+	const { authClient, profileClient } = useAppContext();
 	const { changeLanguage } = useLocale();
 	const { t, txt } = useCommonLocale();
 	const { theme, toggleTheme } = useTheme();
-	const meQuery = useQuery(authClient.queryMe({}));
+	const meQuery = useQuery(profileClient.get({}));
 	const logoutMut = useMutation(authClient.logout());
+
+	useEffect(() => {
+		console.log(meQuery.data);
+		console.log(meQuery.isPending);
+		console.log(meQuery.error);
+	}, [meQuery.isPending, meQuery.data, meQuery.error]);
 
 	const onLogoutFactory = Events.click<[], HTMLDivElement>((e) => {
 		e.preventDefault();
@@ -58,7 +65,7 @@ export function AppHeader() {
 						</button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent side="bottom" align="end">
-						{LANG_OPTIONS.map((lang) => (
+						{LOCALE_OPTIONS.map((lang) => (
 							<DropdownMenuItem key={lang} onClick={() => changeLanguage(lang)}>
 								{t(`languages.${lang}`)}
 							</DropdownMenuItem>
